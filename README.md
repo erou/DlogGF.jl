@@ -1,5 +1,7 @@
 # FastArithmetic
 
+[![Build Status](https://travis-ci.org/edouardRousseau/DlogGF.jl.svg?branch=master)](https://travis-ci.org/edouardRousseau/DlogGF.jl)
+
 A [Nemo](http://nemocas.org/)/[Julia](http://julialang.org/) library containing algorithms for computing discrete logarithm in finite fields.
 
 Internship work at the University of Waterloo, under the supervision of [Eric
