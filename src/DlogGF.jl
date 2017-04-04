@@ -145,7 +145,7 @@ function isSmooth(P::PolyElem, D::Int)
     return true
 end
 
-println("DlogGF is an experimental library with no warranty.")
+println("DlogGF is an experimental library with no warranty.\n")
 
 # End of module
 end
