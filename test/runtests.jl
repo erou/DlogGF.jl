@@ -1,7 +1,5 @@
 using Nemo, DlogGF, Base.Test
 
-print(1)
-
 function testRandomSuite()
     print("randomElem, randomList, randomPolynomial... ")
 
@@ -40,6 +38,8 @@ function testSmsrField()
 
     println("PASS")
 end
+
+println(1)
 
 function testPglUnperfect()
     print("pglUnperfect... ")
