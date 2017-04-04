@@ -2,6 +2,7 @@ module DlogGF
 
 using Nemo
 
+export SmsrField
 type SmsrField
     charachteristic::Integer
     extensionDegree::Integer
@@ -14,12 +15,14 @@ type SmsrField
     BigField::Nemo.Ring
 end
 
+export randomElem
 function randomElem(ring::Nemo.Ring)
     x = gen(ring)
     c::Int = characteristic(ring) - 1
     return ring(rand(0:c)) + rand(0:c)*x
 end
 
+export randomList
 function randomList(ring::Nemo.Ring, len::Integer)
     A = Array(ring, len)
     for i in 1:len
@@ -28,6 +31,7 @@ function randomList(ring::Nemo.Ring, len::Integer)
     return A
 end
     
+export randomPolynomial
 function randomPolynomial(polyRing::Nemo.PolyRing, degree::Integer)
     L = randomList(base_ring(polyRing), degree + 1)
     while L[degree + 1] == 0
@@ -36,6 +40,7 @@ function randomPolynomial(polyRing::Nemo.PolyRing, degree::Integer)
     return polyRing(L)
 end
 
+export smsrField
 function smsrField(q::Integer, k::Integer, deg::Integer = 1)
 
     card = BigInt(q)^(2*k)
@@ -64,6 +69,7 @@ function smsrField(q::Integer, k::Integer, deg::Integer = 1)
                      mediumSubField, gen, bigField)
 end
 
+export pglUnperfect
 function pglUnperfect(x::RingElem)
     F = parent(x)
     MS = MatrixSpace(F, 2, 2)
@@ -80,6 +86,7 @@ function pglUnperfect(x::RingElem)
     return A
 end
 
+export homogene
 function homogene{T <: PolyElem}(P::T, h0::T, h1::T)
     R = parent(P)
     q = characteristic(base_ring(R))
@@ -91,6 +98,7 @@ function homogene{T <: PolyElem}(P::T, h0::T, h1::T)
     return H
 end
 
+export makeEquation
 function makeEquation{T <: RingElem, Y <: PolyElem}(m::Nemo.GenMat{T},
                                                     P::Y, h0::Y, h1::Y)
     a, b, c, d = m[1, 1], m[1, 2], m[2, 1], m[2, 2]
