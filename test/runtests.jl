@@ -1,5 +1,7 @@
 using Nemo, DlogGF, Base.Test
 
+print(1)
+
 function testRandomSuite()
     print("randomElem, randomList, randomPolynomial... ")
 
@@ -19,7 +21,7 @@ function testRandomSuite()
     println("PASS")
 end
 
-function testsmsrField()
+function testSmsrField()
     print("smsrField... ")
 
     K = smsrField(5, 4)
@@ -98,7 +100,6 @@ function testAll()
     testIsSmooth()
 
     println("\nAll tests passed successfully.\n")
-
 end
 
 testAll()
