@@ -38,7 +38,6 @@ function testSmsrField()
 
     println("PASS")
 end
-
 println(1)
 
 function testPglUnperfect()
