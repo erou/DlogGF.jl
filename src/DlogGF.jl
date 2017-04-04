@@ -2,6 +2,32 @@ module DlogGF
 
 using Nemo
 
+function Base.start(::Nemo.FqNmodFiniteField)
+    return (0,0)
+end
+
+function Base.next(F::Nemo.FqNmodFiniteField, state::Tuple{Int, Int})
+    q = F.p - 1
+    if state[1] < q
+        nex = (state[1] + 1, state[2])
+    else
+        nex = (0, state[2] + 1)
+    end
+    return (state[1]+state[2]*gen(F), nex)
+end
+
+function Base.done(F::Nemo.FqNmodFiniteField, state::Tuple{Int, Int})
+    return state[2] == F.p
+end
+
+function Base.eltype(::Type{Nemo.FqNmodFiniteField})
+    return Nemo.fq_nmod
+end
+
+function Base.length(F::Nemo.FqNmodFiniteField)
+    return BigInt((F.p))^(F.mod_length - 1)
+end
+
 export SmsrField
 type SmsrField
     charachteristic::Integer
@@ -12,7 +38,7 @@ type SmsrField
     definingPolynomial::PolyElem
     mediumSubField::Nemo.Ring
     gen::RingElem
-    BigField::Nemo.Ring
+    bigField::Nemo.Ring
 end
 
 export randomElem
@@ -103,8 +129,20 @@ function makeEquation{T <: RingElem, Y <: PolyElem}(m::Nemo.GenMat{T},
                                                     P::Y, h0::Y, h1::Y)
     a, b, c, d = m[1, 1], m[1, 2], m[2, 1], m[2, 2]
     D = degree(P)
+    q = characteristic(base_ring(parent(P)))
     H = homogene(P, h0, h1)
     return ((a^q)*H + (b^q)*h1^D)*(c*P+d) - (a*P+b)*((c^q)*H + (d^q)*h1^D)
+end
+
+export isSmooth
+function isSmooth(P::PolyElem, D::Int)
+    d::Int = ceil(D/2)
+    for f in factor(P)
+        if degree(f[1]) > d
+            return false
+        end
+    end
+    return true
 end
 
 # End of module
