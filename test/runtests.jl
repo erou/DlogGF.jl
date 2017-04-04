@@ -23,7 +23,7 @@ function testAll()
 
     testRandomSuite()
 
-    println(\nAll tests passed successfully.\n)
+    println("\nAll tests passed successfully.\n")
 
 end
 
