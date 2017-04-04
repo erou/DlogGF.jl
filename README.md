@@ -1,4 +1,4 @@
-# FastArithmetic
+# DlogGF
 
 [![Build Status](https://travis-ci.org/edouardRousseau/DlogGF.jl.svg?branch=master)](https://travis-ci.org/edouardRousseau/DlogGF.jl)
 
@@ -11,6 +11,6 @@ Schost](https://cs.uwaterloo.ca/~eschost/) and [Luca De Feo](http://defeo.lu/).
 
 The package can be installed using
 
-		Pkg.clone("https://github.com/edouardRousseau/DlogGF.jl")
+		Pkg.clone("https://github.com/erou/DlogGF.jl")
 
  in julia.
