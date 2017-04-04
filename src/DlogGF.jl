@@ -30,7 +30,7 @@ end
 
 export SmsrField
 type SmsrField
-    charachteristic::Integer
+    characteristic::Integer
     extensionDegree::Integer
     cardinality::Integer
     h0::PolyElem

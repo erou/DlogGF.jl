@@ -34,7 +34,7 @@ function testSmsrField()
 
     @test base_ring(base_ring(K.bigField)) == K.mediumSubField
 
-    @test characteristic K.mediumSubField == K.characteristic
+    @test characteristic(K.mediumSubField) == K.characteristic
 
     println("PASS")
 end
@@ -62,7 +62,7 @@ function testHomogeneEq()
 
     @test homogene(T - 2, T^2, T^3) == T^2 - 2*T^3
 
-    @test homogene(R(x), T^2, T^3) = x^characteristic(F)
+    @test homogene(R(x), T^2, T^3) == x^characteristic(F)
 
     P = T^3 + (x+1)*T^2 +4*x*T+3
 
