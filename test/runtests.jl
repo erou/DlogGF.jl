@@ -83,18 +83,18 @@ function testFactorsList()
     L = factorsList(T)
 
     @test typeof(L) == DlogGF.FactorsList
-    @test L.factors = [T]
-    @test L.coefs = [1]
+    @test L.factors == [T]
+    @test L.coefs == [1]
 
     push!(L, T^2, 2)
 
-    @test L.factors = [T, T^2]
-    @test L.coefs = [1, 2]
+    @test L.factors == [T, T^2]
+    @test L.coefs == [1, 2]
 
     push!(L, T, 3)
 
-    @test L.factors = [T, T^2]
-    @test L.coefs = [4, 2]
+    @test L.factors == [T, T^2]
+    @test L.coefs == [4, 2]
 
     println("PASS")
 end
