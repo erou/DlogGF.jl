@@ -2,6 +2,8 @@ module DlogGF
 
 using Nemo
 
+# Iterator over medium subfields (of type F_q²)
+
 function Base.start(::Nemo.FqNmodFiniteField)
     return (0,0)
 end
@@ -28,18 +30,7 @@ function Base.length(F::Nemo.FqNmodFiniteField)
     return BigInt((F.p))^(F.mod_length - 1)
 end
 
-export SmsrField
-type SmsrField
-    characteristic::Integer
-    extensionDegree::Integer
-    cardinality::Integer
-    h0::PolyElem
-    h1::PolyElem
-    definingPolynomial::PolyElem
-    mediumSubField::Nemo.Ring
-    gen::RingElem
-    bigField::Nemo.Ring
-end
+# Random suite
 
 export randomElem
 function randomElem(ring::Nemo.Ring)
@@ -64,6 +55,21 @@ function randomPolynomial(polyRing::Nemo.PolyRing, degree::Integer)
         L = randomList(base_ring(polyRing), degree + 1)
     end
     return polyRing(L)
+end
+
+# Composite types
+
+export SmsrField
+immutable SmsrField
+    charachteristic::Integer
+    extensionDegree::Integer
+    cardinality::Integer
+    h0::PolyElem
+    h1::PolyElem
+    definingPolynomial::PolyElem
+    mediumSubField::Nemo.Ring
+    gen::RingElem
+    bigField::Nemo.Ring
 end
 
 export smsrField
@@ -93,6 +99,27 @@ function smsrField(q::Integer, k::Integer, deg::Integer = 1)
 
     return SmsrField(q, k, card, h0, h1, definingPolynomial,
                      mediumSubField, gen, bigField)
+end
+
+# Not sure what I should do with types in the arrays...
+type FactorsList
+    factors::Array{Nemo.fq_nmod_poly, 1}
+    coefs::Array{Int, 1}
+    unit::Nemo.fq_nmod
+end
+
+function factorsList(P::Nemo.fq_nmod_poly)
+    return FactorsList([P], [1], base_ring(parent(P))(1))
+end
+
+function Base.push!(L::FactorsList, P::Nemo.fq_nmod_poly, coef::Int)
+    i = findfirst(L.factors, P)
+    if i != 0
+        L.coefs[i] += coef
+    else
+        push!(L.factors, P)
+        push!(L.coefs, coef)
+    end
 end
 
 export pglUnperfect
@@ -144,8 +171,6 @@ function isSmooth(P::PolyElem, D::Int)
     end
     return true
 end
-
-println("DlogGF is an experimental library with no warranty.\n")
 
 # End of module
 end
