@@ -206,6 +206,15 @@ end
 # Some functions
 
 export pglUnperfect
+"""
+    pglUnperfect(x::RingElem)
+
+Construct an `Array` contaning matrices.
+
+This matrices are representants of equivalences classes. There should at be at
+most one matrix per class, but it is not the case here, that is why it is
+called *unperfect*.
+"""
 function pglUnperfect(x::RingElem)
     F = parent(x)
     MS = MatrixSpace(F, 2, 2)
