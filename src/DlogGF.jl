@@ -124,6 +124,13 @@ function Base.push!(L::FactorsList, P::Nemo.fq_nmod_poly, coef::Int)
     end
 end
 
+function Base.deleteat!(L::FactorsList, i::Int)
+    deleteat!(L.factors, i)
+    deleteat!(L.coefs, i)
+end
+
+# Some functions
+
 export pglUnperfect
 function pglUnperfect(x::RingElem)
     F = parent(x)

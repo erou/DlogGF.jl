@@ -96,6 +96,11 @@ function testFactorsList()
     @test L.factors == [T, T^2]
     @test L.coefs == [4, 2]
 
+    deleteat!(L, 1)
+
+    @test L.factors == [T^2]
+    @test L.coefs == [2]
+
     println("PASS")
 end
 
