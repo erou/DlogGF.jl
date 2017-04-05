@@ -211,7 +211,7 @@ export pglUnperfect
 
 Construct an `Array` contaning matrices.
 
-This matrices are representants of equivalences classes. There should at be at
+This matrices are representants of equivalence classes. There should at be at
 most one matrix per class, but it is not the case here, that is why it is
 called *unperfect*.
 """
