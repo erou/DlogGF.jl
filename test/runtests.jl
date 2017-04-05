@@ -106,7 +106,7 @@ function testAll()
     testPglUnperfect()
     testHomogeneEq()
     testIsSmooth()
-    testFactorList()
+    testFactorsList()
 
     println("\nAll tests passed successfully.\n")
 end
