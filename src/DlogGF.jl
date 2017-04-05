@@ -61,7 +61,7 @@ end
 
 export SmsrField
 immutable SmsrField
-    charachteristic::Integer
+    characteristic::Integer
     extensionDegree::Integer
     cardinality::Integer
     h0::PolyElem
@@ -102,12 +102,14 @@ function smsrField(q::Integer, k::Integer, deg::Integer = 1)
 end
 
 # Not sure what I should do with types in the arrays...
+export FactorList
 type FactorsList
     factors::Array{Nemo.fq_nmod_poly, 1}
     coefs::Array{Int, 1}
     unit::Nemo.fq_nmod
 end
 
+export factorsList
 function factorsList(P::Nemo.fq_nmod_poly)
     return FactorsList([P], [1], base_ring(parent(P))(1))
 end
