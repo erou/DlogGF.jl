@@ -1,3 +1,9 @@
+"""
+# DlogGF
+
+A library containing algorithms for computing discrete logarithm in finite
+field.
+"""
 module DlogGF
 
 using Nemo
@@ -33,6 +39,11 @@ end
 # Random suite
 
 export randomElem
+"""
+    randomElem(ring::Nemo.Ring)
+
+Return an random element in `ring`.
+"""
 function randomElem(ring::Nemo.Ring)
     x = gen(ring)
     c::Int = characteristic(ring) - 1
@@ -40,6 +51,11 @@ function randomElem(ring::Nemo.Ring)
 end
 
 export randomList
+"""
+    randomList(ring::Nemo.Ring, len::Integer)
+
+Return an `Array` of length `len` with random elements in `ring`.
+"""
 function randomList(ring::Nemo.Ring, len::Integer)
     A = Array(ring, len)
     for i in 1:len
@@ -49,6 +65,11 @@ function randomList(ring::Nemo.Ring, len::Integer)
 end
     
 export randomPolynomial
+"""
+    randomPolynomial(polyRing::Nemo.PolyRing, degree::Integer)
+
+Return a random polynomial of degree `degree` in the ring `polyRing`.
+"""
 function randomPolynomial(polyRing::Nemo.PolyRing, degree::Integer)
     L = randomList(base_ring(polyRing), degree + 1)
     while L[degree + 1] == 0
@@ -60,6 +81,21 @@ end
 # Composite types
 
 export SmsrField
+"""
+    SmsrField
+
+Sparse medium subfield representation of a field of the form ``\\mathbb
+F_{q^{2k}}``.
+
+This should never be called as a constructor, due to the number of the fields.
+To create such a representation, see `smsrField`.
+
+# Fields
+
+* `h0` and `h1` are polynomials such that `h1*X^q-h0` has a degree `k`
+  irreducible factor, named `definingPolynomial`
+* `gen` is a generator of the inversible elements of the field
+"""
 immutable SmsrField
     characteristic::Integer
     extensionDegree::Integer
@@ -73,6 +109,11 @@ immutable SmsrField
 end
 
 export smsrField
+"""
+    smsrField(q::Integer, k::Integer, deg::Integer = 1)
+
+Construct a field of type `SmsrField`.
+"""
 function smsrField(q::Integer, k::Integer, deg::Integer = 1)
 
     card = BigInt(q)^(2*k)
@@ -103,6 +144,11 @@ end
 
 # Not sure what I should do with types in the arrays...
 export FactorList
+"""
+    FactorsList
+
+Represent a factorisation.
+"""
 type FactorsList
     factors::Array{Nemo.fq_nmod_poly, 1}
     coefs::Array{Int, 1}
@@ -110,6 +156,11 @@ type FactorsList
 end
 
 export factorsList
+"""
+   factorsList(P::Nemo.fq_nmod_poly)
+
+Construct an element of type `FactorsList`.
+"""
 function factorsList(P::Nemo.fq_nmod_poly)
     return FactorsList([P], [1], base_ring(parent(P))(1))
 end
