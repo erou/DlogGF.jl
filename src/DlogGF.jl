@@ -3,6 +3,11 @@
 
 A library containing algorithms for computing discrete logarithm in finite
 field.
+
+# References
+
+* R. Barbulescu, P. Gaudry, A. Joux and E. Thomé : A quasi-polynomial algorithm
+  for discrete logarithm in finite fields of small characteristic.
 """
 module DlogGF
 
@@ -84,17 +89,26 @@ export SmsrField
 """
     SmsrField
 
-Sparse medium subfield representation of a field of the form ``\\mathbb
+Sparse medium subfield representation of a field of the form ``K = \\mathbb
 F_{q^{2k}}``.
 
-This should never be called as a constructor, due to the number of the fields.
-To create such a representation, see `smsrField`.
+# Cautions
+
+* this should never be called as a constructor, due to the number of
+  the fields. To create such a representation, see `smsrField`
 
 # Fields
 
-* `h0` and `h1` are polynomials such that `h1*X^q-h0` has a degree `k`
-  irreducible factor, named `definingPolynomial`
-* `gen` is a generator of the inversible elements of the field
+* `characteristic::Integer` : characteristic of the field ``q``
+* `extensionDegree::Integer` : degree of the extension ``K/\\mathbb F_{q^2}``
+* `cardinality::Integer` : cardinality of the field
+* `h0::PolyElem` and `h1::PolyElem` are polynomials such that ``h1*X^q-h0`` has
+  a degree ``k`` irreducible factor, named `definingPolynomial::PolyElem`
+* `mediumSubField::Nemo.Ring : the field ``\\mathbb F_{q^2}``
+* `gen::RingElem` is a generator of the group of the inversible elements of the
+  field, it is actually taken at random *without* checking that it is indeed a
+  generator
+* `bigField::Nemo.Ring` : the field ``K = \\mathbb F_{q^{2k}}``
 """
 immutable SmsrField
     characteristic::Integer
@@ -112,7 +126,10 @@ export smsrField
 """
     smsrField(q::Integer, k::Integer, deg::Integer = 1)
 
-Construct a field of type `SmsrField`.
+Construct a field ``K = \\mathbb F_{q^{2k}}`` of type `SmsrField`.
+
+The polynomials `h0` and `h1` will be of degree `deg`. See `SmsrField` for more
+informations.
 """
 function smsrField(q::Integer, k::Integer, deg::Integer = 1)
 
@@ -148,6 +165,12 @@ export FactorList
     FactorsList
 
 Represent a factorisation.
+
+# Fields
+
+* `factors::Array{Nemo.fq_nmod_poly, 1}` : the polynomials of the factorisation
+* `coefs::Array{Int, 1}` : the exponents of these polynomials
+* `unit::Nemo.fq_nmod` : the unit part of the factorisation
 """
 type FactorsList
     factors::Array{Nemo.fq_nmod_poly, 1}
@@ -157,7 +180,7 @@ end
 
 export factorsList
 """
-   factorsList(P::Nemo.fq_nmod_poly)
+    factorsList(P::Nemo.fq_nmod_poly)
 
 Construct an element of type `FactorsList`.
 """
