@@ -68,8 +68,8 @@ function testIsSmooth()
     R, T = PolynomialRing(F, "T")
     P = (x)*T^20+(2*x+2)*T^19+(x+1)*T^18+(3*x)*T^17+(4*x)*T^16+(3*x+4)*T^15+(x+3)*T^14+(2*x)*T^13+(4*x)*T^12+(x+4)*T^11+(3*x+1)*T^10+(4*x+3)*T^9+(4*x+3)*T^8+(2*x)*T^7+(x)*T^6+(2*x+2)*T^5+(x)*T^4+(4*x+2)*T^3+(2*x+3)*T^2+(2)*T
 
-    @test isSmooth(P, 4) == false
-    @test isSmooth(P, 11) == true
+    @test isSmooth(P, 2) == false
+    @test isSmooth(P, 6) == true
     @test isSmooth(T, 1) == true
 
     println("PASS")
