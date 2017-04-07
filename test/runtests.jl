@@ -177,16 +177,16 @@ function testDlogSmallField()
     println("ζ")
     elem = Q(1+x)
     d = dlogSmallField(q, k, g, elem)
-    @test g^d = elem
+    @test g^d == elem
     elem = Q(x)
     d = dlogSmallField(q, k, g, elem)
-    @test g^d = elem
+    @test g^d == elem
     elem = Q(2)
     d = dlogSmallField(q, k, g, elem)
-    @test g^d = elem
+    @test g^d == elem
     elem = Q(x^2)
     d = dlogSmallField(q, k, g, elem)
-    @test g^d = elem
+    @test g^d == elem
 
     println("PASS")
 end
