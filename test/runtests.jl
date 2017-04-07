@@ -105,7 +105,7 @@ function testFactorsList()
 end
 
 function testPohligHellman()
-    print("pohligHellmanPrime... ")
+    print("pohligHellmanPrime, pohligHellman... ")
 
     K = smsrField(13, 13, 1, true)
     g = K.gen
@@ -163,6 +163,27 @@ function testIsGenerator()
     println("PASS")
 end
 
+function testDlogSmallField()
+    print("dlogSmallField... ")
+
+    K = DlogGF.smsrField(7, 7, 1, true)
+    Q = K.bigField
+    F = K.mediumSubField
+    x = gen(F)
+    g = K.gen
+    q = K.characteristic
+    k = K.extensionDegree
+
+    elem = Q(1+x)
+    d = dlogSmallField(q, k, gen, elem)
+    @test g^d = elem
+    elem = Q(x)
+    d = dlogSmallField(q, k, gen, elem)
+    @test g^d = elem
+
+    println("PASS")
+end
+
 function testAll()
 
     testRandomSuite()
@@ -172,11 +193,10 @@ function testAll()
     testIsSmooth()
     testFactorsList()
     testPohligHellman()
+    testIsGenerator()
 
     println("\nAll tests passed successfully.\n")
 end
 
 
 testAll()
-# TODO 
-# tests of isGenerator

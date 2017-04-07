@@ -367,6 +367,32 @@ function isSmooth(P::PolyElem, D::Int)
     return true
 end
 
+export dlogSmallField
+"""
+    dlogSmallField{T}(carac::Integer, degExt::Integer, gen::T, elem::T)
+
+Compute the discrete logarithm of `elem` in the base `gen`.
+
+This strategy works if `elem` is in fact in the medium subfield.
+"""
+function dlogSmallField{T}(carac::Integer, degExt::Integer, gen::T, elem::T)
+
+    # We compute the norm of `gen`
+    q = BigInt(carac)^2
+    c = div(q^degExt-1, q-1)
+    n = gen^c
+
+    # Then we find the logarithm of `elem` is the base `n`
+    i = 1
+    while n^i != elem
+        i += 1
+    end
+
+    # Amd we translate the result in base `gen`
+    return i*c
+end
+
+
 # Pohlig Hellman suite
 
 export pohligHellmanPrime
@@ -452,6 +478,8 @@ function pohligHellman{T}(card::Integer, gen::T, elem::T)
         return pohligHellmanPrime(card, 2, gen, elem)
     end
 end
+
+# BGJT algorithm
 
 # End of module
 end
