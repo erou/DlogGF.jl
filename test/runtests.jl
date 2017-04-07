@@ -118,6 +118,9 @@ function testPohligHellman()
     @test pohligHellmanPrime(c, 2, g, g^17) == (1, 8)
     @test pohligHellmanPrime(c, 7, g, g^4) == (4, 7)
     @test pohligHellmanPrime(c, 7, g, g^33) == (5, 7)
+    @test pohligHellman(c, g, g^147) == (147, 8904)
+    @test pohligHellman(c, g, g^5913) == (5913, 8904)
+    @test pohligHellman(c, g, g^81426) == (1290, 8904)
 
     K = smsrField(17, 17, 1, true)
     g = K.gen
@@ -127,6 +130,9 @@ function testPohligHellman()
     @test pohligHellmanPrime(c, 2, g, g^14) == (14, 32)
     @test pohligHellmanPrime(c, 3, g, g^4) == (4, 9)
     @test pohligHellmanPrime(c, 3, g, g^7) == (7, 9)
+    @test pohligHellman(c, g, g^814) == (238, 288)
+    @test pohligHellman(c, g, g^135) == (135, 288)
+    @test pohligHellman(c, g, g^79) == (79, 288)
 
     K = smsrField(7, 7, 1, true)
     g = K.gen
@@ -136,6 +142,9 @@ function testPohligHellman()
     @test pohligHellmanPrime(c, 29, g, g^123) == (7, 29)
     @test pohligHellmanPrime(c, 3, g, g^4) == (1, 3)
     @test pohligHellmanPrime(c, 3, g, g^7) == (1, 3)
+    @test pohligHellman(c, g, g^514) == (514, 1392)
+    @test pohligHellman(c, g, g^2941) == (157, 1392)
+    @test pohligHellman(c, g, g^602) == (602, 1392)
 
     println("PASS")
 end

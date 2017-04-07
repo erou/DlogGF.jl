@@ -411,17 +411,45 @@ function pohligHellmanPrime{T <: RingElem}(card::Integer, prime::Integer,
         tmp = tmp*inverse^(b*prime^i)
     end
 
-    return (res, fmpz(prime)^n)
+    return (fmpz(res), fmpz(prime)^n)
 end
 
+export pohligHellman
+"""
+    pohligHellman{T}(card::Integer, gen::T, elem::T)
+
+Compute the discrete logarithm of `elem` in the base `gen`, modulo the small
+prime factors of card - 1.
+"""
 function pohligHellman{T}(card::Integer, gen::T, elem::T)
 
+    # We find the small (meaning, less that log(card)) prime factors of card
     l::Int = ceil(log2(card))
     A = Array{Int, 1}()
     for i in primes(l)
         if card%i == 1
             push!(A, i)
         end
+    end
+
+    # We set some variables
+    res::Nemo.fmpz = 0
+    n::Nemo.fmpz = 0
+
+    # And we compute the discrete logarithm of `elem` in the base `gen`, for
+    # each prime factor, using pohligHellmanPrime, then we compute our final
+    # result using chinese remindering theorem
+    if length(A) > 1
+        a = pohligHellmanPrime(card, A[1], gen, elem)
+        b = pohligHellmanPrime(card, A[2], gen, elem)
+        res, n = crt(a[1], a[2], b[1], b[2]), a[2]*b[2]
+        for i in 1:(length(A)-2)
+            a = pohligHellmanPrime(card, A[i+2], gen, elem)
+            res, n = crt(res, n, a[1], a[2]), n*a[2]
+        end
+        return res, n
+    else 
+        return pohligHellmanPrime(card, 2, gen, elem)
     end
 end
 
