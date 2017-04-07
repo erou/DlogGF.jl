@@ -113,7 +113,7 @@ function testPohligHellman()
 
     @test pohligHellmanPrime(c, 3, g, g^5) == 2
     @test pohligHellmanPrime(c, 53, g, g^5) == 5
-    @test pohligHellmanPrime(c, 3, g, g^85) == 32
+    @test pohligHellmanPrime(c, 53, g, g^85) == 32
     @test pohligHellmanPrime(c, 2, g, g^7) == 7
     @test pohligHellmanPrime(c, 2, g, g^17) == 1
     @test pohligHellmanPrime(c, 7, g, g^4) == 4
