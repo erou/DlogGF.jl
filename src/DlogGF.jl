@@ -187,6 +187,7 @@ function smsrField(q::Integer, k::Integer, deg::Integer = 1, check::Bool = false
                      mediumSubField, gen, bigField)
 end
 
+export isGenerator
 """
     isGenerator(gen::RingElem, card::Integer)
 
@@ -368,6 +369,7 @@ end
 
 # Pohlig Hellman suite
 
+export pohligHellmanPrime
 """
     pohligHellmanPrime{T <: RingElem}(card::Integer, prime::Integer,
                                       gen::T, elem::T)
