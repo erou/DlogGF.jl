@@ -104,6 +104,56 @@ function testFactorsList()
     println("PASS")
 end
 
+function testPohligHellman()
+    print("pohligHellmanPrime... ")
+
+    K = smsrField(13, 13, 1, true)
+    g = K.gen
+    c = K.cardinality
+
+    @test pohligHellmanPrime(c, 3, g, g^5) == 2
+    @test pohligHellmanPrime(c, 53, g, g^5) == 5
+    @test pohligHellmanPrime(c, 3, g, g^85) == 32
+    @test pohligHellmanPrime(c, 2, g, g^7) == 7
+    @test pohligHellmanPrime(c, 2, g, g^17) == 1
+    @test pohligHellmanPrime(c, 7, g, g^4) == 4
+    @test pohligHellmanPrime(c, 7, g, g^33) == 5
+
+    K = smsrField(17, 17, 1, true)
+    g = K.gen
+    c = K.cardinality
+
+    @test pohligHellmanPrime(c, 2, g, g^10) == 10
+    @test pohligHellmanPrime(c, 2, g, g^14) == 14
+    @test pohligHellmanPrime(c, 3, g, g^4) == 4
+    @test pohligHellmanPrime(c, 3, g, g^7) == 7
+
+    K = smsrField(7, 7, 1, true)
+    g = K.gen
+    c = K.cardinality
+
+    @test pohligHellmanPrime(c, 29, g, g^25) == 25
+    @test pohligHellmanPrime(c, 29, g, g^123) == 7
+    @test pohligHellmanPrime(c, 3, g, g^4) == 1
+    @test pohligHellmanPrime(c, 2, g, g^7) == 1
+
+    println("PASS")
+end
+
+function testIsGenerator()
+    print("isGenerator... ")
+
+    K = smsrField(3, 3, 1, true)
+    g = K.gen
+    c = K.cardinality
+
+    @test isGenerator(K.bigField(1), K.cardinality) == false
+    @test isGenerator(g, c) == true
+    @test isGenerator(g^2, c) == false
+
+    println("PASS")
+end
+
 function testAll()
 
     testRandomSuite()
@@ -112,8 +162,12 @@ function testAll()
     testHomogeneEq()
     testIsSmooth()
     testFactorsList()
+    testPohligHellman()
 
     println("\nAll tests passed successfully.\n")
 end
 
+
 testAll()
+# TODO 
+# tests of isGenerator
