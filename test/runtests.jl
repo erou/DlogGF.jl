@@ -175,10 +175,16 @@ function testDlogSmallField()
     k = K.extensionDegree
 
     elem = Q(1+x)
-    d = dlogSmallField(q, k, gen, elem)
+    d = dlogSmallField(q, k, g, elem)
     @test g^d = elem
     elem = Q(x)
-    d = dlogSmallField(q, k, gen, elem)
+    d = dlogSmallField(q, k, g, elem)
+    @test g^d = elem
+    elem = Q(2)
+    d = dlogSmallField(q, k, g, elem)
+    @test g^d = elem
+    elem = Q(x^2)
+    d = dlogSmallField(q, k, g, elem)
     @test g^d = elem
 
     println("PASS")
