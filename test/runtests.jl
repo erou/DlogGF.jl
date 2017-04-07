@@ -166,7 +166,7 @@ end
 function testDlogSmallField()
     print("dlogSmallField... ")
 
-    K = DlogGF.smsrField(7, 7, 1, true)
+    K = smsrField(7, 7, 1, true)
     Q = K.bigField
     F = K.mediumSubField
     x = gen(F)
@@ -174,6 +174,7 @@ function testDlogSmallField()
     q = K.characteristic
     k = K.extensionDegree
 
+    println("ζ")
     elem = Q(1+x)
     d = dlogSmallField(q, k, g, elem)
     @test g^d = elem
