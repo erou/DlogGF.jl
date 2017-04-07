@@ -111,31 +111,31 @@ function testPohligHellman()
     g = K.gen
     c = K.cardinality
 
-    @test pohligHellmanPrime(c, 3, g, g^5) == 2
-    @test pohligHellmanPrime(c, 53, g, g^5) == 5
-    @test pohligHellmanPrime(c, 53, g, g^85) == 32
-    @test pohligHellmanPrime(c, 2, g, g^7) == 7
-    @test pohligHellmanPrime(c, 2, g, g^17) == 1
-    @test pohligHellmanPrime(c, 7, g, g^4) == 4
-    @test pohligHellmanPrime(c, 7, g, g^33) == 5
+    @test pohligHellmanPrime(c, 3, g, g^5) == (2, 3)
+    @test pohligHellmanPrime(c, 53, g, g^5) == (5, 53)
+    @test pohligHellmanPrime(c, 53, g, g^85) == (32, 53)
+    @test pohligHellmanPrime(c, 2, g, g^7) == (7, 16)
+    @test pohligHellmanPrime(c, 2, g, g^17) == (1, 16)
+    @test pohligHellmanPrime(c, 7, g, g^4) == (4, 7)
+    @test pohligHellmanPrime(c, 7, g, g^33) == (5, 7)
 
     K = smsrField(17, 17, 1, true)
     g = K.gen
     c = K.cardinality
 
-    @test pohligHellmanPrime(c, 2, g, g^10) == 10
-    @test pohligHellmanPrime(c, 2, g, g^14) == 14
-    @test pohligHellmanPrime(c, 3, g, g^4) == 4
-    @test pohligHellmanPrime(c, 3, g, g^7) == 7
+    @test pohligHellmanPrime(c, 2, g, g^10) == (10, 32)
+    @test pohligHellmanPrime(c, 2, g, g^14) == (14, 32)
+    @test pohligHellmanPrime(c, 3, g, g^4) == (4, 81)
+    @test pohligHellmanPrime(c, 3, g, g^7) == (7, 81)
 
     K = smsrField(7, 7, 1, true)
     g = K.gen
     c = K.cardinality
 
-    @test pohligHellmanPrime(c, 29, g, g^25) == 25
-    @test pohligHellmanPrime(c, 29, g, g^123) == 7
-    @test pohligHellmanPrime(c, 3, g, g^4) == 1
-    @test pohligHellmanPrime(c, 2, g, g^7) == 7
+    @test pohligHellmanPrime(c, 29, g, g^25) == (25, 29)
+    @test pohligHellmanPrime(c, 29, g, g^123) == (7, 29)
+    @test pohligHellmanPrime(c, 3, g, g^4) == (1, 3)
+    @test pohligHellmanPrime(c, 3, g, g^7) == (7, 16)
 
     println("PASS")
 end

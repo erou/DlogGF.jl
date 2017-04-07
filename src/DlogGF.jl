@@ -400,19 +400,29 @@ function pohligHellmanPrime{T <: RingElem}(card::Integer, prime::Integer,
     while divisible(fmpz(card-1), prime^(n+1))
         n += 1
     end
-    n -= 1
 
     # We compute the coefficients `b_i` such that x = Σ b_i × prime^i, meaning
     # that we compute `x` in base `prime`
     d = card-1
-    for i in 0:n
+    for i in 0:(n-1)
         d = d/prime
         b = findfirst(arr, tmp^d) - 1
         res += b*prime^i
         tmp = tmp*inverse^(b*prime^i)
     end
 
-    return res
+    return (res, fmpz(prime)^n)
+end
+
+function pohligHellman{T}(card::Integer, gen::T, elem::T)
+
+    l::Int = ceil(log2(card))
+    A = Array{Int, 1}()
+    for i in primes(l)
+        if card%i == 1
+            push!(A, i)
+        end
+    end
 end
 
 # End of module
