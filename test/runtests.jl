@@ -125,8 +125,8 @@ function testPohligHellman()
 
     @test pohligHellmanPrime(c, 2, g, g^10) == (10, 32)
     @test pohligHellmanPrime(c, 2, g, g^14) == (14, 32)
-    @test pohligHellmanPrime(c, 3, g, g^4) == (4, 81)
-    @test pohligHellmanPrime(c, 3, g, g^7) == (7, 81)
+    @test pohligHellmanPrime(c, 3, g, g^4) == (4, 9)
+    @test pohligHellmanPrime(c, 3, g, g^7) == (7, 9)
 
     K = smsrField(7, 7, 1, true)
     g = K.gen
