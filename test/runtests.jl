@@ -194,6 +194,7 @@ function testAll()
     testFactorsList()
     testPohligHellman()
     testIsGenerator()
+    testDlogSmallField()
 
     println("\nAll tests passed successfully.\n")
 end
