@@ -135,7 +135,7 @@ function testPohligHellman()
     @test pohligHellmanPrime(c, 29, g, g^25) == 25
     @test pohligHellmanPrime(c, 29, g, g^123) == 7
     @test pohligHellmanPrime(c, 3, g, g^4) == 1
-    @test pohligHellmanPrime(c, 2, g, g^7) == 1
+    @test pohligHellmanPrime(c, 2, g, g^7) == 7
 
     println("PASS")
 end
