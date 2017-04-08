@@ -258,9 +258,13 @@ function Base.push!(L::FactorsList, P::Nemo.fq_nmod_poly, coef::Int)
     end
 end
 
-function Base.deleteat!(L::FactorsList, i::Int)
+function Base.deleteat!(L::FactorsList, i::Integer)
     deleteat!(L.factors, i)
     deleteat!(L.coefs, i)
+end
+
+function Base.getindex(L::FactorsList, i::Integer)
+    return (L.factors[i],L.coefs[i])
 end
 
 # Some functions
@@ -450,7 +454,7 @@ prime factors of card - 1.
 function pohligHellman{T}(card::Integer, gen::T, elem::T)
 
     # We find the small (meaning, less that log(card)) prime factors of card
-    l::Int = ceil(log2(card))
+    l::Int = ceil(Integer, log2(card))
     A = Array{Int, 1}()
     for i in primes(l)
         if card%i == 1
@@ -458,7 +462,7 @@ function pohligHellman{T}(card::Integer, gen::T, elem::T)
         end
     end
 
-    # We set some variables
+    # We set some variables to fmpz to use `crt`
     res::Nemo.fmpz = 0
     n::Nemo.fmpz = 0
 
@@ -480,6 +484,78 @@ function pohligHellman{T}(card::Integer, gen::T, elem::T)
 end
 
 # BGJT algorithm
+
+function fillMatrixBGJT!(M::MatElem, j::Integer, m::MatElem, F::Nemo.Field)
+    a, b, c, d = m[1, 1], m[1, 2], m[2, 1], m[2, 2]
+    i = 0
+    unit = F(1)
+    for y in F
+        i += 1
+        α = a*y + b
+        β = c*y + d
+        if β != 0
+            if divexact(α, β).length < 2
+                M[i, j] = 1
+            end
+        else
+            M[i, j] = 1
+        end
+        tmp = -c*y + a
+        if tmp != 0
+            unit *= tmp
+        else
+            unit *= -d*y + b
+        end
+    end
+
+    # For the infinite element = (-1, 0)
+
+    i += 1
+    if c != 0
+        if divexact(a, c).length < 2
+            M[i, j] = 1
+        end
+        unit *= c
+    else
+        M[i, j] = 1
+        unit *= d
+    end
+    return unit
+end
+
+
+function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field, h0::T, h1::T)
+
+    elem, coef = L[i0]
+    deg = degree(elem)
+    smoothBound = ceil(Integer, deg/2)
+    nunerators = Array{fq_nmod_poly, 1}()
+    charac = characteristic(F)
+    units = Array{fq_nmod, 1}
+    x = gen(F)
+    j = 1
+
+    S = MatrixSpace(ZZ, q^2+1,q^3+q+1)
+    M = zero(S)
+    Pq = pglUnperfect(x)
+
+    for m in Pq
+        N = makeEquation(m, P, h0, h1)
+
+        if isSmooth(N, smoothBound)
+            unit = fillMatrixBGJT!(M, j, m, F)
+            push!(units, unit)
+        end
+
+        j += 1
+        push!(numerators, N)
+    end
+
+    M[1,j] = 1
+end
+
+
+
 
 # End of module
 end

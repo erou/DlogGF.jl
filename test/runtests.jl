@@ -174,7 +174,6 @@ function testDlogSmallField()
     q = K.characteristic
     k = K.extensionDegree
 
-    println("ζ")
     elem = Q(1+x)
     d = dlogSmallField(q, k, g, elem)
     @test g^d == elem
