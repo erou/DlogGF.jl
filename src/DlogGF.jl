@@ -485,14 +485,36 @@ end
 
 # BGJT algorithm
 
+export fillMatrixBGJT!
+"""
+    fillMatrixBGJT!(M::MatElem, j::Integer, m::MatElem, F::Nemo.Field)
+
+Fill the `j`-th column of the matrix `M`, using the action of `m` on ``P_1(F)``
+and returns the unit generated in the process.
+
+See reference **[1]** for more informations, the references are listed in the
+documentation of the module.
+"""
 function fillMatrixBGJT!(M::MatElem, j::Integer, m::MatElem, F::Nemo.Field)
+
+    # We set some constants to the coefficients of `m`
     a, b, c, d = m[1, 1], m[1, 2], m[2, 1], m[2, 2]
+
+    # We first set our unit to 1 and our index to 0
     i = 0
     unit = F(1)
+
+    # We iterate over the projective line P_1(F), with elements of the form
+    # (y, 1) where y is in F
     for y in F
+        # In fact the columns of `M` can be indexed by elements of P_1(F)
         i += 1
+
+        # We compute m⋅(y, 1) = (α, β)
         α = a*y + b
         β = c*y + d
+        # If (α, β) is in P_1(GF(q)), meaning if α/β is in GF(q) or (α, β) is
+        # the infinite element, we set M[i, j] to 1
         if β != 0
             if divexact(α, β).length < 2
                 M[i, j] = 1
@@ -500,6 +522,9 @@ function fillMatrixBGJT!(M::MatElem, j::Integer, m::MatElem, F::Nemo.Field)
         else
             M[i, j] = 1
         end
+
+        # We compute the constant (λ in [2]) needed for two 
+        # sides of the equation to match
         tmp = -c*y + a
         if tmp != 0
             unit *= tmp
@@ -508,8 +533,8 @@ function fillMatrixBGJT!(M::MatElem, j::Integer, m::MatElem, F::Nemo.Field)
         end
     end
 
-    # For the infinite element = (-1, 0)
-
+    # We do the same for the last element of P_1(F)
+    # the infinite element (-1, 0)
     i += 1
     if c != 0
         if divexact(a, c).length < 2
@@ -523,9 +548,15 @@ function fillMatrixBGJT!(M::MatElem, j::Integer, m::MatElem, F::Nemo.Field)
     return unit
 end
 
+export descentBGJT
+"""
+    descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field, h0::T, h1::T)
 
+The descent phase of the BGJT algorithm.
+"""
 function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field, h0::T, h1::T)
 
+    # We set some constants, arrays, matrices
     elem, coef = L[i0]
     deg = degree(elem)
     smoothBound = ceil(Integer, deg/2)
@@ -535,10 +566,14 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field, 
     x = gen(F)
     j = 1
 
-    S = MatrixSpace(ZZ, q^2+1,q^3+q+1)
+    S = MatrixSpace(ZZ, charac^2+1,charac^3+charac+1)
     M = zero(S)
     Pq = pglUnperfect(x)
 
+    # We iterate over Pq = PGL(P_1(F_q²))/PGL(P_1(F_q)) to create new equations 
+    # involving P and its translations P + μ with μ in F_q², we keep only the 
+    # one with a smooth left side and we fill a matrix to remember which
+    # transposes were used
     for m in Pq
         N = makeEquation(m, P, h0, h1)
 
@@ -551,7 +586,12 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field, 
         push!(numerators, N)
     end
 
+    # We set the last column to the vector (1, 0, ..., 0), which
+    # represent the polynomial P
     M[1,j] = 1
+
+    rank, denom, M = rref(M)
+    return rank, denom, M
 end
 
 
