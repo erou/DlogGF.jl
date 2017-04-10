@@ -561,7 +561,7 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field, 
     deg = degree(elem)
     smoothBound = ceil(Integer, deg/2)
     nunerators = Array{fq_nmod_poly, 1}()
-    charac = characteristic(F)
+    charac::Int = characteristic(F)
     units = Array{fq_nmod, 1}
     x = gen(F)
     j = 1
@@ -575,7 +575,7 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field, 
     # one with a smooth left side and we fill a matrix to remember which
     # transposes were used
     for m in Pq
-        N = makeEquation(m, P, h0, h1)
+        N = makeEquation(m, elem, h0, h1)
 
         if isSmooth(N, smoothBound)
             unit = fillMatrixBGJT!(M, j, m, F)
