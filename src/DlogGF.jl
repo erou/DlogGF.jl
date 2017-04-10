@@ -562,7 +562,7 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field, 
     smoothBound = ceil(Integer, deg/2)
     numerators = Array{fq_nmod_poly, 1}()
     charac::Int = characteristic(F)
-    units = Array{fq_nmod, 1}
+    units = Array{fq_nmod, 1}()
     x = gen(F)
     j = 1
 
