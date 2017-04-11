@@ -297,7 +297,9 @@ function pglUnperfect(x::RingElem)
         M[1, 2] = b + a*x
         M[2, 1] = b + c*x
         M[2, 2] = a + c*x 
-        push!(A, deepcopy(M))
+        if (b+a*x)*(b+c*x) != a + c*x
+            push!(A, deepcopy(M))
+        end
     end
     return A
 end
@@ -394,6 +396,30 @@ function dlogSmallField{T}(carac::Integer, degExt::Integer, gen::T, elem::T)
 
     # Amd we translate the result in base `gen`
     return i*c
+end
+
+export subMatrix
+"""
+    subMatrix(M::MatElem, nrow::Integer, ncol::Integer)
+
+Return the submatrix consisting of the first `nrow` rows and `ncol` colums of
+`M`.
+"""
+function subMatrix(M::MatElem, nrow::Integer, ncol::Integer)
+
+    # We create the matrix subspace
+    S = MatrixSpace(parent(M[1,1]), nrow, ncol)
+
+    # We create a new matrix
+    sub = S()
+    
+    # And we copy the entries of the given matrix
+    for j in 1:ncol
+        for i in 1:nrow
+            sub[i, j] = M[i, j]
+        end
+    end
+    return sub
 end
 
 
@@ -554,7 +580,8 @@ export descentBGJT
 
 The descent phase of the BGJT algorithm.
 """
-function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field, h0::T, h1::T)
+function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
+                                    h0::T, h1::T, card::Nemo.fmpz)
 
     # We set some constants, arrays, matrices
     elem, coef = L[i0]
@@ -580,18 +607,38 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field, 
         if isSmooth(N, smoothBound)
             unit = fillMatrixBGJT!(M, j, m, F)
             push!(units, unit)
+            j += 1
+            push!(numerators, N)
         end
-
-        j += 1
-        push!(numerators, N)
     end
 
     # We set the last column to the vector (1, 0, ..., 0), which
     # represent the polynomial P
     M[1,j] = 1
+    M = subMatrix(M, charac^2 + 1, j)
 
-    rank, denom, M = rref(M)
-    return rank, denom, M
+    # We compute the row echelon form of M, such that M/det is reduced
+    rank, det = rref!(M)
+    if rank < charac^2
+        return error("Not enough equations")
+    end
+
+    # We compute the inverse of `det` mod `card`
+    det %= card
+    if det <= 0
+        det += card
+    end
+    g, s = gcdinv(det, card)
+
+    # If it is not invertible, we return the problematic factor
+    if g != 1
+        println("The following number was a factor")
+        return g
+    end
+
+    # We compute a solution
+    sol = fmpz[(s*M[i,j])%card for i in 1:(charac^2+1)]
+    return sol
 end
 
 

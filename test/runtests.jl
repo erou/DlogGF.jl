@@ -41,6 +41,15 @@ function testPglUnperfect()
     @test parent(L[12][2,2]) == F
     @test L[27][1,1] == 1
 
+    boo = true
+    for y in L
+        if rank(y) != 2
+            bool = false
+        end
+    end
+
+    @test bool
+
     println("PASS")
 end
 
