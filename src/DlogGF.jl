@@ -677,6 +677,7 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
     # equations)
     piv = pivots(M, charac^2)
 
+    """
     # We add the new polynomials and their coefficients in our list
     for j in 1:charac^2
         fact = factor(numerators[piv[j]])
@@ -687,6 +688,7 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
         end
         L.unit *= units[piv[j]]
     end
+    """
 end
 
 # Bis functions to test generic matrices and rref

@@ -44,11 +44,11 @@ function testPglUnperfect()
     boo = true
     for y in L
         if rank(y) != 2
-            bool = false
+            boo = false
         end
     end
 
-    @test bool
+    @test boo
 
     println("PASS")
 end
