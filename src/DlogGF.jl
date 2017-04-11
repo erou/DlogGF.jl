@@ -180,6 +180,10 @@ function smsrField(q::Integer, k::Integer, deg::Integer = 1, check::Bool = false
         while !isGenerator(gen, card)
             gen = bigField(randomPolynomial(polyRing, k))
         end
+    else
+        while !miniCheck(gen, card)
+            gen = bigField(randomPolynomial(polyRing, k))
+        end
     end
 
     # And we call the constructor of the type `SmsrField`
@@ -203,6 +207,40 @@ function isGenerator(gen::RingElem, card::Integer)
     # which we have gen^d = 1
     for x in fact
         d = (card-1)//x[1]
+        if gen^d == 1
+            return false
+        end
+    end
+    return true
+end
+
+export miniCheck
+"""
+    miniCheck(gen::RingElem, card::Integer)
+
+Check that `gen` is not trivially not generator.
+
+By trivially not generator, we mean that ``gen^(k/d) = 1``, for ``k`` the cardinal of
+the group of the invertible elements of the field, and ``d`` a small divisor of this
+cardinal. 
+
+Passing this test does *not* guarantee that `gen` is a generator.
+"""
+function miniCheck(gen::RingElem, card::Integer)
+
+    # We find the small primes dividing our cardinal
+    d::Integer = 0
+    l::Int = ceil(Integer, log2(card))
+    A = Array{Int, 1}()
+    for i in primes(l)
+        if card%i == 1
+            push!(A, i)
+        end
+    end
+
+    # And we test the generator on those primes
+    for x in A
+        d = (card-1)//x
         if gen^d == 1
             return false
         end
@@ -657,6 +695,7 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
     end
     """
 
+    """
     # We compute the inverse of `det` mod `card`
     det %= card
     if det <= 0
@@ -669,9 +708,11 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
         println("The following number was a factor")
         return g
     end
+    """
 
     # We compute a solution
-    sol = fmpz[(s*M[i,j])%card for i in 1:(charac^2+1)]
+#    sol = fmpz[(s*M[i,j])%card for i in 1:(charac^2+1)]
+    sol = fmpz[M[i,j] for i in 1:(charac^2+1)]
 
     # We compute the coordinates of the pivots (because we have redundant
     # equations)
@@ -683,11 +724,29 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
         for f in fact
             push!(L, f[1], f[2]*sol[j]*coef)
             push!(L, h1, -deg*sol[j]*coef)
-            deleteat!(L, i0)
         end
         L.unit *= units[piv[j]]
     end
+    deleteat!(L, i0)
+    return det
 end
+
+function checklog(L::FactorsList, Q::Nemo.Ring)
+    l = length(L.factors)
+    res = Q(1)
+    for i in 1:l
+        if L.coefs[i] < 0
+            exp = BigInt(-L.coefs[i])
+            tmp = inv(Q(L.factors[i]))
+            res *= tmp^(exp)
+        else
+            exp = BigInt(L.coefs[i])
+            res *= Q(L.factors[i])^exp
+        end
+    end
+    return res*L.unit
+end
+    
 
 # Bis functions to test generic matrices and rref
 export descentBGJTbis

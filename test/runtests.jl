@@ -159,15 +159,18 @@ function testPohligHellman()
 end
 
 function testIsGenerator()
-    print("isGenerator... ")
+    print("isGenerator, miniCheck... ")
 
     K = smsrField(3, 3, 1, true)
     g = K.gen
     c = K.cardinality
 
-    @test isGenerator(K.bigField(1), K.cardinality) == false
+    @test isGenerator(K.bigField(1), c) == false
     @test isGenerator(g, c) == true
     @test isGenerator(g^2, c) == false
+    @test miniCheck(g, c) == true
+    @test miniCheck(g^2, c) == false
+    @test miniCheck(K.bigField(1), c) == false
 
     println("PASS")
 end
