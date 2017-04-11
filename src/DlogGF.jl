@@ -229,7 +229,7 @@ Represent a factorisation.
 """
 type FactorsList
     factors::Array{Nemo.fq_nmod_poly, 1}
-    coefs::Array{Int, 1}
+    coefs::Array{Nemo.fmpz, 1}
     unit::Nemo.fq_nmod
 end
 
@@ -243,7 +243,7 @@ function factorsList(P::Nemo.fq_nmod_poly)
     return FactorsList([P], [1], base_ring(parent(P))(1))
 end
 
-function Base.push!(L::FactorsList, P::Nemo.fq_nmod_poly, coef::Int)
+function Base.push!(L::FactorsList, P::Nemo.fq_nmod_poly, coef::Nemo.fmpz)
 
     # We try to find if `P` is already in `L`
     i = findfirst(L.factors, P)
@@ -677,18 +677,16 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
     # equations)
     piv = pivots(M, charac^2)
 
-    """
     # We add the new polynomials and their coefficients in our list
     for j in 1:charac^2
         fact = factor(numerators[piv[j]])
         for f in fact
             push!(L, f[1], f[2]*sol[j]*coef)
-            push!(L, h1, deg*sol[j]*coef)
+            push!(L, h1, -deg*sol[j]*coef)
             deleteat!(L, i0)
         end
         L.unit *= units[piv[j]]
     end
-    """
 end
 
 # Bis functions to test generic matrices and rref
