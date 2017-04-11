@@ -422,6 +422,32 @@ function subMatrix(M::MatElem, nrow::Integer, ncol::Integer)
     return sub
 end
 
+export pivots
+"""
+    pivots(M::MatElem)
+
+Find `r` pivots in the row reduced echelon form matrix `M`.
+"""
+function pivots(M::MatElem, r::Int = 0)
+
+    # There is as many pivots as the rank of 
+    if r == 0
+        r = rank(M)
+    end
+
+    # We set an array with the coordinates of the pivots
+    piv = Array(Int, r)
+    c = 1
+
+    # And we find these coordinates
+    for i in 1:r
+        while M[i, c] == 0
+            c += 1
+        end
+        piv[i] = c
+    end
+    return piv
+end
 
 # Pohlig Hellman suite
 
@@ -526,6 +552,10 @@ function fillMatrixBGJT!(M::MatElem, j::Integer, m::MatElem, F::Nemo.Field)
     # We set some constants to the coefficients of `m`
     a, b, c, d = m[1, 1], m[1, 2], m[2, 1], m[2, 2]
 
+    # We compute the one of our ring
+    Z = parent(M[1, 1])
+    u = Z(1)
+
     # We first set our unit to 1 and our index to 0
     i = 0
     unit = F(1)
@@ -543,10 +573,10 @@ function fillMatrixBGJT!(M::MatElem, j::Integer, m::MatElem, F::Nemo.Field)
         # the infinite element, we set M[i, j] to 1
         if β != 0
             if divexact(α, β).length < 2
-                M[i, j] = 1
+                M[i, j] = u
             end
         else
-            M[i, j] = 1
+            M[i, j] = u
         end
 
         # We compute the constant (λ in [2]) needed for two 
@@ -564,11 +594,11 @@ function fillMatrixBGJT!(M::MatElem, j::Integer, m::MatElem, F::Nemo.Field)
     i += 1
     if c != 0
         if divexact(a, c).length < 2
-            M[i, j] = 1
+            M[i, j] = u
         end
         unit *= c
     else
-        M[i, j] = 1
+        M[i, j] = u
         unit *= d
     end
     return unit
@@ -618,10 +648,14 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
     M = subMatrix(M, charac^2 + 1, j)
 
     # We compute the row echelon form of M, such that M/det is reduced
-    rank, det = rref!(M)
-    if rank < charac^2
+  #  rank, det = rref!(M)
+    M, det = rref(M)
+    """
+    rnk = rank(M)
+    if rnk < charac^2
         return error("Not enough equations")
     end
+    """
 
     # We compute the inverse of `det` mod `card`
     det %= card
@@ -638,9 +672,81 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
 
     # We compute a solution
     sol = fmpz[(s*M[i,j])%card for i in 1:(charac^2+1)]
-    return sol
+
+    # We compute the coordinates of the pivots (because we have redundant
+    # equations)
+    piv = pivots(M, charac^2)
+
+    # We add the new polynomials and their coefficients in our list
+    for j in 1:charac^2
+        fact = factor(numerators[piv[j]])
+        for f in fact
+            push!(L, f[1], f[2]*sol[j]*coef)
+            push!(L, h1, deg*sol[j]*coef)
+            deleteat!(L, i0)
+        end
+        L.unit *= units[piv[j]]
+    end
 end
 
+# Bis functions to test generic matrices and rref
+export descentBGJTbis
+"""
+    descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field, h0::T, h1::T)
+
+The descent phase of the BGJT algorithm.
+"""
+function descentBGJTbis{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
+                                    h0::T, h1::T, card::Nemo.fmpz)
+
+    # We set some constants, arrays, matrices
+    elem, coef = L[i0]
+    deg = degree(elem)
+    smoothBound = ceil(Integer, deg/2)
+    numerators = Array{fq_nmod_poly, 1}()
+    charac::Int = characteristic(F)
+    units = Array{fq_nmod, 1}()
+    x = gen(F)
+    j = 1
+
+    Zmod = ResidueRing(ZZ, card)
+    S = MatrixSpace(Zmod, charac^2+1,charac^3+charac+1)
+    M = zero(S)
+    Pq = pglUnperfect(x)
+
+    # We iterate over Pq = PGL(P_1(F_q²))/PGL(P_1(F_q)) to create new equations 
+    # involving P and its translations P + μ with μ in F_q², we keep only the 
+    # one with a smooth left side and we fill a matrix to remember which
+    # transposes were used
+    for m in Pq
+        N = makeEquation(m, elem, h0, h1)
+
+        if isSmooth(N, smoothBound)
+            unit = fillMatrixBGJT!(M, j, m, F)
+            push!(units, unit)
+            j += 1
+            push!(numerators, N)
+        end
+    end
+
+    # We set the last column to the vector (1, 0, ..., 0), which
+    # represent the polynomial P
+    M[1,j] = Zmod(1)
+    M = subMatrix(M, charac^2 + 1, j)
+
+    # We compute the row echelon form of M, such that M/det is reduced
+    rank, det = rref!(M)
+    if rank < charac^2
+        return error("Not enough equations")
+    end
+
+    # We compute the inverse of `det` mod `card`
+    s = inv(det)
+
+    # We compute a solution
+    sol = typeof(s)[(s*M[i,j]) for i in 1:(charac^2+1)]
+    return sol
+end
 
 
 
