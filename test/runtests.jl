@@ -54,7 +54,7 @@ function testPglUnperfect()
 end
 
 function testHomogeneEq()
-    print("homogene, makeEquation... ")
+    print("homogene, makeEquation, fillMatrixBGJT!... ")
     K = smsrField(5, 5, 1, true)
     F = K.mediumSubField
     x = gen(F)
@@ -73,7 +73,21 @@ function testHomogeneEq()
     end
     a, b, c, d = m[1,1], m[1,2], m[2,1], m[2,2]
     tmp = (a^5*tmp+b^5)*(c*P+d)-(a*P+b)*(c^5*tmp+d^5)
-    @test tmp == makeEquation(m, P, K.h0, K.h1)*inv(Q(K.h1))^3
+    tmp2 = makeEquation(m, P, K.h0, K.h1)*inv(Q(K.h1))^3
+    @test tmp == tmp2
+
+    S = MatrixSpace(ZZ, 5^2+1, 1)
+    M = S()
+    u = fillMatrixBGJT!(M, 1, m, F)
+    i = 1
+    tmp3=Q(1)
+    for y in F
+        if M[i, 1] == 1
+            tmp3 *= P-y
+        end
+        i += 1
+    end
+    @test tmp2 == u*tmp3
 
 
     P = T^3 + (x+1)*T^2 +4*x*T+3
@@ -93,8 +107,21 @@ function testHomogeneEq()
     m = pglUnperfect(x)[17]
     a, b, c, d = m[1,1], m[1,2], m[2,1], m[2,2]
     tmp = (a^17*tmp+b^17)*(c*P+d)-(a*P+b)*(c^17*tmp+d^17)
-    @test tmp == makeEquation(m, P, K.h0, K.h1)*inv(Q(K.h1))^5
+    tmp2 = makeEquation(m, P, K.h0, K.h1)*inv(Q(K.h1))^5
+    @test tmp == tmp2
 
+    S = MatrixSpace(ZZ, 17^2+1, 1)
+    M = S()
+    u = fillMatrixBGJT!(M, 1, m, F)
+    i = 1
+    tmp3=Q(1)
+    for y in F
+        if M[i, 1] == 1
+            tmp3 *= P-y
+        end
+        i += 1
+    end
+    @test tmp2 == u*tmp3
 
     println("PASS")
 end
