@@ -607,23 +607,32 @@ function fillMatrixBGJT!(M::MatElem, j::Integer, m::MatElem, F::Nemo.Field)
         # We compute m⋅(y, 1) = (α, β)
         α = a*y + b
         β = c*y + d
-        # If (α, β) is in P_1(GF(q)), meaning if α/β is in GF(q) or (α, β) is
+        # If (α, β) is in P_1(GF(q)), meaning if δ = α/β is in GF(q) or (α, β) is
         # the infinite element, we set M[i, j] to 1
         if β != 0
-            if divexact(α, β).length < 2
+            δ = divexact(α, β)
+            if δ.length < 2
                 M[i, j] = u
+                
+                # We compute the constant (λ in [2]) needed for the two 
+                # sides of the equation to match
+                tmp = -c*δ+a
+                if tmp != 0
+                    unit *= tmp
+                else
+                    unit *= -d*δ + b
+                end
             end
+
+        # Else we are in the case where m⋅(y, 1) = (., 0) = infinite
+        # element = (-1, 0), so we are in P_1(GF(q))
         else
             M[i, j] = u
-        end
-
-        # We compute the constant (λ in [2]) needed for two 
-        # sides of the equation to match
-        tmp = -c*y + a
-        if tmp != 0
-            unit *= tmp
-        else
-            unit *= -d*y + b
+            if c != 0
+                unit *= c
+            else
+                unit *= d
+            end
         end
     end
 
@@ -631,11 +640,14 @@ function fillMatrixBGJT!(M::MatElem, j::Integer, m::MatElem, F::Nemo.Field)
     # the infinite element (-1, 0)
     i += 1
     if c != 0
-        if divexact(a, c).length < 2
+        δ = divexact(a, c)
+        if δ.length < 2
             M[i, j] = u
+        # In this case tmp = -c*δ + a = -c*a/c + a = 0, so no need to test
+        unit *= -d*δ + b
         end
-        unit *= c
     else
+        # We know that c = 0, no need to test
         M[i, j] = u
         unit *= d
     end
@@ -729,6 +741,26 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
     end
     deleteat!(L, i0)
     return det
+end
+
+# Internal debugging functions, not documented
+
+function checkeq(P, M, m, K)
+    i = 1
+    Q = K.bigField
+    F = K.mediumSubField
+    tmp2=Q(1)
+    for y in F
+        if M[i, 1] == 1
+            tmp2 *= P-y
+        end
+        i += 1
+    end
+
+    tmp1 = makeEquation(m, P, K.h0, K.h1)*inv(Q(K.h1))^degree(P)
+
+    
+    return tmp1,tmp2
 end
 
 function checklog(L::FactorsList, Q::Nemo.Ring)
