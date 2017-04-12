@@ -504,7 +504,7 @@ function pohligHellmanPrime{T <: RingElem}(card::Integer, prime::Integer,
                                            gen::T, elem::T)
 
     # We compute a table of the `prime`-th roots of unit
-    d::Integer = (card-1)/prime
+    d::Integer = div(card-1, prime)
     g = gen^d
     arr = Array(T, prime)
     for i in 0:(prime-1)
@@ -525,7 +525,7 @@ function pohligHellmanPrime{T <: RingElem}(card::Integer, prime::Integer,
     # that we compute `x` in base `prime`
     d = card-1
     for i in 0:(n-1)
-        d = d/prime
+        d = div(d, prime)
         b = findfirst(arr, tmp^d) - 1
         res += b*prime^i
         tmp = tmp*inverse^(b*prime^i)
@@ -687,7 +687,7 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
 
     # We compute the row echelon form of M, such that M/det is reduced
   #  rank, det = rref!(M)
-    M, det = rref(M)
+    @time M, det = rref(M)
     """
     rnk = rank(M)
     if rnk < charac^2
