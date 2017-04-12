@@ -55,17 +55,45 @@ end
 
 function testHomogeneEq()
     print("homogene, makeEquation... ")
-    F, x = FiniteField(5, 2, "x")
+    K = smsrField(5, 5, 1, true)
+    F = K.mediumSubField
+    x = gen(F)
     R, T = PolynomialRing(F, "T")
+    Q = K.bigField
+    P = (3)*T^3+(x+3)*T^2+(3*x+1)*T+(4*x+1)
 
     @test homogene(T, T^2, T^3) == T^2
     @test homogene(T - 2, T^2, T^3) == T^2 - 2*T^3
-    @test homogene(R(x), T^2, T^3) == x^characteristic(F)
+    @test homogene(R(x), T^2, T^3) == x^5
+
+    tmp = Q()
+    for j in 0:degree(P)
+        tmp += Q(coeff(P, j)^5*T^(5*j))
+    end
+    a, b, c, d = m[1,1], m[1,2], m[2,1], m[2,2]
+    tmp = (a^5*tmp+b^5)*(c*P+d)-(a*P+b)*(c^5*tmp+d^5)
+    @test tmp == makeEquation(m, P, K.h0, K.h1)*inv(Q(K.h1))^3
+
 
     P = T^3 + (x+1)*T^2 +4*x*T+3
     m = pglUnperfect(x)[8]
 
     @test degree(makeEquation(m, P, 3*x*T, T+x)) == degree(P)*(1 + 1)
+
+    K = smsrField(17, 17, 1, true)
+    F = K.mediumSubField
+    x = gen(F)
+    R, T = PolynomialRing(F, "T")
+    Q = K.bigField
+    P = (14*x+1)*T^5+(16*x+6)*T^4+(4*x+10)*T^3+(11*x+6)*T^2+(2*x+2)*T+(8*x+16)
+    tmp = Q()
+    for j in 0:degree(P)
+        tmp += Q(coeff(P, j)^17*T^(17*j))
+    end
+    a, b, c, d = m[1,1], m[1,2], m[2,1], m[2,2]
+    tmp = (a^17*tmp+b^17)*(c*P+d)-(a*P+b)*(c^17*tmp+d^17)
+    @test tmp == makeEquation(m, P, K.h0, K.h1)*inv(Q(K.h1))^5
+
 
     println("PASS")
 end
