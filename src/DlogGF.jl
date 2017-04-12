@@ -647,7 +647,6 @@ function fillMatrixBGJT!(M::MatElem, j::Integer, m::MatElem, F::Nemo.Field)
         unit *= -d*δ + b
         end
     else
-        # We know that c = 0, no need to test
         M[i, j] = u
         unit *= d
     end
