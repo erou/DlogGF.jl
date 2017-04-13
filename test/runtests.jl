@@ -123,6 +123,31 @@ function testHomogeneEq()
     end
     @test tmp2 == u*tmp3
 
+    P = (5*x+16)*T^15+(10*x+1)*T^14+(6*x+4)*T^13+(15*x+15)*T^12+(7*x+6)*T^11+(12*x+12)*T^10+(5*x+10)*T^9+(12*x+3)*T^8+(15*x+2)*T^7+(9*x+11)*T^6+(15*x+4)*T^5+(13*x+11)*T^4+(9*x+2)*T^3+(10*x+2)*T^2+(14*x+13)*T+(x)
+    tmp = Q()
+    for j in 0:degree(P)
+        tmp += Q(coeff(P, j)^17*T^(17*j))
+    end
+    m = pglUnperfect(x)[85]
+    a, b, c, d = m[1,1], m[1,2], m[2,1], m[2,2]
+    tmp = (a^17*tmp+b^17)*(c*P+d)-(a*P+b)*(c^17*tmp+d^17)
+    tmp2 = makeEquation(m, P, K.h0, K.h1)*inv(Q(K.h1))^15
+    @test tmp == tmp2
+
+    M = S()
+    u = fillMatrixBGJT!(M, 1, m, F)
+    i = 1
+    tmp3=Q(1)
+    for y in F
+        if M[i, 1] == 1
+            tmp3 *= P-y
+        end
+        i += 1
+    end
+    @test tmp2 == u*tmp3
+
+
+
     println("PASS")
 end
 
