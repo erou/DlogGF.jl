@@ -664,8 +664,7 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
 
     # We set some constants, arrays, matrices
     elem, coef = L[i0]
-    deg = degree(elem)
-    smoothBound = ceil(Integer, deg/2)
+    smoothBound = ceil(Integer, degree(elem)/2)
     numerators = Array{fq_nmod_poly, 1}()
     charac::Int = characteristic(F)
     units = Array{fq_nmod, 1}()
@@ -695,6 +694,7 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
     # represent the polynomial P
     M[1,j] = 1
     M = subMatrix(M, charac^2 + 1, j)
+    return numerators, M
 
     # We compute the row echelon form of M, such that M/det is reduced
   #  rank, det = rref!(M)
@@ -732,11 +732,13 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
     # We add the new polynomials and their coefficients in our list
     for j in 1:charac^2
         fact = factor(numerators[piv[j]])
+        deg = degree(numerators[piv[j]])
         for f in fact
             push!(L, f[1], f[2]*sol[j]*coef)
             push!(L, h1, -deg*sol[j]*coef)
         end
-        L.unit *= units[piv[j]]
+        leadcoef = coeff(numerators[piv[j]], deg)
+        L.unit *= inv(units[piv[j]])*leadcoef
     end
     deleteat!(L, i0)
     return det
@@ -777,6 +779,37 @@ function checklog(L::FactorsList, Q::Nemo.Ring)
     end
     return res*L.unit
 end
+
+function checknum(num, M, h1, Q)
+    res1 = Q(1)
+    res2 = Q(1)
+    N, det = rref(M)
+    m, j = size(M)
+    sol = fmpz[N[i, j] for i in 1:m]
+
+    piv = pivots(N, m-1)
+    for i in 1:(m-1)
+        loc = num[piv[i]]
+        d = degree(loc)
+        if sol[i] < 0
+            exp = -BigInt(sol[i])
+            res1 *= inv(Q(loc))^(exp)*Q(h1)^(d*exp)
+            for f in factor(loc)
+                res2 *= inv(Q(f[1]))^(f[2]*exp)
+            end
+            res2 *= Q(h1)^(d*exp)*inv(coeff(loc, d))^exp
+        else
+            exp = BigInt(sol[i])
+            for f in factor(loc)
+                res2 *= Q(f[1])^(f[2]*exp)
+            end
+            res1 *= Q(loc)^exp*inv(Q(h1))^(d*exp)
+            res2 *= inv(Q(h1))^(d*exp)*coeff(loc, d)^exp
+        end
+    end
+    return res1, res2
+end
+
     
 
 # Bis functions to test generic matrices and rref
