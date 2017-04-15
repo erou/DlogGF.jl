@@ -694,11 +694,11 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
     # represent the polynomial P
     M[1,j] = 1
     M = subMatrix(M, charac^2 + 1, j)
-    return numerators, M
+#    return numerators, M
 
     # We compute the row echelon form of M, such that M/det is reduced
   #  rank, det = rref!(M)
-    @time M, det = rref(M)
+    @time Mred, det = rref(M)
     """
     rnk = rank(M)
     if rnk < charac^2
@@ -723,11 +723,11 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
 
     # We compute a solution
 #    sol = fmpz[(s*M[i,j])%card for i in 1:(charac^2+1)]
-    sol = fmpz[M[i,j] for i in 1:(charac^2+1)]
+    sol = fmpz[Mred[i,j] for i in 1:(charac^2+1)]
 
     # We compute the coordinates of the pivots (because we have redundant
     # equations)
-    piv = pivots(M, charac^2)
+    piv = pivots(Mred, charac^2)
 
     # We add the new polynomials and their coefficients in our list
     for j in 1:charac^2
@@ -741,7 +741,7 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
         L.unit *= inv(units[piv[j]])*leadcoef
     end
     deleteat!(L, i0)
-    return det
+    return det, M, Mred
 end
 
 # Internal debugging functions, not documented
@@ -808,6 +808,18 @@ function checknum(num, M, h1, Q)
         end
     end
     return res1, res2
+end
+
+function checkcol(M, j, P, F)
+    i = 0
+    ζ = parent(P)(1)
+    for y in F
+        i += 1
+        if M[i, j] == 1
+            ζ *= P-y
+        end
+    end
+    return ζ
 end
 
     
