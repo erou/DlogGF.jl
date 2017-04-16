@@ -822,20 +822,6 @@ function checkcol(M, j, P, F)
     return ζ
 end
 
-function checkevery(M, num, piv, K)
-    F = K.mediumSubField
-    q = K.characteristic
-    Q = K.bigField
-    for ι in 1:q^2
-        Pcol = checkcol(M, piv(ι), P, F)
-        Pnum = num[piv[ι]]
-    end
-end
-
-
-
-    
-
 # Bis functions to test generic matrices and rref
 export descentBGJTbis
 """
