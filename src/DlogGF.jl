@@ -664,7 +664,8 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
 
     # We set some constants, arrays, matrices
     elem, coef = L[i0]
-    smoothBound = ceil(Integer, degree(elem)/2)
+    deg = degree(elem)
+    smoothBound = ceil(Integer, deg/2)
     numerators = Array{fq_nmod_poly, 1}()
     charac::Int = characteristic(F)
     units = Array{fq_nmod, 1}()
@@ -698,7 +699,7 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
 
     # We compute the row echelon form of M, such that M/det is reduced
   #  rank, det = rref!(M)
-    @time Mred, det = rref(M)
+    @time M, det = rref(M)
     """
     rnk = rank(M)
     if rnk < charac^2
@@ -723,25 +724,24 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
 
     # We compute a solution
 #    sol = fmpz[(s*M[i,j])%card for i in 1:(charac^2+1)]
-    sol = fmpz[Mred[i,j] for i in 1:(charac^2+1)]
+    sol = fmpz[M[i,j] for i in 1:(charac^2+1)]
 
     # We compute the coordinates of the pivots (because we have redundant
     # equations)
-    piv = pivots(Mred, charac^2)
+    piv = pivots(M, charac^2)
 
-    # We add the new polynomials and their coefficients in our list
+   # We add the new polynomials and their coefficients in our list
     for j in 1:charac^2
         fact = factor(numerators[piv[j]])
-        deg = degree(numerators[piv[j]])
         for f in fact
             push!(L, f[1], f[2]*sol[j]*coef)
-            push!(L, h1, -deg*sol[j]*coef)
         end
-        leadcoef = coeff(numerators[piv[j]], deg)
-        L.unit *= inv(units[piv[j]])*leadcoef
+        push!(L, h1, -deg*sol[j]*coef)
+        leadcoef = coeff(numerators[piv[j]], degree(numerators[piv[j]]))
+        L.unit *= (inv(units[piv[j]])*leadcoef)^(sol[j]*coef)
     end
     deleteat!(L, i0)
-    return det, M, Mred
+    return det
 end
 
 # Internal debugging functions, not documented
@@ -764,15 +764,15 @@ function checkeq(P, M, m, K)
     return tmp1,tmp2
 end
 
-function checklog(L::FactorsList, Q::Nemo.Ring)
+function checklog(L, Q)
     l = length(L.factors)
     res = Q(1)
     for i in 1:l
         if L.coefs[i] < 0
-            exp = BigInt(-L.coefs[i])
+            exp = -BigInt(L.coefs[i])
             tmp = inv(Q(L.factors[i]))
             res *= tmp^(exp)
-        else
+        elseif L.coefs[i] > 0
             exp = BigInt(L.coefs[i])
             res *= Q(L.factors[i])^exp
         end
@@ -780,31 +780,31 @@ function checklog(L::FactorsList, Q::Nemo.Ring)
     return res*L.unit
 end
 
-function checknum(num, M, h1, Q)
+function checknum(num, M, P, h1, Q)
     res1 = Q(1)
     res2 = Q(1)
     N, det = rref(M)
     m, j = size(M)
     sol = fmpz[N[i, j] for i in 1:m]
+    d = degree(P)
 
     piv = pivots(N, m-1)
     for i in 1:(m-1)
         loc = num[piv[i]]
-        d = degree(loc)
         if sol[i] < 0
             exp = -BigInt(sol[i])
             res1 *= inv(Q(loc))^(exp)*Q(h1)^(d*exp)
             for f in factor(loc)
                 res2 *= inv(Q(f[1]))^(f[2]*exp)
             end
-            res2 *= Q(h1)^(d*exp)*inv(coeff(loc, d))^exp
+            res2 *= Q(h1)^(d*exp)*inv(coeff(loc, degree(loc)))^exp
         else
             exp = BigInt(sol[i])
             for f in factor(loc)
                 res2 *= Q(f[1])^(f[2]*exp)
             end
             res1 *= Q(loc)^exp*inv(Q(h1))^(d*exp)
-            res2 *= inv(Q(h1))^(d*exp)*coeff(loc, d)^exp
+            res2 *= inv(Q(h1))^(d*exp)*coeff(loc, degree(loc))^exp
         end
     end
     return res1, res2
@@ -821,6 +821,18 @@ function checkcol(M, j, P, F)
     end
     return ζ
 end
+
+function checkevery(M, num, piv, K)
+    F = K.mediumSubField
+    q = K.characteristic
+    Q = K.bigField
+    for ι in 1:q^2
+        Pcol = checkcol(M, piv(ι), P, F)
+        Pnum = num[piv[ι]]
+    end
+end
+
+
 
     
 
