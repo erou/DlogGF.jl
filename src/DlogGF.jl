@@ -655,7 +655,8 @@ end
 
 export descentBGJT
 """
-    descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field, h0::T, h1::T)
+    descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
+                               h0::T, h1::T, card::Nemo.fmpz)
 
 The descent phase of the BGJT algorithm.
 """
@@ -684,6 +685,93 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
         N = makeEquation(m, elem, h0, h1)
 
         if isSmooth(N, smoothBound)
+            unit = fillMatrixBGJT!(M, j, m, F)
+            push!(units, unit)
+            j += 1
+            push!(numerators, N)
+        end
+    end
+
+    # We set the last column to the vector (1, 0, ..., 0), which
+    # represent the polynomial P
+    M[1,j] = 1
+    M = subMatrix(M, charac^2 + 1, j)
+#    return numerators, M
+
+    # We compute the row echelon form of M, such that M/det is reduced
+  #  rank, det = rref!(M)
+    @time M, det = rref(M)
+    """
+    rnk = rank(M)
+    if rnk < charac^2
+        return error("Not enough equations")
+    end
+    """
+
+    """
+    # We compute the inverse of `det` mod `card`
+    det %= card
+    if det <= 0
+        det += card
+    end
+    g, s = gcdinv(det, card)
+
+    # If it is not invertible, we return the problematic factor
+    if g != 1
+        println("The following number was a factor")
+        return g
+    end
+    """
+
+    # We compute a solution
+#    sol = fmpz[(s*M[i,j])%card for i in 1:(charac^2+1)]
+    sol = fmpz[M[i,j] for i in 1:(charac^2+1)]
+
+    # We compute the coordinates of the pivots (because we have redundant
+    # equations)
+    piv = pivots(M, charac^2)
+
+   # We add the new polynomials and their coefficients in our list
+    for j in 1:charac^2
+        fact = factor(numerators[piv[j]])
+        for f in fact
+            push!(L, f[1], f[2]*sol[j]*coef)
+        end
+        push!(L, h1, -deg*sol[j]*coef)
+        leadcoef = coeff(numerators[piv[j]], degree(numerators[piv[j]]))
+        L.unit *= (inv(units[piv[j]])*leadcoef)^(sol[j]*coef)
+    end
+    deleteat!(L, i0)
+    return det
+end
+
+export linearDlog
+"""
+    linearDlog{T <: PolyElem}(F::Nemo.Field, h0::T, h1::T, card::Nemo.fmpz)
+
+Compute the discrete logarithm of the elements of type ``X + μ`` and of `h1`.
+"""
+function linearDlog{T <: PolyElem}(F::Nemo.Field, h0::T, h1::T, card::Nemo.fmpz)
+
+    # We set some constants, arrays, matrices
+    numerators = Array{fq_nmod_poly, 1}()
+    charac::Int = characteristic(F)
+    units = Array{fq_nmod, 1}()
+    x = gen(F)
+    j = 1
+
+    S = MatrixSpace(ZZ, charac^2+2,charac^3+charac+1)
+    M = zero(S)
+    Pq = pglUnperfect(x)
+
+    # We iterate over Pq = PGL(P_1(F_q²))/PGL(P_1(F_q)) to create new equations 
+    # involving P and its translations P + μ with μ in F_q², we keep only the 
+    # one with a smooth left side and we fill a matrix to remember which
+    # transposes were used
+    for m in Pq
+        N = makeEquation(m, elem, h0, h1)
+
+        if isSmooth(N, 1)
             unit = fillMatrixBGJT!(M, j, m, F)
             push!(units, unit)
             j += 1
