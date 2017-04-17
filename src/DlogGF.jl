@@ -747,20 +747,25 @@ end
 
 export linearDlog
 """
-    linearDlog{T <: PolyElem}(F::Nemo.Field, h0::T, h1::T, card::Nemo.fmpz)
+    linearDlog{T <: PolyElem}(base:: Nemo.Ring, degExt::Integer,
+                              F::Nemo.Field, h0::T, h1::T, card::Nemo.fmpz,
+                              Q::Nemo.Ring)
+
 
 Compute the discrete logarithm of the elements of type ``X + μ`` and of `h1`.
 """
-function linearDlog{T <: PolyElem}(F::Nemo.Field, h0::T, h1::T, card::Nemo.fmpz)
+function linearDlog{T <: PolyElem}(base:: Nemo.RingElem, degExt::Integer,
+                                   F::Nemo.Field, h0::T, h1::T, card::Nemo.fmpz,
+                                   Q::Nemo.Ring)
 
     # We set some constants, arrays, matrices
-    numerators = Array{fq_nmod_poly, 1}()
     charac::Int = characteristic(F)
     units = Array{fq_nmod, 1}()
     x = gen(F)
-    j = 1
+    X = gen(parent(h0))
+    j = 0
 
-    S = MatrixSpace(ZZ, charac^2+2,charac^3+charac+1)
+    S = MatrixSpace(ZZ, charac^2+3,charac^3+charac+1)
     M = zero(S)
     Pq = pglUnperfect(x)
 
@@ -769,25 +774,34 @@ function linearDlog{T <: PolyElem}(F::Nemo.Field, h0::T, h1::T, card::Nemo.fmpz)
     # one with a smooth left side and we fill a matrix to remember which
     # transposes were used
     for m in Pq
-        N = makeEquation(m, elem, h0, h1)
+        N = makeEquation(m, X, h0, h1)
 
         if isSmooth(N, 1)
-            unit = fillMatrixBGJT!(M, j, m, F)
-            push!(units, unit)
             j += 1
-            push!(numerators, N)
+            unit = fillMatrixBGJT!(M, j, m, F)
+            leadcoef = coeff(N, degree(N))
+            push!(units, inv(unit)*leadcoef)
+            fact = factor(N)
+            for f in fact
+                cst = coeff(f[1], 0)
+                M[Int(coeff(cst, 0) + coeff(cst, 1)*charac) + 1, j] -= f[2] 
+            end
+            M[charac^2+2, j] = 1
+            M[charac^2+3, j] = dlogSmallField(charac, degExt, base,
+                                             Q(inv(unit)*leadcoef))
         end
     end
 
     # We set the last column to the vector (1, 0, ..., 0), which
     # represent the polynomial P
-    M[1,j] = 1
-    M = subMatrix(M, charac^2 + 1, j)
+    M = subMatrix(M, charac^2 + 3, j)
+    M = transpose(M)
 #    return numerators, M
 
     # We compute the row echelon form of M, such that M/det is reduced
   #  rank, det = rref!(M)
     @time M, det = rref(M)
+    return M, det
     """
     rnk = rank(M)
     if rnk < charac^2
