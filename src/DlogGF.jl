@@ -433,7 +433,7 @@ function dlogSmallField{T}(carac::Integer, degExt::Integer, gen::T, elem::T)
     end
 
     # Amd we translate the result in base `gen`
-    return i*c
+    return (i*c)%(q^degExt-1)
 end
 
 export subMatrix
@@ -678,7 +678,7 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
     Pq = pglUnperfect(x)
 
     # We iterate over Pq = PGL(P_1(F_q²))/PGL(P_1(F_q)) to create new equations 
-    # involving P and its translations P + μ with μ in F_q², we keep only the 
+    # involving P and its translations P - μ with μ in F_q², we keep only the 
     # one with a smooth left side and we fill a matrix to remember which
     # transposes were used
     for m in Pq
@@ -760,7 +760,6 @@ function linearDlog{T <: PolyElem}(base:: Nemo.RingElem, degExt::Integer,
 
     # We set some constants, arrays, matrices
     charac::Int = characteristic(F)
-    units = Array{fq_nmod, 1}()
     x = gen(F)
     X = gen(parent(h0))
     j = 0
@@ -770,7 +769,7 @@ function linearDlog{T <: PolyElem}(base:: Nemo.RingElem, degExt::Integer,
     Pq = pglUnperfect(x)
 
     # We iterate over Pq = PGL(P_1(F_q²))/PGL(P_1(F_q)) to create new equations 
-    # involving P and its translations P + μ with μ in F_q², we keep only the 
+    # involving X and its translations X - μ with μ in F_q², we keep only the 
     # one with a smooth left side and we fill a matrix to remember which
     # transposes were used
     for m in Pq
@@ -780,11 +779,11 @@ function linearDlog{T <: PolyElem}(base:: Nemo.RingElem, degExt::Integer,
             j += 1
             unit = fillMatrixBGJT!(M, j, m, F)
             leadcoef = coeff(N, degree(N))
-            push!(units, inv(unit)*leadcoef)
             fact = factor(N)
             for f in fact
-                cst = coeff(f[1], 0)
-                M[Int(coeff(cst, 0) + coeff(cst, 1)*charac) + 1, j] -= f[2] 
+                cst = -coeff(f[1], 0)
+                index::Int = coeff(cst, 0) + coeff(cst, 1)*charac + 1
+                M[index, j] -= f[2] 
             end
             M[charac^2+2, j] = 1
             M[charac^2+3, j] = dlogSmallField(charac, degExt, base,
@@ -792,14 +791,11 @@ function linearDlog{T <: PolyElem}(base:: Nemo.RingElem, degExt::Integer,
         end
     end
 
-    # We set the last column to the vector (1, 0, ..., 0), which
-    # represent the polynomial P
     M = subMatrix(M, charac^2 + 3, j)
     M = transpose(M)
-#    return numerators, M
+    return M
 
     # We compute the row echelon form of M, such that M/det is reduced
-  #  rank, det = rref!(M)
     @time M, det = rref(M)
     return M, det
     """
