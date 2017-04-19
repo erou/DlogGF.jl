@@ -16,6 +16,37 @@ module DlogGF
 
 using Nemo
 
+# C functions
+
+function rrefMod!(M::Nemo.fmpz_mat, n::Nemo.fmpz)
+    perm = Array{Int, 1}()
+    ccall((:fmpz_mat_rref_mod, :libflint), Void, (Ref{Int}, Ptr{fmpz_mat},
+                                                  Ptr{fmpz}), perm, &M, &n)
+    return M
+end
+
+function rrefMod!(M::Nemo.fmpz_mat, d::Integer)
+    n = Nemo.fmpz(d) 
+    perm = Array{Int, 1}()
+    ccall((:fmpz_mat_rref_mod, :libflint), Void, (Ref{Int}, Ptr{fmpz_mat},
+                                                  Ptr{fmpz}), perm, &M, &n)
+    return M
+end
+
+
+function rrefMod(M::Nemo.fmpz_mat, n::Nemo.fmpz)
+    N = deepcopy(M)
+    rrefMod!(N, n)
+    return N
+end
+
+function rrefMod(M::Nemo.fmpz_mat, n::Integer)
+    N = deepcopy(M)
+    rrefMod!(N, n)
+    return N
+end
+
+
 # Iterator over medium subfields (of type F_q²)
 # The elements are iterated in the order 0, 1, ..., q-1, x, 1 + x, 2 + x,
 # ..., (q-1) + (q-1)x, where x is the generator of F_q²
