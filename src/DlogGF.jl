@@ -14,36 +14,36 @@ field.
 """
 module DlogGF
 
-using Nemo
+using Nemo, Primes
 
 # C functions
 
 function rrefMod!(M::Nemo.fmpz_mat, n::Nemo.fmpz)
     perm = Array{Int, 1}()
-    ccall((:fmpz_mat_rref_mod, :libflint), Void, (Ref{Int}, Ptr{fmpz_mat},
+    rank = ccall((:fmpz_mat_rref_mod, :libflint), Cint, (Ref{Int}, Ptr{fmpz_mat},
                                                   Ptr{fmpz}), perm, &M, &n)
-    return M
+    return M, rank, perm
 end
 
 function rrefMod!(M::Nemo.fmpz_mat, d::Integer)
     n = Nemo.fmpz(d) 
     perm = Array{Int, 1}()
-    ccall((:fmpz_mat_rref_mod, :libflint), Void, (Ref{Int}, Ptr{fmpz_mat},
+    rank = ccall((:fmpz_mat_rref_mod, :libflint), Cint, (Ref{Int}, Ptr{fmpz_mat},
                                                   Ptr{fmpz}), perm, &M, &n)
-    return M
+    return M, rank, perm
 end
 
 
 function rrefMod(M::Nemo.fmpz_mat, n::Nemo.fmpz)
     N = deepcopy(M)
-    rrefMod!(N, n)
-    return N
+    M, rank, perm = rrefMod!(N, n)
+    return N, rank, perm
 end
 
 function rrefMod(M::Nemo.fmpz_mat, n::Integer)
     N = deepcopy(M)
-    rrefMod!(N, n)
-    return N
+    M, rank, perm = rrefMod!(N, n)
+    return N, rank, perm
 end
 
 
