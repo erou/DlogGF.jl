@@ -957,85 +957,21 @@ function checkmat(M::MatElem, K, T::PolyElem)
     Q = K.bigField
     r, c = size(M)
     ζ = Q(1)
-    i = 0
     for j in 1:c
+        i = 0
         for y in F
             i += 1
             if M[i, j] != 0
                 τ = Q(T-y)
-                exp = BigInt(M[i, j])
-                print((τ, exp))
+                exp = Int(M[i, j])
                 ζ *= τ^exp
             end
         end
         ζ *= Q(K.h1)
-        println(ζ)
+        ξ = g^BigInt(M[r, j])
+        println((ζ, ξ))
     end
 end
-        
 
-    
-
-# Bis functions to test generic matrices and rref
-export descentBGJTbis
-"""
-    descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field, h0::T, h1::T)
-
-The descent phase of the BGJT algorithm.
-"""
-function descentBGJTbis{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
-                                    h0::T, h1::T, card::Nemo.fmpz)
-
-    # We set some constants, arrays, matrices
-    elem, coef = L[i0]
-    deg = degree(elem)
-    smoothBound = ceil(Integer, deg/2)
-    numerators = Array{fq_nmod_poly, 1}()
-    charac::Int = characteristic(F)
-    units = Array{fq_nmod, 1}()
-    x = gen(F)
-    j = 1
-
-    Zmod = ResidueRing(ZZ, card)
-    S = MatrixSpace(Zmod, charac^2+1,charac^3+charac+1)
-    M = zero(S)
-    Pq = pglUnperfect(x)
-
-    # We iterate over Pq = PGL(P_1(F_q²))/PGL(P_1(F_q)) to create new equations 
-    # involving P and its translations P + μ with μ in F_q², we keep only the 
-    # one with a smooth left side and we fill a matrix to remember which
-    # transposes were used
-    for m in Pq
-        N = makeEquation(m, elem, h0, h1)
-
-        if isSmooth(N, smoothBound)
-            unit = fillMatrixBGJT!(M, j, m, F)
-            push!(units, unit)
-            j += 1
-            push!(numerators, N)
-        end
-    end
-
-    # We set the last column to the vector (1, 0, ..., 0), which
-    # represent the polynomial P
-    M[1,j] = Zmod(1)
-    M = subMatrix(M, charac^2 + 1, j)
-
-    # We compute the row echelon form of M, such that M/det is reduced
-    rank, det = rref!(M)
-    if rank < charac^2
-        return error("Not enough equations")
-    end
-
-    # We compute the inverse of `det` mod `card`
-    s = inv(det)
-
-    # We compute a solution
-    sol = typeof(s)[(s*M[i,j]) for i in 1:(charac^2+1)]
-    return sol
-end
-
-
-
-# End of module
+# end of module
 end
