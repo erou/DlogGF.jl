@@ -951,6 +951,31 @@ function checkcol(M, j, P, F)
     return ζ
 end
 
+function checkmat(M::MatElem, K, T::PolyElem)
+    g = K.gen
+    F = K.mediumSubField
+    Q = K.bigField
+    r, c = size(M)
+    ζ = Q(1)
+    i = 0
+    for j in 1:c
+        for y in F
+            i += 1
+            if M[i, j] != 0
+                τ = Q(T-y)
+                exp = BigInt(M[i, j])
+                print((τ, exp))
+                ζ *= τ^exp
+            end
+        end
+        ζ *= Q(K.h1)
+        println(ζ)
+    end
+end
+        
+
+    
+
 # Bis functions to test generic matrices and rref
 export descentBGJTbis
 """
