@@ -46,6 +46,9 @@ function rrefMod(M::Nemo.fmpz_mat, n::Integer)
     return N, rank, perm
 end
 
+# Missing functions in Nemo/Julia
+
+Base.one(x::Nemo.GenRes{Nemo.fq_nmod_poly}) = parent(x)(1)
 
 # Iterator over medium subfields (of type F_q²)
 # The elements are iterated in the order 0, 1, ..., q-1, x, 1 + x, 2 + x,
@@ -956,8 +959,8 @@ function checkmat(M::MatElem, K, T::PolyElem)
     F = K.mediumSubField
     Q = K.bigField
     r, c = size(M)
-    ζ = Q(1)
     for j in 1:c
+        ζ = Q(1)
         i = 0
         for y in F
             i += 1
@@ -969,7 +972,9 @@ function checkmat(M::MatElem, K, T::PolyElem)
         end
         ζ *= Q(K.h1)
         ξ = g^BigInt(M[r, j])
-        println((ζ, ξ))
+        if ζ != ξ
+            break
+        end
     end
 end
 
