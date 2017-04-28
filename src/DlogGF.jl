@@ -207,16 +207,16 @@ function smsrField(q::Integer, k::Integer, deg::Integer = 1, check::Bool = false
     # We then create the big field as a residue ring and compute a generator
     # of the group of the inversible elements of the big field (at random)
     bigField = ResidueRing(polyRing, definingPolynomial)
-    gen = bigField(randomPolynomial(polyRing, k))
+    gen = bigField(randomPolynomial(polyRing, 0) + T)
 
     # We optionally check that `gen` is indeed a generator
     if check
         while !isGenerator(gen, card)
-            gen = bigField(randomPolynomial(polyRing, k))
+            gen = bigField(randomPolynomial(polyRing, 0) + T)
         end
     else
         while !miniCheck(gen, card)
-            gen = bigField(randomPolynomial(polyRing, k))
+            gen = bigField(randomPolynomial(polyRing, 0) + T)
         end
     end
 
@@ -607,6 +607,9 @@ function pohligHellman{T}(card::Integer, gen::T, elem::T)
     end
 end
 
+pohligHellman{T}(card::Nemo.fmpz, gen::T, elem::T) = pohligHellman(BigInt(card),
+                                                                   gen, elem)
+
 # BGJT algorithm
 
 export fillMatrixBGJT!
@@ -797,6 +800,8 @@ function linearDlog{T <: PolyElem}(base:: Nemo.RingElem, degExt::Integer,
     x = gen(F)
     X = gen(parent(h0))
     j = 0
+    n = 0
+    ind = 0
 
     S = MatrixSpace(ZZ, charac^2+3,charac^3+charac+1)
     M = zero(S)
@@ -827,53 +832,38 @@ function linearDlog{T <: PolyElem}(base:: Nemo.RingElem, degExt::Integer,
 
     M = subMatrix(M, charac^2 + 3, j)
     M = transpose(M)
-    return M
 
-    # We compute the row echelon form of M, such that M/det is reduced
-    @time M, det = rref(M)
-    return M, det
-    """
-    rnk = rank(M)
-    if rnk < charac^2
-        return error("Not enough equations")
-    end
-    """
-
-    """
-    # We compute the inverse of `det` mod `card`
-    det %= card
-    if det <= 0
-        det += card
-    end
-    g, s = gcdinv(det, card)
-
-    # If it is not invertible, we return the problematic factor
-    if g != 1
-        println("The following number was a factor")
-        return g
-    end
-    """
-
-    # We compute a solution
-#    sol = fmpz[(s*M[i,j])%card for i in 1:(charac^2+1)]
-    sol = fmpz[M[i,j] for i in 1:(charac^2+1)]
-
-    # We compute the coordinates of the pivots (because we have redundant
-    # equations)
-    piv = pivots(M, charac^2)
-
-   # We add the new polynomials and their coefficients in our list
-    for j in 1:charac^2
-        fact = factor(numerators[piv[j]])
-        for f in fact
-            push!(L, f[1], f[2]*sol[j]*coef)
+    # We compute the logarithm of the linear elements and h1 
+    # modulo the small factors using Pohling Hellman algorithm
+    dlogs = Array(Nemo.fmpz, charac^2+1)
+    i = 0
+    for y in F
+        i += 1
+        dlogs[i] = pohligHellman(card, base, Q(X-y))[1]
+        if base == Q(X-y)
+            ind = i
         end
-        push!(L, h1, -deg*sol[j]*coef)
-        leadcoef = coeff(numerators[piv[j]], degree(numerators[piv[j]]))
-        L.unit *= (inv(units[piv[j]])*leadcoef)^(sol[j]*coef)
     end
-    deleteat!(L, i0)
-    return det
+
+    i += 1
+    dlogs[i], n = pohligHellman(card, base, Q(h1))
+
+    v = div(card-1, n)
+    bigFactors = factor(v)
+
+    for p in bigFactors
+        println(p)
+        Mred = rrefMod(M, p[1])[1]
+        ker = Nemo.fmpz[Mred[i, charac^2+2] for i in 1:charac^2]
+        s = gcdinv(ker[ind], p[1])[2]
+        for i in 1:charac^2
+            dlogs[i] = crt(dlogs[i], n, ker[i]*s, p[1])
+        end
+        dlogs[charac^2+1] = crt(dlogs[charac^2+1], n, -s, p[1])
+        n *= p[1]
+    end
+
+    return dlogs
 end
 
 # Internal debugging functions, not documented
