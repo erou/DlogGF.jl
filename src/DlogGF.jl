@@ -891,7 +891,7 @@ end
 function linearDlog{T <: PolyElem}(basis:: Nemo.RingElem, degExt::Integer,
                                    F::Nemo.Field, h0::T, h1::T, card::Integer,
                                    Q::Nemo.Ring)
-    return linearDlog(basism degExt, F, h0, h1, Nemo.fmpz(card), Q)
+    return linearDlog(basis, degExt, F, h0, h1, Nemo.fmpz(card), Q)
 end
 
 # Internal debugging functions, not documented
