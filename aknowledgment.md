@@ -1,6 +1,6 @@
 # Aknowledgment
 
-The goal of this file is to keep in mind the people that helped me, in order
+The goal of this file is to keep in mind the people who helped me, in order
 to thank them at the end.
 
 + my supervisors

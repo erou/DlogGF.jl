@@ -281,6 +281,43 @@ function testDlogSmallField()
     println("PASS")
 end
 
+function testLinearDlog()
+    print("linearDlog... ")
+
+    K = smsrField(17, 17, 1, true)
+    Q = K.bigField
+    F = K.mediumSubField
+    x = gen(F)
+    g = K.gen
+    k = K.extensionDegree
+    h0 = K.h0
+    h1 = K.h1
+    card = K.cardinality
+    T = gen(parent(h0))
+
+    dlogs = linearDlog(g, k, F, h0, h1, card, Q)
+
+    i = BigInt(dlogs[T + 12*x+5])
+    @test K.gen^i == T + 12*x+5
+
+    i = BigInt(dlogs[T + 3*x+14])
+    @test K.gen^i == T + 3*x+14
+
+    i = BigInt(dlogs[T + 7*x+1])
+    @test K.gen^i == T + 7*x+1
+
+    i = BigInt(dlogs[T + 8*x+3])
+    @test K.gen^i == T + 8*x+3
+
+    i = BigInt(dlogs[T + 4*x+9])
+    @test K.gen^i == T + 4*x+9
+
+    i = BigInt(dlogs[T + 13*x+15])
+    @test K.gen^i == T + 13*x+15
+
+    println("PASS")
+end
+
 function testAll()
 
     testRandomSuite()
@@ -292,6 +329,7 @@ function testAll()
     testPohligHellman()
     testIsGenerator()
     testDlogSmallField()
+    testLinearDlog()
 
     println("\nAll tests passed successfully.\n")
 end

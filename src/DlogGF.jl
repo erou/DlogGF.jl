@@ -19,16 +19,18 @@ using Nemo, Primes
 # C functions
 
 function rrefMod!(M::Nemo.fmpz_mat, n::Nemo.fmpz)
-    perm = Array{Int, 1}()
-    rank = ccall((:fmpz_mat_rref_mod, :libflint), Cint, (Ref{Int}, Ptr{fmpz_mat},
+#    perm::Array{Int, 1} = collect(1:rows(M))
+    perm = C_NULL
+    rank = ccall((:fmpz_mat_rref_mod, :libflint), Cint, (Ptr{Int}, Ptr{fmpz_mat},
                                                   Ptr{fmpz}), perm, &M, &n)
     return M, rank, perm
 end
 
 function rrefMod!(M::Nemo.fmpz_mat, d::Integer)
     n = Nemo.fmpz(d) 
-    perm = Array{Int, 1}()
-    rank = ccall((:fmpz_mat_rref_mod, :libflint), Cint, (Ref{Int}, Ptr{fmpz_mat},
+#    perm::Array{Int, 1} = collect(1:rows(M))
+    perm = C_NULL
+    rank = ccall((:fmpz_mat_rref_mod, :libflint), Cint, (Ptr{Int}, Ptr{fmpz_mat},
                                                   Ptr{fmpz}), perm, &M, &n)
     return M, rank, perm
 end
@@ -449,7 +451,7 @@ export dlogSmallField
 """
     dlogSmallField{T}(carac::Integer, degExt::Integer, gen::T, elem::T)
 
-Compute the discrete logarithm of `elem` in the base `gen`.
+Compute the discrete logarithm of `elem` in the basis `gen`.
 
 This strategy works if `elem` is in fact in the medium subfield.
 """
@@ -460,13 +462,13 @@ function dlogSmallField{T}(carac::Integer, degExt::Integer, gen::T, elem::T)
     c = div(q^degExt-1, q-1)
     n = gen^c
 
-    # Then we find the logarithm of `elem` is the base `n`
+    # Then we find the logarithm of `elem` is the basis `n`
     i = 1
     while n^i != elem
         i += 1
     end
 
-    # Amd we translate the result in base `gen`
+    # Amd we translate the result in basis `gen`
     return (i*c)%(q^degExt-1)
 end
 
@@ -528,7 +530,7 @@ export pohligHellmanPrime
     pohligHellmanPrime{T <: RingElem}(card::Integer, prime::Integer,
                                       gen::T, elem::T)
                                       
-Compute the discrete logarithm of `elem` mod `prime^n` in base `gen`.
+Compute the discrete logarithm of `elem` mod `prime^n` in basis `gen`.
 
 Where `prime` si a prime number dividing `card` and `n` is the largest integer
 such that `prime^n` divides `card`. See reference **[2]** for more information about
@@ -556,7 +558,7 @@ function pohligHellmanPrime{T <: RingElem}(card::Integer, prime::Integer,
     end
 
     # We compute the coefficients `b_i` such that x = Σ b_i × prime^i, meaning
-    # that we compute `x` in base `prime`
+    # that we compute `x` in basis `prime`
     d = card-1
     for i in 0:(n-1)
         d = div(d, prime)
@@ -572,7 +574,7 @@ export pohligHellman
 """
     pohligHellman{T}(card::Integer, gen::T, elem::T)
 
-Compute the discrete logarithm of `elem` in the base `gen`, modulo the small
+Compute the discrete logarithm of `elem` in the basis `gen`, modulo the small
 prime factors of card - 1.
 """
 function pohligHellman{T}(card::Integer, gen::T, elem::T)
@@ -590,7 +592,7 @@ function pohligHellman{T}(card::Integer, gen::T, elem::T)
     res::Nemo.fmpz = 0
     n::Nemo.fmpz = 0
 
-    # And we compute the discrete logarithm of `elem` in the base `gen`, for
+    # And we compute the discrete logarithm of `elem` in the basis `gen`, for
     # each prime factor, using pohligHellmanPrime, then we compute our final
     # result using chinese remindering theorem
     if length(A) > 1
@@ -717,7 +719,7 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
     # We iterate over Pq = PGL(P_1(F_q²))/PGL(P_1(F_q)) to create new equations 
     # involving P and its translations P - μ with μ in F_q², we keep only the 
     # one with a smooth left side and we fill a matrix to remember which
-    # transposes were used
+    # translations were used
     for m in Pq
         N = makeEquation(m, elem, h0, h1)
 
@@ -784,14 +786,16 @@ end
 
 export linearDlog
 """
-    linearDlog{T <: PolyElem}(base:: Nemo.Ring, degExt::Integer,
+    linearDlog{T <: PolyElem}(basis:: Nemo.Ring, degExt::Integer,
                               F::Nemo.Field, h0::T, h1::T, card::Nemo.fmpz,
                               Q::Nemo.Ring)
 
 
 Compute the discrete logarithm of the elements of type ``X + μ`` and of `h1`.
+
+This algorithm works only if the provided basis is *linear*.
 """
-function linearDlog{T <: PolyElem}(base:: Nemo.RingElem, degExt::Integer,
+function linearDlog{T <: PolyElem}(basis:: Nemo.RingElem, degExt::Integer,
                                    F::Nemo.Field, h0::T, h1::T, card::Nemo.fmpz,
                                    Q::Nemo.Ring)
 
@@ -810,7 +814,8 @@ function linearDlog{T <: PolyElem}(base:: Nemo.RingElem, degExt::Integer,
     # We iterate over Pq = PGL(P_1(F_q²))/PGL(P_1(F_q)) to create new equations 
     # involving X and its translations X - μ with μ in F_q², we keep only the 
     # one with a smooth left side and we fill a matrix to remember which
-    # transposes were used
+    # translations were used. Contrary to the descent algorithm, we also keep
+    # trace of the linear factors in the left side.
     for m in Pq
         N = makeEquation(m, X, h0, h1)
 
@@ -825,7 +830,7 @@ function linearDlog{T <: PolyElem}(base:: Nemo.RingElem, degExt::Integer,
                 M[index, j] -= f[2] 
             end
             M[charac^2+2, j] = 1
-            M[charac^2+3, j] = dlogSmallField(charac, degExt, base,
+            M[charac^2+3, j] = dlogSmallField(charac, degExt, basis,
                                              Q(inv(unit)*leadcoef))
         end
     end
@@ -835,24 +840,32 @@ function linearDlog{T <: PolyElem}(base:: Nemo.RingElem, degExt::Integer,
 
     # We compute the logarithm of the linear elements and h1 
     # modulo the small factors using Pohling Hellman algorithm
+    # We also look for the linear factor X-y that is the basis, this is a type
+    # problem, we cannot do it directly; but the types could be better managed
+    # in order not to do that
     dlogs = Array(Nemo.fmpz, charac^2+1)
     i = 0
     for y in F
         i += 1
-        dlogs[i] = pohligHellman(card, base, Q(X-y))[1]
-        if base == Q(X-y)
+        dlogs[i] = pohligHellman(card, basis, Q(X-y))[1]
+        if basis == Q(X-y)
             ind = i
         end
     end
 
     i += 1
-    dlogs[i], n = pohligHellman(card, base, Q(h1))
+    dlogs[i], n = pohligHellman(card, basis, Q(h1))
 
+    # We next look at the big factors of ``card-1``, we compute the result
+    # modulo each factor and reconstruct the result using chinese remaindering
+    # theorem
     v = div(card-1, n)
     bigFactors = factor(v)
 
+    # We compute the one-dimensionnal kernel, and we choose the vector with a 1
+    # at index `ind`, because this is the index of our basis (we chose it linear
+    # for that purpose)
     for p in bigFactors
-        println(p)
         Mred = rrefMod(M, p[1])[1]
         ker = Nemo.fmpz[Mred[i, charac^2+2] for i in 1:charac^2]
         s = gcdinv(ker[ind], p[1])[2]
@@ -863,7 +876,16 @@ function linearDlog{T <: PolyElem}(base:: Nemo.RingElem, degExt::Integer,
         n *= p[1]
     end
 
-    return dlogs
+    # And we put the results in a dictionnary, to be more easy to use
+    dico = Dict()
+    i = 0
+    for y in F
+        i += 1
+        dico[X-y] = dlogs[i]
+    end
+    dico[h1] = dlogs[i+1]
+
+    return dico
 end
 
 # Internal debugging functions, not documented
