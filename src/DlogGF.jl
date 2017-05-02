@@ -594,7 +594,7 @@ function pohligHellman{T}(card::Integer, gen::T, elem::T)
 
     # And we compute the discrete logarithm of `elem` in the basis `gen`, for
     # each prime factor, using pohligHellmanPrime, then we compute our final
-    # result using chinese remindering theorem
+    # result using Chinese remindering theorem
     if length(A) > 1
         a = pohligHellmanPrime(card, A[1], gen, elem)
         b = pohligHellmanPrime(card, A[2], gen, elem)
@@ -738,7 +738,6 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
 
     # We compute the row echelon form of M, such that M/det is reduced
     M, det = rref(M)
-    return M
 
     # We compute the inverse of `det` mod `card`
     det %= card
@@ -851,7 +850,7 @@ function linearDlog{T <: PolyElem}(basis:: Nemo.RingElem, degExt::Integer,
     dlogs[i], n = pohligHellman(card, basis, Q(h1))
 
     # We next look at the big factors of ``card-1``, we compute the result
-    # modulo each factor and reconstruct the result using chinese remaindering
+    # modulo each factor and reconstruct the result using Chinese remaindering
     # theorem
     v = div(card-1, n)
     bigFactors = factor(v)
@@ -900,7 +899,15 @@ This algorithm need the discrete logarithms of the linear factors, they can be
 computed using **linearDlog**.
 """
 function dlogBGJT(P::Nemo.fq_nmod_poly, K::SmsrField, dlogs::Dict{Any, Any})
+
+    # We first compute the discrete logarithm of `P` modulo 
+    # the small factors with Pohlig Hellman algorithm
     s, n = pohligHellman(K.cardinality, K.gen, K.bigField(P))
+
+    # Then we work with the large factors, using the descent algorithm to
+    # express log P in function of logarithms of polynomials with smaller degree
+    # and we stop once we have only linear polynomials, which logarithms are
+    # known
     N = div(Nemo.fmpz(K.cardinality-1), n)
     i = 1
     L = factorsList(P)
@@ -912,9 +919,14 @@ function dlogBGJT(P::Nemo.fq_nmod_poly, K::SmsrField, dlogs::Dict{Any, Any})
         i += 1
     end
 
+    # Once we have only linear polynomials, we compute the linear sum
+    # log P = Σ e_i × log P_i (mod N) where the e_is where calculated during the
+    # descent, and where the log P_is are given
     S = sum([L.coefs[j]*dlogs[L.factors[j]] for j in 1:length(L.factors)])
     S += dlogSmallField(K.characteristic, K.extensionDegree, K.gen,
                               K.bigField(L.unit))
+
+    # Then we reconstruct the result using Chinese remindering theorem
     return crt(s, n, S, N)
 end
 
