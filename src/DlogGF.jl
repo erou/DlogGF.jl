@@ -735,19 +735,11 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
     # represent the polynomial P
     M[1,j] = 1
     M = subMatrix(M, charac^2 + 1, j)
-#    return numerators, M
 
     # We compute the row echelon form of M, such that M/det is reduced
-  #  rank, det = rref!(M)
-    @time M, det = rref(M)
-    """
-    rnk = rank(M)
-    if rnk < charac^2
-        return error("Not enough equations")
-    end
-    """
+    M, det = rref(M)
+    return M
 
-    """
     # We compute the inverse of `det` mod `card`
     det %= card
     if det <= 0
@@ -760,11 +752,9 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
         println("The following number was a factor")
         return g
     end
-    """
 
     # We compute a solution
-#    sol = fmpz[(s*M[i,j])%card for i in 1:(charac^2+1)]
-    sol = fmpz[M[i,j] for i in 1:(charac^2+1)]
+    sol = Nemo.fmpz[(s*M[i,j])%card for i in 1:(charac^2+1)]
 
     # We compute the coordinates of the pivots (because we have redundant
     # equations)
@@ -781,7 +771,11 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
         L.unit *= (inv(units[piv[j]])*leadcoef)^(sol[j]*coef)
     end
     deleteat!(L, i0)
-    return det
+end
+
+function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
+                                    h0::T, h1::T, card::Integer)
+    return descentBGJT(L, i0, F, h0, h1, Nemo.fmpz(card))
 end
 
 export linearDlog
@@ -892,6 +886,36 @@ function linearDlog{T <: PolyElem}(basis:: Nemo.RingElem, degExt::Integer,
                                    F::Nemo.Field, h0::T, h1::T, card::Integer,
                                    Q::Nemo.Ring)
     return linearDlog(basis, degExt, F, h0, h1, Nemo.fmpz(card), Q)
+end
+
+export dlogBGJT
+"""
+    dlogBGJT(P::Nemo.RingElem, K::SmsrField, dlogs::Dict{Any, Any})
+
+Compute the discrete logarithm of `P` in the field `K`.
+
+The field `K` must have a sparse medium subfield representation. All the
+informations needed in the algorithm, like the basis, are in the object `K`.
+This algorithm need the discrete logarithms of the linear factors, they can be
+computed using **linearDlog**.
+"""
+function dlogBGJT(P::Nemo.fq_nmod_poly, K::SmsrField, dlogs::Dict{Any, Any})
+    s, n = pohligHellman(K.cardinality, K.gen, K.bigField(P))
+    N = div(Nemo.fmpz(K.cardinality-1), n)
+    i = 1
+    L = factorsList(P)
+
+    while i < length(L.factors) + 1
+        while degree(L.factors[i]) > 1
+            descentBGJT(L, i, K.mediumSubField, K.h0, K.h1, N)
+        end
+        i += 1
+    end
+
+    S = sum([L.coefs[j]*dlogs[L.factors[j]] for j in 1:length(L.factors)])
+    S += dlogSmallField(K.characteristic, K.extensionDegree, K.gen,
+                              K.bigField(L.unit))
+    return crt(s, n, S, N)
 end
 
 # Internal debugging functions, not documented
