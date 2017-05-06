@@ -50,7 +50,13 @@ end
 
 # Missing functions in Nemo/Julia
 
-Base.one(x::Nemo.GenRes{Nemo.fq_nmod_poly}) = parent(x)(1)
+Base.one(x::Nemo.GenRes{Nemo.fq_nmod_poly}) = parent(x)
+function Base.zero(a::FqNmodFiniteField)
+    d = a()
+    ccall((:fq_nmod_zero, :libflint), Void, 
+          (Ptr{fq_nmod}, Ptr{FqNmodFiniteField}), &d, &a)
+    return d
+end
 
 # Iterator over medium subfields (of type F_q²)
 # The elements are iterated in the order 0, 1, ..., q-1, x, 1 + x, 2 + x,
@@ -376,6 +382,18 @@ function pglUnperfect(x::RingElem)
         end
     end
     return A
+end
+
+export pglCosets
+function pglCosets{T <: RingElem}(x::T)
+    F = parent(x)
+    q = characteristic(F)
+    R = Array(T, 5, q)
+
+    for y in F
+        t = y^(q+1)
+        i = coeff(t, 0) + q*coeff(t, 1) + 1
+    end
 end
 
 export homogene
