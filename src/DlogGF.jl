@@ -719,7 +719,7 @@ function pohligHellman{T}(card::Integer, gen::T, elem::T)
     # We find the small (meaning, less that log(card)) prime factors of card
     q::BigInt = characteristic(base_ring(base_ring(parent(gen))))
     l::Int = ceil(Integer, (q^2-1)/2)
-#    l::Int = ceil(Integer, log2(card))
+    l = max(l, ceil(Integer, log2(card)))
     A = Array{Int, 1}()
     for i in primes(l)
         if card%i == 1
