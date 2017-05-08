@@ -11,6 +11,8 @@ field.
 2. Stephen C. Pohlig and Martin E. Hellman : An Improved Algorithm for Computing
   Logarithms over GF(p) and Its Cryptographic Signifiance, IEEE transactions on
   information theory, vol. it-24, no. 1, January 1978.
+3. Jincheng Zhuang and Qi Cheng : On Generating Coset Representatives of
+  PGL_2(F-q) in PGL_2(F_q²)
 """
 module DlogGF
 
@@ -379,6 +381,14 @@ function pglUnperfect(x::RingElem)
 end
 
 export pglCosets
+"""
+    pglCosets(g::RingElem)
+
+Compute the coset representatives of PGL(F_q²)/PGL(F_q).
+
+This algorithm is due to Jincheng Zhuang and Qi Cheng **[3]**, see References in
+the module documentation for more details.
+"""
 function pglCosets(g::RingElem)
     F = parent(g)
     q::Int = characteristic(F)
@@ -707,7 +717,9 @@ prime factors of card - 1.
 function pohligHellman{T}(card::Integer, gen::T, elem::T)
 
     # We find the small (meaning, less that log(card)) prime factors of card
-    l::Int = ceil(Integer, log2(card))
+    q::BigInt = characteristic(base_ring(base_ring(parent(gen))))
+    l::Int = ceil(Integer, (q^2-1)/2)
+#    l::Int = ceil(Integer, log2(card))
     A = Array{Int, 1}()
     for i in primes(l)
         if card%i == 1
