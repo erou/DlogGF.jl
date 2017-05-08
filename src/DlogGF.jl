@@ -50,6 +50,48 @@ function rrefMod(M::Nemo.fmpz_mat, n::Integer)
     return N, rank, perm
 end
 
+function powmod(x::Nemo.fq_nmod_poly, n::Nemo.fmpz, y::Nemo.fq_nmod_poly)
+   check_parent(x,y)
+   z = parent(x)()
+
+   if n < 0
+      g, x = gcdinv(x, y)
+      if g != 1
+         error("Element not invertible")
+      end
+      n = -n
+   end
+
+   ccall((:fq_nmod_poly_powmod_fmpz_binexp, :libflint), Void,
+         (Ptr{fq_nmod_poly}, Ptr{fq_nmod_poly}, Ptr{fmpz}, Ptr{fq_nmod_poly},
+         Ptr{FqNmodFiniteField}), &z, &x, &n, &y, &base_ring(parent(x)))
+  return z
+end
+
+powmod(x::Nemo.fq_nmod_poly, n::Integer, y::Nemo.fq_nmod_poly) = powmod(x,
+                                                                        ZZ(n), y)
+
+function powmodPreinv(x::Nemo.fq_nmod_poly, n::Nemo.fmpz, y::Nemo.fq_nmod_poly,
+                     p::Nemo.fq_nmod_poly)
+   check_parent(x,y)
+   z = parent(x)()
+
+   if n < 0
+      g, x = gcdinv(x, y)
+      if g != 1
+         error("Element not invertible")
+      end
+      n = -n
+   end
+
+   ccall((:fq_nmod_poly_powmod_fmpz_binexp_preinv, :libflint), Void,
+         (Ptr{fq_nmod_poly}, Ptr{fq_nmod_poly}, Ptr{fmpz}, Ptr{fq_nmod_poly},
+          Ptr{fq_nmod_poly}, Ptr{FqNmodFiniteField}), &z, &x, &n, &y, &p, 
+          &base_ring(parent(x)))
+
+  return z
+end
+
 # Missing functions in Nemo/Julia
 
 Base.one(x::Nemo.GenRes{Nemo.fq_nmod_poly}) = parent(x)
