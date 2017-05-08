@@ -940,7 +940,7 @@ function linearDlog{T <: PolyElem}(basis:: Nemo.RingElem, degExt::Integer,
     n = 0
     ind = 0
 
-    S = MatrixSpace(ZZ, charac^2+3,charac^3+charac+1)
+    S = MatrixSpace(ZZ, charac^2+2,charac^3+charac+1)
     M = zero(S)
 #    Pq = pglUnperfect(x)
     Pq = pglCosets(x)
@@ -956,7 +956,6 @@ function linearDlog{T <: PolyElem}(basis:: Nemo.RingElem, degExt::Integer,
         if isSmooth(N, 1)
             j += 1
             unit = fillMatrixBGJT!(M, j, m, F)
-            leadcoef = coeff(N, degree(N))
             fact = factor(N)
             for f in fact
                 cst = -coeff(f[1], 0)
@@ -964,12 +963,10 @@ function linearDlog{T <: PolyElem}(basis:: Nemo.RingElem, degExt::Integer,
                 M[index, j] -= f[2] 
             end
             M[charac^2+2, j] = 1
-            M[charac^2+3, j] = dlogSmallField(charac, degExt, basis,
-                                             Q(inv(unit)*leadcoef))
         end
     end
 
-    M = subMatrix(M, charac^2 + 3, j)
+    M = subMatrix(M, charac^2 + 2, j)
     M = transpose(M)
 
     # We compute the logarithm of the linear elements and h1 
