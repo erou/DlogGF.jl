@@ -398,6 +398,7 @@ function pglCosets(g::RingElem)
                 break
             elseif R[j, i] == 0
                 R[j, i] = y
+                break
             end
         end
     end
@@ -1158,6 +1159,39 @@ function checkmat(M::MatElem, K, T::PolyElem)
             break
         end
     end
+end
+
+function isConjugate(A, B)
+    C = A*inv(B)
+    if C[1, 1] != 0
+        C = inv(C[1, 1])*C
+        if coeff(C[1, 2], 1) == 0 && coeff(C[2, 1], 1) == 0 && coeff(C[2, 2], 1) == 0
+            return true
+        end
+    else
+        C = inv(C[1, 2])*C
+        if coeff(C[2, 1], 1) == 0 && coeff(C[2, 2], 1) == 0
+            return true
+        end
+    end
+    return false
+end
+
+function truePgl(pgl)
+    new = Array{typeof(pgl[1]), 1}()
+    for M in pgl
+        b = true
+        for N in new
+            if isConjugate(M, N)
+                b = false
+                break
+            end
+        end
+        if b
+            push!(new, M)
+        end
+    end
+    return new
 end
 
 # end of module
