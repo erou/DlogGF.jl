@@ -207,8 +207,7 @@ immutable SmsrField
     h1::PolyElem
     definingPolynomial::PolyElem
     mediumSubField::Nemo.Ring
-    gen::RingElem
-    bigField::Nemo.Ring
+    gen::PolyElem
 end
 
 export smsrField
@@ -252,23 +251,22 @@ function smsrField(q::Integer, k::Integer, deg::Integer = 1, check::Bool = false
 
     # We then create the big field as a residue ring and compute a generator
     # of the group of the inversible elements of the big field (at random)
-    bigField = ResidueRing(polyRing, definingPolynomial)
-    gen = bigField(randomPolynomial(polyRing, 0) + T)
+    gen = randomPolynomial(polyRing, 0) + T
 
     # We optionally check that `gen` is indeed a generator
     if check
-        while !isGenerator(gen, card)
-            gen = bigField(randomPolynomial(polyRing, 0) + T)
+        while !isGenerator(gen, card, definingPolynomial)
+            gen = randomPolynomial(polyRing, 0) + T
         end
     else
-        while !miniCheck(gen, card)
-            gen = bigField(randomPolynomial(polyRing, 0) + T)
+        while !miniCheck(gen, card, definingPolynomial)
+            gen = randomPolynomial(polyRing, 0) + T
         end
     end
 
     # And we call the constructor of the type `SmsrField`
     return SmsrField(q, k, card, h0, h1, definingPolynomial,
-                     mediumSubField, gen, bigField)
+                     mediumSubField, gen)
 end
 
 export isGenerator
@@ -278,7 +276,7 @@ export isGenerator
 Return `true` if gen is a generator of the group of the inversible elements of
 the finite field of cardinal `card`. Return `false` otherwise.
 """
-function isGenerator(gen::RingElem, card::Integer)
+function isGenerator(gen::RingElem, card::Integer, defPol::PolyElem)
     # We compute the factorisation of card-1 
     fact = factor(card-1)
     d::Integer = 0
@@ -287,7 +285,7 @@ function isGenerator(gen::RingElem, card::Integer)
     # which we have gen^d = 1
     for x in fact
         d = (card-1)//x[1]
-        if gen^d == 1
+        if powmod(gen, d, defPol) == 1
             return false
         end
     end
@@ -306,7 +304,7 @@ cardinal.
 
 Passing this test does *not* guarantee that `gen` is a generator.
 """
-function miniCheck(gen::RingElem, card::Integer)
+function miniCheck(gen::RingElem, card::Integer, defPol::PolyElem)
 
     # We find the small primes dividing our cardinal
     d::Integer = 0
@@ -321,7 +319,7 @@ function miniCheck(gen::RingElem, card::Integer)
     # And we test the generator on those primes
     for x in A
         d = (card-1)//x
-        if gen^d == 1
+        if powmod(gen, d, defPol) == 1
             return false
         end
     end
@@ -634,16 +632,17 @@ Compute the discrete logarithm of `elem` in the basis `gen`.
 
 This strategy works if `elem` is in fact in the medium subfield.
 """
-function dlogSmallField{T}(carac::Integer, degExt::Integer, gen::T, elem::T)
+function dlogSmallField{T}(carac::Integer, degExt::Integer, gen::T, elem::T,
+                           defPol::T)
 
     # We compute the norm of `gen`
     q = BigInt(carac)^2
     c = div(q^degExt-1, q-1)
-    n = gen^c
+    n = powmod(gen, c, defPol)
 
     # Then we find the logarithm of `elem` is the basis `n`
     i = 1
-    while n^i != elem
+    while powmod(n, i, defPol) != elem
         i += 1
     end
 
@@ -715,20 +714,20 @@ Where `prime` si a prime number dividing `card` and `n` is the largest integer
 such that `prime^n` divides `card`. See reference **[2]** for more information about
 this algorithm, the references can be found in the documentation of the module.
 """
-function pohligHellmanPrime{T <: RingElem}(card::Integer, prime::Integer,
-                                           gen::T, elem::T)
+function pohligHellmanPrime{T <: PolyElem}(card::Integer, prime::Integer,
+                                           gen::T, elem::T, defPol::T)
 
     # We compute a table of the `prime`-th roots of unit
     d::Integer = div(card-1, prime)
-    g = gen^d
+    g = powmod(gen, d, defPol)
     arr = Array(T, prime)
     for i in 0:(prime-1)
-        arr[i + 1] = g^i
+        arr[i + 1] = powmod(g, i, defPol)
     end
 
     res = 0
     tmp = elem
-    inverse = inv(gen)
+    inverse = gcdinv(gen, defPol)[2]
 
     # We compute the largest integer `n` such that `prime^n` divides `card`
     n = 1
@@ -741,9 +740,9 @@ function pohligHellmanPrime{T <: RingElem}(card::Integer, prime::Integer,
     d = card-1
     for i in 0:(n-1)
         d = div(d, prime)
-        b = findfirst(arr, tmp^d) - 1
+        b = findfirst(arr, powmod(tmp, d, defPol)) - 1
         res += b*prime^i
-        tmp = tmp*inverse^(b*prime^i)
+        tmp = mulmod(tmp, powmod(inverse, b*prime^i, defPol), defPol)
     end
 
     return (fmpz(res), fmpz(prime)^n)
@@ -756,10 +755,10 @@ export pohligHellman
 Compute the discrete logarithm of `elem` in the basis `gen`, modulo the small
 prime factors of card - 1.
 """
-function pohligHellman{T}(card::Integer, gen::T, elem::T)
+function pohligHellman{T}(card::Integer, gen::T, elem::T, defPol::T)
 
     # We find the small (meaning, less that log(card)) prime factors of card
-    q::BigInt = characteristic(base_ring(base_ring(parent(gen))))
+    q::BigInt = characteristic(base_ring(parent(gen)))
     l::Int = ceil(Integer, (q^2-1)/2)
     l = max(l, ceil(Integer, log2(card)))
     A = Array{Int, 1}()
@@ -777,21 +776,21 @@ function pohligHellman{T}(card::Integer, gen::T, elem::T)
     # each prime factor, using pohligHellmanPrime, then we compute our final
     # result using Chinese remindering theorem
     if length(A) > 1
-        a = pohligHellmanPrime(card, A[1], gen, elem)
-        b = pohligHellmanPrime(card, A[2], gen, elem)
+        a = pohligHellmanPrime(card, A[1], gen, elem, defPol)
+        b = pohligHellmanPrime(card, A[2], gen, elem, defPol)
         res, n = crt(a[1], a[2], b[1], b[2]), a[2]*b[2]
         for i in 1:(length(A)-2)
-            a = pohligHellmanPrime(card, A[i+2], gen, elem)
+            a = pohligHellmanPrime(card, A[i+2], gen, elem, defPol)
             res, n = crt(res, n, a[1], a[2]), n*a[2]
         end
         return res, n
     else 
-        return pohligHellmanPrime(card, 2, gen, elem)
+        return pohligHellmanPrime(card, 2, gen, elem, defPol)
     end
 end
 
-pohligHellman{T}(card::Nemo.fmpz, gen::T, elem::T) = pohligHellman(BigInt(card),
-                                                                   gen, elem)
+pohligHellman{T}(card::Nemo.fmpz, gen::T, elem::T, defPol::T) =
+pohligHellman(BigInt(card), gen, elem, defPol)
 
 # BGJT algorithm
 
@@ -970,17 +969,18 @@ Compute the discrete logarithm of the elements of type ``X + μ`` and of `h1`.
 
 This algorithm works only if the provided basis is *linear*.
 """
-function linearDlog{T <: PolyElem}(basis:: Nemo.RingElem, degExt::Integer,
-                                   F::Nemo.Field, h0::T, h1::T, card::Nemo.fmpz,
-                                   Q::Nemo.Ring)
+function linearDlog{T <: PolyElem}(basis::T, degExt::Integer, h0::T, h1::T,
+                                   card::Nemo.fmpz, defPol::T)
 
     # We set some constants, arrays, matrices
+    F = base_ring(h0)
     charac::Int = characteristic(F)
     x = gen(F)
     X = gen(parent(h0))
     j = 0
     n = 0
-    ind = 0
+    o = -coeff(basis, 0)
+    ind::Int = coeff(o, 0) + coeff(o, 1)*charac + 1
 
     S = MatrixSpace(ZZ, charac^2+2,charac^3+charac+1)
     M = zero(S)
@@ -1020,14 +1020,11 @@ function linearDlog{T <: PolyElem}(basis:: Nemo.RingElem, degExt::Integer,
     i = 0
     for y in F
         i += 1
-        dlogs[i] = pohligHellman(card, basis, Q(X-y))[1]
-        if basis == Q(X-y)
-            ind = i
-        end
+        dlogs[i] = pohligHellman(card, basis, X-y, defPol)[1]
     end
 
     i += 1
-    dlogs[i], n = pohligHellman(card, basis, Q(h1))
+    dlogs[i], n = pohligHellman(card, basis, h1, defPol)
 
     # We next look at the big factors of ``card-1``, we compute the result
     # modulo each factor and reconstruct the result using Chinese remaindering
