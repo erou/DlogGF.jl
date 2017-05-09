@@ -1057,9 +1057,8 @@ function linearDlog{T <: PolyElem}(basis::T, degExt::Integer, h0::T, h1::T,
 end
 
 function linearDlog{T <: PolyElem}(basis:: Nemo.RingElem, degExt::Integer,
-                                   F::Nemo.Field, h0::T, h1::T, card::Integer,
-                                   Q::Nemo.Ring)
-    return linearDlog(basis, degExt, F, h0, h1, Nemo.fmpz(card), Q)
+                                   h0::T, h1::T, card::Integer, defPol::T)
+    return linearDlog(basis, degExt, h0, h1, Nemo.fmpz(card), defPol)
 end
 
 export dlogBGJT
