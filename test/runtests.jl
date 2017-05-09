@@ -257,13 +257,14 @@ function testIsGenerator()
     g = K.gen
     c = K.cardinality
     R = parent(g)
+    defPol = K.definingPolynomial
 
-    @test isGenerator(R(1), c) == false
-    @test isGenerator(g, c) == true
-    @test isGenerator(g^2, c) == false
-    @test miniCheck(g, c) == true
-    @test miniCheck(g^2, c) == false
-    @test miniCheck(R(1), c) == false
+    @test isGenerator(R(1), c, defPol) == false
+    @test isGenerator(g, c, defPol) == true
+    @test isGenerator(g^2, c, defPol) == false
+    @test miniCheck(g, c, defPol) == true
+    @test miniCheck(g^2, c, defPol) == false
+    @test miniCheck(R(1), c, defPol) == false
 
     println("PASS")
 end
