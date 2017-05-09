@@ -50,8 +50,7 @@ function rrefMod(M::Nemo.fmpz_mat, n::Integer)
     return N, rank, perm
 end
 
-export powmod
-function powmod(x::Nemo.fq_nmod_poly, n::Nemo.fmpz, y::Nemo.fq_nmod_poly)
+function Nemo.powmod(x::Nemo.fq_nmod_poly, n::Nemo.fmpz, y::Nemo.fq_nmod_poly)
    check_parent(x,y)
    z = parent(x)()
 
@@ -69,7 +68,7 @@ function powmod(x::Nemo.fq_nmod_poly, n::Nemo.fmpz, y::Nemo.fq_nmod_poly)
   return z
 end
 
-powmod(x::Nemo.fq_nmod_poly, n::Integer, y::Nemo.fq_nmod_poly) = powmod(x,
+Nemo.powmod(x::Nemo.fq_nmod_poly, n::Integer, y::Nemo.fq_nmod_poly) = Nemo.powmod(x,
                                                                         ZZ(n), y)
 
 function powmodPreinv(x::Nemo.fq_nmod_poly, n::Nemo.fmpz, y::Nemo.fq_nmod_poly,
