@@ -103,7 +103,7 @@ function testHomogeneEq()
     P = (14*x+1)*T^5+(16*x+6)*T^4+(4*x+10)*T^3+(11*x+6)*T^2+(2*x+2)*T+(8*x+16)
     tmp = R()
     for j in 0:degree(P)
-        tmp += Q(coeff(P, j)^17*T^(17*j))
+        tmp += coeff(P, j)^17*T^(17*j)
     end
 
     tmp %= polDef
@@ -131,7 +131,7 @@ function testHomogeneEq()
     P = (5*x+16)*T^15+(10*x+1)*T^14+(6*x+4)*T^13+(15*x+15)*T^12+(7*x+6)*T^11+(12*x+12)*T^10+(5*x+10)*T^9+(12*x+3)*T^8+(15*x+2)*T^7+(9*x+11)*T^6+(15*x+4)*T^5+(13*x+11)*T^4+(9*x+2)*T^3+(10*x+2)*T^2+(14*x+13)*T+(x)
    tmp = R()
     for j in 0:degree(P)
-        tmp += Q(coeff(P, j)^17*T^(17*j))
+        tmp += coeff(P, j)^17*T^(17*j)
     end
 
     tmp %= polDef
