@@ -224,6 +224,7 @@ function testPohligHellman()
     K = smsrField(17, 17, 1, true)
     g = K.gen
     c = K.cardinality
+    defPol = K.definingPolynomial
 
     @test pohligHellmanPrime(c, 2, g, powmod(g, 10, defPol), defPol) == (10, 32)
     @test pohligHellmanPrime(c, 2, g, powmod(g, 14, defPol), defPol) == (14, 32)
@@ -236,6 +237,8 @@ function testPohligHellman()
     K = smsrField(7, 7, 1, true)
     g = K.gen
     c = K.cardinality
+    defPol = K.definingPolynomial
+
     @test pohligHellmanPrime(c, 29, g, powmod(g, 25, defPol), defPol) == (25, 29)
     @test pohligHellmanPrime(c, 29, g, powmod(g, 123, defPol), defPol) == (7, 29)
     @test pohligHellmanPrime(c, 3, g, powmod(g, 4, defPol), defPol) == (1, 3)
