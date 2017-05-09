@@ -193,11 +193,9 @@ F_{q^{2k}}``.
 * `cardinality::Integer` : cardinality of the field
 * `h0::PolyElem` and `h1::PolyElem` are polynomials such that ``h1*X^q-h0`` has
   a degree ``k`` irreducible factor, named `definingPolynomial::PolyElem`
-* `mediumSubField::Nemo.Ring : the field ``\\mathbb F_{q^2}``
 * `gen::RingElem` is a generator of the group of the inversible elements of the
   field, it is actually taken at random *without* checking that it is indeed a
   generator by default
-* `bigField::Nemo.Ring` : the field ``K = \\mathbb F_{q^{2k}}``
 """
 immutable SmsrField
     characteristic::Integer
@@ -269,7 +267,7 @@ end
 
 export isGenerator
 """
-    isGenerator(gen::RingElem, card::Integer)
+    isGenerator(gen::RingElem, card::Integer, defPol::PolyElem)
 
 Return `true` if gen is a generator of the group of the inversible elements of
 the finite field of cardinal `card`. Return `false` otherwise.
@@ -292,7 +290,7 @@ end
 
 export miniCheck
 """
-    miniCheck(gen::RingElem, card::Integer)
+    miniCheck(gen::RingElem, card::Integer, defPol::PolyElem)
 
 Check that `gen` is not trivially not generator.
 
@@ -624,7 +622,8 @@ end
 
 export dlogSmallField
 """
-    dlogSmallField{T}(carac::Integer, degExt::Integer, gen::T, elem::T)
+    dlogSmallField{T}(carac::Integer, degExt::Integer, gen::T, elem::T,
+                           defPol::T)
 
 Compute the discrete logarithm of `elem` in the basis `gen`.
 
@@ -703,8 +702,8 @@ end
 
 export pohligHellmanPrime
 """
-    pohligHellmanPrime{T <: RingElem}(card::Integer, prime::Integer,
-                                      gen::T, elem::T)
+    pohligHellmanPrime{T <: PolyElem}(card::Integer, prime::Integer,
+                                           gen::T, elem::T, defPol::T)
                                       
 Compute the discrete logarithm of `elem` mod `prime^n` in basis `gen`.
 
@@ -748,7 +747,7 @@ end
 
 export pohligHellman
 """
-    pohligHellman{T}(card::Integer, gen::T, elem::T)
+    pohligHellman{T}(card::Integer, gen::T, elem::T, defPol::T)
 
 Compute the discrete logarithm of `elem` in the basis `gen`, modulo the small
 prime factors of card - 1.
@@ -872,15 +871,16 @@ end
 
 export descentBGJT
 """
-    descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
-                               h0::T, h1::T, card::Nemo.fmpz)
+    descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, h0::T, h1::T,
+                                    card::Nemo.fmpz)
 
 The descent phase of the BGJT algorithm.
 """
-function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
-                                    h0::T, h1::T, card::Nemo.fmpz)
+function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, h0::T, h1::T,
+                                    card::Nemo.fmpz)
 
     # We set some constants, arrays, matrices
+    F = base_ring(h0)
     elem, coef = L[i0]
     deg = degree(elem)
     smoothBound = ceil(Integer, deg/2)
@@ -958,10 +958,8 @@ end
 
 export linearDlog
 """
-    linearDlog{T <: PolyElem}(basis:: Nemo.Ring, degExt::Integer,
-                              F::Nemo.Field, h0::T, h1::T, card::Nemo.fmpz,
-                              Q::Nemo.Ring)
-
+    linearDlog{T <: PolyElem}(basis::T, degExt::Integer, h0::T, h1::T,
+                              card::Nemo.fmpz, defPol::T)
 
 Compute the discrete logarithm of the elements of type ``X + μ`` and of `h1`.
 
@@ -1074,9 +1072,11 @@ computed using **linearDlog**.
 """
 function dlogBGJT(P::Nemo.fq_nmod_poly, K::SmsrField, dlogs::Dict{Any, Any})
 
+    defPol = K.definingPolynomial
+    R = parent(K.gen)
     # We first compute the discrete logarithm of `P` modulo 
     # the small factors with Pohlig Hellman algorithm
-    s, n = pohligHellman(K.cardinality, K.gen, K.bigField(P))
+    s, n = pohligHellman(K.cardinality, K.gen, P, defPol)
 
     # Then we work with the large factors, using the descent algorithm to
     # express log P in function of logarithms of polynomials with smaller degree
@@ -1088,7 +1088,7 @@ function dlogBGJT(P::Nemo.fq_nmod_poly, K::SmsrField, dlogs::Dict{Any, Any})
 
     while i < length(L.factors) + 1
         while degree(L.factors[i]) > 1
-            descentBGJT(L, i, K.mediumSubField, K.h0, K.h1, N)
+            descentBGJT(L, i, K.h0, K.h1, N)
         end
         i += 1
     end
@@ -1098,7 +1098,7 @@ function dlogBGJT(P::Nemo.fq_nmod_poly, K::SmsrField, dlogs::Dict{Any, Any})
     # descent, and where the log P_is are given
     S = sum([L.coefs[j]*dlogs[L.factors[j]] for j in 1:length(L.factors)])
     S += dlogSmallField(K.characteristic, K.extensionDegree, K.gen,
-                              K.bigField(L.unit))
+                        R(L.unit), defPol)
 
     # Then we reconstruct the result using Chinese remindering theorem
     return crt(s, n, S, N)
