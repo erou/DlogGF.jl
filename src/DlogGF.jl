@@ -50,6 +50,7 @@ function rrefMod(M::Nemo.fmpz_mat, n::Integer)
     return N, rank, perm
 end
 
+export powmod
 function powmod(x::Nemo.fq_nmod_poly, n::Nemo.fmpz, y::Nemo.fq_nmod_poly)
    check_parent(x,y)
    z = parent(x)()
