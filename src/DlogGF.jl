@@ -206,7 +206,6 @@ immutable SmsrField
     h0::PolyElem
     h1::PolyElem
     definingPolynomial::PolyElem
-    mediumSubField::Nemo.Ring
     gen::PolyElem
 end
 
@@ -265,8 +264,7 @@ function smsrField(q::Integer, k::Integer, deg::Integer = 1, check::Bool = false
     end
 
     # And we call the constructor of the type `SmsrField`
-    return SmsrField(q, k, card, h0, h1, definingPolynomial,
-                     mediumSubField, gen)
+    return SmsrField(q, k, card, h0, h1, definingPolynomial, gen)
 end
 
 export isGenerator
