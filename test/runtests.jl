@@ -129,7 +129,7 @@ function testHomogeneEq()
     @test tmp2 == u*tmp3
 
     P = (5*x+16)*T^15+(10*x+1)*T^14+(6*x+4)*T^13+(15*x+15)*T^12+(7*x+6)*T^11+(12*x+12)*T^10+(5*x+10)*T^9+(12*x+3)*T^8+(15*x+2)*T^7+(9*x+11)*T^6+(15*x+4)*T^5+(13*x+11)*T^4+(9*x+2)*T^3+(10*x+2)*T^2+(14*x+13)*T+(x)
-   tmp = R()
+    tmp = R()
     for j in 0:degree(P)
         tmp += coeff(P, j)^17*T^(17*j)
     end
@@ -138,7 +138,7 @@ function testHomogeneEq()
     m = pglUnperfect(x)[19]
     a, b, c, d = m[1,1], m[1,2], m[2,1], m[2,2]
     tmp = ((a^17*tmp+b^17)*(c*P+d)-(a*P+b)*(c^17*tmp+d^17))%polDef
-    tmp2 = makeEquation(m, P, K.h0, K.h1)*gcdinv(K.h1,polDef)[2]^17
+    tmp2 = makeEquation(m, P, K.h0, K.h1)*gcdinv(K.h1,polDef)[2]^15
     tmp2 %= polDef
     @test tmp == tmp2
 
