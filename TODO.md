@@ -9,12 +9,6 @@ with the constant just at the end, when needed. In particular, in the `dlog`
 function, we have a whole column filled with the discrete logarithm of the 
 constants that will vanish during the computation modulo the big primes.
 
-## Nemo generic residue ring vs fq_nmod_poly
-
-There are functions that *theoretically* use an element in the big field K, and
-actually use the GenRes type of Nemo, and others use the fq_nmod_poly, this
-inconsistance should be treated. 
-
 ## Sparse linear algebra
 
 We presently use Gaussian elimination to solve our linear systems, but the
