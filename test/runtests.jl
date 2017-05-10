@@ -329,7 +329,6 @@ function testAll()
 
     testRandomSuite()
     testSmsrField()
-    testPglUnperfect()
     testHomogeneEq()
     testIsSmooth()
     testFactorsList()
