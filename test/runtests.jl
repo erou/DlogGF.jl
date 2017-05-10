@@ -301,7 +301,7 @@ function testLinearDlog()
     print("linearDlog, dlogBGJT... ")
 
     F, x = FiniteField(17, 2, "x")
-    R, T = PolynomialRing(F, T)
+    R, T = PolynomialRing(F, "T")
     K = SmsrField(17,17,684326450885775034048946719925754910487329,(9*x+11)*T+(11*x+5),T+(15*x+7),T^17+(15*x+6)*T^16+(2*x+11)*T^15+(15*x+6)*T^14+(2*x+11)*T^13+(15*x+6)*T^12+(2*x+11)*T^11+(15*x+6)*T^10+(2*x+11)*T^9+(15*x+6)*T^8+(2*x+11)*T^7+(15*x+6)*T^6+(2*x+11)*T^5+(15*x+6)*T^4+(2*x+11)*T^3+(15*x+6)*T^2+(2*x+11)*T+(6*x+12),T+(10*x+8))
     g = K.gen
     k = K.extensionDegree
