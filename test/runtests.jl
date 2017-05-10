@@ -5,14 +5,14 @@ function testRandomSuite()
 
     F, x = FiniteField(5, 2, "x")
 
-    @test parent(randomElem(F)) == F
-    @test length(randomList(F, 10)) == 10
-    @test parent(randomList(F, 5)[1]) == F
+    @test parent(DlogGF.randomElem(F)) == F
+    @test length(DlogGF.randomList(F, 10)) == 10
+    @test parent(DlogGF.randomList(F, 5)[1]) == F
 
     R, T = PolynomialRing(F, "T")
 
-    @test degree(randomPolynomial(R, 34)) == 34
-    @test parent(randomPolynomial(R, 34)) == R
+    @test degree(DlogGF.randomPolynomial(R, 34)) == 34
+    @test parent(DlogGF.randomPolynomial(R, 34)) == R
 
     println("PASS")
 end
@@ -20,7 +20,7 @@ end
 function testSmsrField()
     print("smsrField... ")
 
-    K = smsrField(5, 4)
+    K = DlogGF.smsrField(5, 4)
 
     @test K.cardinality == 5^8
     @test length(factor(K.definingPolynomial)) == 1
@@ -30,40 +30,19 @@ function testSmsrField()
     println("PASS")
 end
 
-function testPglUnperfect()
-    print("pglUnperfect... ")
-
-    F, x = FiniteField(5, 2, "x")
-    L = pglUnperfect(x)
-
-    @test parent(L[12][2,2]) == F
-    @test L[27][1,1] == 1
-
-    boo = true
-    for y in L
-        if rank(y) != 2
-            boo = false
-        end
-    end
-
-    @test boo
-
-    println("PASS")
-end
-
 function testHomogeneEq()
     print("homogene, makeEquation, fillMatrixBGJT!... ")
-    K = smsrField(5, 5, 1, true)
+    K = DlogGF.smsrField(5, 5, 1, true)
     F = base_ring(K.h0)
     x = gen(F)
     R, T = PolynomialRing(F, "T")
     P = (3)*T^3+(x+3)*T^2+(3*x+1)*T+(4*x+1)
-    m = pglUnperfect(x)[8]
+    m = DlogGF.pglCosets(x)[8]
     polDef = K.definingPolynomial
 
-    @test homogene(T, T^2, T^3) == T^2
-    @test homogene(T - 2, T^2, T^3) == T^2 - 2*T^3
-    @test homogene(R(x), T^2, T^3) == x^5
+    @test DlogGF.homogene(T, T^2, T^3) == T^2
+    @test DlogGF.homogene(T - 2, T^2, T^3) == T^2 - 2*T^3
+    @test DlogGF.homogene(R(x), T^2, T^3) == x^5
 
     tmp = R()
     for j in 0:degree(P)
@@ -74,13 +53,13 @@ function testHomogeneEq()
 
     a, b, c, d = m[1,1], m[1,2], m[2,1], m[2,2]
     tmp = ((a^5*tmp+b^5)*(c*P+d)-(a*P+b)*(c^5*tmp+d^5))%polDef
-    tmp2 = makeEquation(m, P, K.h0, K.h1)*gcdinv(K.h1,polDef)[2]^3
+    tmp2 = DlogGF.makeEquation(m, P, K.h0, K.h1)*gcdinv(K.h1,polDef)[2]^3
     tmp2 %= polDef
     @test tmp == tmp2
 
     S = MatrixSpace(ZZ, 5^2+1, 1)
     M = S()
-    u = fillMatrixBGJT!(M, 1, m, F)
+    u = DlogGF.fillMatrixBGJT!(M, 1, m, F)
     i = 1
     tmp3=R(1)
     for y in F
@@ -95,7 +74,7 @@ function testHomogeneEq()
 
     P = T^3 + (x+1)*T^2 +4*x*T+3
 
-    K = smsrField(17, 17, 1, true)
+    K = DlogGF.smsrField(17, 17, 1, true)
     F = base_ring(K.h0)
     x = gen(F)
     R, T = PolynomialRing(F, "T")
@@ -107,16 +86,16 @@ function testHomogeneEq()
     end
 
     tmp %= polDef
-    m = pglUnperfect(x)[19]
+    m = DlogGF.pglCosets(x)[19]
     a, b, c, d = m[1,1], m[1,2], m[2,1], m[2,2]
     tmp = ((a^17*tmp+b^17)*(c*P+d)-(a*P+b)*(c^17*tmp+d^17))%polDef
-    tmp2 = makeEquation(m, P, K.h0, K.h1)*gcdinv(K.h1,polDef)[2]^5
+    tmp2 = DlogGF.makeEquation(m, P, K.h0, K.h1)*gcdinv(K.h1,polDef)[2]^5
     tmp2 %= polDef
     @test tmp == tmp2
 
     S = MatrixSpace(ZZ, 17^2+1, 1)
     M = S()
-    u = fillMatrixBGJT!(M, 1, m, F)
+    u = DlogGF.fillMatrixBGJT!(M, 1, m, F)
     i = 1
     tmp3=R(1)
     for y in F
@@ -135,16 +114,16 @@ function testHomogeneEq()
     end
 
     tmp %= polDef
-    m = pglUnperfect(x)[19]
+    m = DlogGF.pglCosets(x)[19]
     a, b, c, d = m[1,1], m[1,2], m[2,1], m[2,2]
     tmp = ((a^17*tmp+b^17)*(c*P+d)-(a*P+b)*(c^17*tmp+d^17))%polDef
-    tmp2 = makeEquation(m, P, K.h0, K.h1)*gcdinv(K.h1,polDef)[2]^15
+    tmp2 = DlogGF.makeEquation(m, P, K.h0, K.h1)*gcdinv(K.h1,polDef)[2]^15
     tmp2 %= polDef
     @test tmp == tmp2
 
     S = MatrixSpace(ZZ, 17^2+1, 1)
     M = S()
-    u = fillMatrixBGJT!(M, 1, m, F)
+    u = DlogGF.fillMatrixBGJT!(M, 1, m, F)
     i = 1
     tmp3=R(1)
     for y in F
@@ -166,9 +145,9 @@ function testIsSmooth()
     R, T = PolynomialRing(F, "T")
     P = (x)*T^20+(2*x+2)*T^19+(x+1)*T^18+(3*x)*T^17+(4*x)*T^16+(3*x+4)*T^15+(x+3)*T^14+(2*x)*T^13+(4*x)*T^12+(x+4)*T^11+(3*x+1)*T^10+(4*x+3)*T^9+(4*x+3)*T^8+(2*x)*T^7+(x)*T^6+(2*x+2)*T^5+(x)*T^4+(4*x+2)*T^3+(2*x+3)*T^2+(2)*T
 
-    @test isSmooth(P, 2) == false
-    @test isSmooth(P, 6) == true
-    @test isSmooth(T, 1) == true
+    @test DlogGF.isSmooth(P, 2) == false
+    @test DlogGF.isSmooth(P, 6) == true
+    @test DlogGF.isSmooth(T, 1) == true
 
     println("PASS")
 end
@@ -178,7 +157,7 @@ function testFactorsList()
 
     F, x = FiniteField(5, 2, "x")
     R, T = PolynomialRing(F, "T")
-    L = factorsList(T)
+    L = DlogGF.factorsList(T)
 
     @test typeof(L) == DlogGF.FactorsList
     @test L.factors == [T]
@@ -205,47 +184,47 @@ end
 function testPohligHellman()
     print("pohligHellmanPrime, pohligHellman... ")
 
-    K = smsrField(13, 13, 1, true)
+    K = DlogGF.smsrField(13, 13, 1, true)
     g = K.gen
     c = K.cardinality
     defPol = K.definingPolynomial
 
-    @test pohligHellmanPrime(c, 3, g, powmod(g, 5, defPol), defPol) == (2, 3)
-    @test pohligHellmanPrime(c, 53, g, powmod(g, 5, defPol), defPol) == (5, 53)
-    @test pohligHellmanPrime(c, 53, g, powmod(g, 85, defPol), defPol) == (32, 53)
-    @test pohligHellmanPrime(c, 2, g, powmod(g, 7, defPol), defPol) == (7, 8)
-    @test pohligHellmanPrime(c, 2, g, powmod(g, 17, defPol), defPol) == (1, 8)
-    @test pohligHellmanPrime(c, 7, g, powmod(g, 4, defPol), defPol) == (4, 7)
-    @test pohligHellmanPrime(c, 7, g, powmod(g, 33, defPol), defPol) == (5, 7)
-    @test pohligHellman(c, g, powmod(g, 147, defPol), defPol) == (147, 8904)
-    @test pohligHellman(c, g, powmod(g, 5913, defPol), defPol) == (5913, 8904)
-    @test pohligHellman(c, g, powmod(g, 81426, defPol), defPol) == (1290, 8904)
+    @test DlogGF.pohligHellmanPrime(c, 3, g, powmod(g, 5, defPol), defPol) == (2, 3)
+    @test DlogGF.pohligHellmanPrime(c, 53, g, powmod(g, 5, defPol), defPol) == (5, 53)
+    @test DlogGF.pohligHellmanPrime(c, 53, g, powmod(g, 85, defPol), defPol) == (32, 53)
+    @test DlogGF.pohligHellmanPrime(c, 2, g, powmod(g, 7, defPol), defPol) == (7, 8)
+    @test DlogGF.pohligHellmanPrime(c, 2, g, powmod(g, 17, defPol), defPol) == (1, 8)
+    @test DlogGF.pohligHellmanPrime(c, 7, g, powmod(g, 4, defPol), defPol) == (4, 7)
+    @test DlogGF.pohligHellmanPrime(c, 7, g, powmod(g, 33, defPol), defPol) == (5, 7)
+    @test DlogGF.pohligHellman(c, g, powmod(g, 147, defPol), defPol) == (147, 8904)
+    @test DlogGF.pohligHellman(c, g, powmod(g, 5913, defPol), defPol) == (5913, 8904)
+    @test DlogGF.pohligHellman(c, g, powmod(g, 81426, defPol), defPol) == (1290, 8904)
 
-    K = smsrField(17, 17, 1, true)
+    K = DlogGF.smsrField(17, 17, 1, true)
     g = K.gen
     c = K.cardinality
     defPol = K.definingPolynomial
 
-    @test pohligHellmanPrime(c, 2, g, powmod(g, 10, defPol), defPol) == (10, 32)
-    @test pohligHellmanPrime(c, 2, g, powmod(g, 14, defPol), defPol) == (14, 32)
-    @test pohligHellmanPrime(c, 3, g, powmod(g, 4, defPol), defPol) == (4, 9)
-    @test pohligHellmanPrime(c, 3, g, powmod(g, 7, defPol), defPol) == (7, 9)
-    @test pohligHellman(c, g, powmod(g, 814, defPol), defPol) == (238, 288)
-    @test pohligHellman(c, g, powmod(g, 135, defPol), defPol) == (135, 288)
-    @test pohligHellman(c, g, powmod(g, 79, defPol), defPol) == (79, 288)
+    @test DlogGF.pohligHellmanPrime(c, 2, g, powmod(g, 10, defPol), defPol) == (10, 32)
+    @test DlogGF.pohligHellmanPrime(c, 2, g, powmod(g, 14, defPol), defPol) == (14, 32)
+    @test DlogGF.pohligHellmanPrime(c, 3, g, powmod(g, 4, defPol), defPol) == (4, 9)
+    @test DlogGF.pohligHellmanPrime(c, 3, g, powmod(g, 7, defPol), defPol) == (7, 9)
+    @test DlogGF.pohligHellman(c, g, powmod(g, 814, defPol), defPol) == (238, 288)
+    @test DlogGF.pohligHellman(c, g, powmod(g, 135, defPol), defPol) == (135, 288)
+    @test DlogGF.pohligHellman(c, g, powmod(g, 79, defPol), defPol) == (79, 288)
 
-    K = smsrField(7, 7, 1, true)
+    K = DlogGF.smsrField(7, 7, 1, true)
     g = K.gen
     c = K.cardinality
     defPol = K.definingPolynomial
 
-    @test pohligHellmanPrime(c, 29, g, powmod(g, 25, defPol), defPol) == (25, 29)
-    @test pohligHellmanPrime(c, 29, g, powmod(g, 123, defPol), defPol) == (7, 29)
-    @test pohligHellmanPrime(c, 3, g, powmod(g, 4, defPol), defPol) == (1, 3)
-    @test pohligHellmanPrime(c, 3, g, powmod(g, 7, defPol), defPol) == (1, 3)
-    @test pohligHellman(c, g, powmod(g, 514, defPol), defPol) == (514, 1392)
-    @test pohligHellman(c, g, powmod(g, 2941, defPol), defPol) == (157, 1392)
-    @test pohligHellman(c, g, powmod(g, 602, defPol), defPol) == (602, 1392)
+    @test DlogGF.pohligHellmanPrime(c, 29, g, powmod(g, 25, defPol), defPol) == (25, 29)
+    @test DlogGF.pohligHellmanPrime(c, 29, g, powmod(g, 123, defPol), defPol) == (7, 29)
+    @test DlogGF.pohligHellmanPrime(c, 3, g, powmod(g, 4, defPol), defPol) == (1, 3)
+    @test DlogGF.pohligHellmanPrime(c, 3, g, powmod(g, 7, defPol), defPol) == (1, 3)
+    @test DlogGF.pohligHellman(c, g, powmod(g, 514, defPol), defPol) == (514, 1392)
+    @test DlogGF.pohligHellman(c, g, powmod(g, 2941, defPol), defPol) == (157, 1392)
+    @test DlogGF.pohligHellman(c, g, powmod(g, 602, defPol), defPol) == (602, 1392)
 
     println("PASS")
 end
@@ -253,18 +232,18 @@ end
 function testIsGenerator()
     print("isGenerator, miniCheck... ")
 
-    K = smsrField(3, 3, 1, true)
+    K = DlogGF.smsrField(3, 3, 1, true)
     g = K.gen
     c = K.cardinality
     R = parent(g)
     defPol = K.definingPolynomial
 
-    @test isGenerator(R(1), c, defPol) == false
-    @test isGenerator(g, c, defPol) == true
-    @test isGenerator(g^2, c, defPol) == false
-    @test miniCheck(g, c, defPol) == true
-    @test miniCheck(g^2, c, defPol) == false
-    @test miniCheck(R(1), c, defPol) == false
+    @test DlogGF.isGenerator(R(1), c, defPol) == false
+    @test DlogGF.isGenerator(g, c, defPol) == true
+    @test DlogGF.isGenerator(g^2, c, defPol) == false
+    @test DlogGF.miniCheck(g, c, defPol) == true
+    @test DlogGF.miniCheck(g^2, c, defPol) == false
+    @test DlogGF.miniCheck(R(1), c, defPol) == false
 
     println("PASS")
 end
@@ -272,7 +251,7 @@ end
 function testDlogSmallField()
     print("dlogSmallField... ")
 
-    K = smsrField(7, 7, 1, true)
+    K = DlogGF.smsrField(7, 7, 1, true)
     g = K.gen
     F = base_ring(g)
     R = parent(g)
@@ -282,16 +261,16 @@ function testDlogSmallField()
     defPol = K.definingPolynomial
 
     elem = R(1+x)
-    d = dlogSmallField(q, k, g, elem, defPol)
+    d = DlogGF.dlogSmallField(q, k, g, elem, defPol)
     @test powmod(g, d, defPol) == elem
     elem = R(x)
-    d = dlogSmallField(q, k, g, elem, defPol)
+    d = DlogGF.dlogSmallField(q, k, g, elem, defPol)
     @test powmod(g, d, defPol) == elem
     elem = R(2)
-    d = dlogSmallField(q, k, g, elem, defPol)
-    @test powmod(g, d, defPol) == elem
+    d = DlogGF.dlogSmallField(q, k, g, elem, defPol)
+    @test DlogGF.powmod(g, d, defPol) == elem
     elem = R(x+2)
-    d = dlogSmallField(q, k, g, elem, defPol)
+    d = DlogGF.dlogSmallField(q, k, g, elem, defPol)
     @test powmod(g, d, defPol) == elem
 
     println("PASS")
@@ -302,7 +281,7 @@ function testLinearDlog()
 
     F, x = FiniteField(17, 2, "x")
     R, T = PolynomialRing(F, "T")
-    K = SmsrField(17,17,684326450885775034048946719925754910487329,(9*x+11)*T+(11*x+5),T+(15*x+7),T^17+(15*x+6)*T^16+(2*x+11)*T^15+(15*x+6)*T^14+(2*x+11)*T^13+(15*x+6)*T^12+(2*x+11)*T^11+(15*x+6)*T^10+(2*x+11)*T^9+(15*x+6)*T^8+(2*x+11)*T^7+(15*x+6)*T^6+(2*x+11)*T^5+(15*x+6)*T^4+(2*x+11)*T^3+(15*x+6)*T^2+(2*x+11)*T+(6*x+12),T+(10*x+8))
+    K = DlogGF.SmsrField(17,17,684326450885775034048946719925754910487329,(9*x+11)*T+(11*x+5),T+(15*x+7),T^17+(15*x+6)*T^16+(2*x+11)*T^15+(15*x+6)*T^14+(2*x+11)*T^13+(15*x+6)*T^12+(2*x+11)*T^11+(15*x+6)*T^10+(2*x+11)*T^9+(15*x+6)*T^8+(2*x+11)*T^7+(15*x+6)*T^6+(2*x+11)*T^5+(15*x+6)*T^4+(2*x+11)*T^3+(15*x+6)*T^2+(2*x+11)*T+(6*x+12),T+(10*x+8))
     g = K.gen
     k = K.extensionDegree
     h0 = K.h0
@@ -310,7 +289,7 @@ function testLinearDlog()
     card = K.cardinality
     defPol = K.definingPolynomial
 
-    dlogs = linearDlog(g, k, h0, h1, card, defPol)
+    dlogs = DlogGF.linearDlog(g, k, h0, h1, card, defPol)
 
     i = dlogs[T + 12*x+5]
     @test powmod(g, i, defPol) == T + 12*x+5
@@ -328,19 +307,19 @@ function testLinearDlog()
     @test powmod(g, i, defPol) == T + x+4
 
     P = (14*x+6)*T^2+(14*x+6)*T+(10*x+2)
-    d = dlogBGJT(P, K, dlogs)
+    d = DlogGF.dlogBGJT(P, K, dlogs)
     @test powmod(K.gen, d, defPol) == P
 
     P = (10*x+6)*T^2+(10*x+4)*T+(13*x+5)
-    d = dlogBGJT(P, K, dlogs)
+    d = DlogGF.dlogBGJT(P, K, dlogs)
     @test powmod(K.gen, d, defPol) == P
 
     P = (9*x+12)*T^2+(13*x+13)*T+(2*x+14)
-    d = dlogBGJT(P, K, dlogs)
+    d = DlogGF.dlogBGJT(P, K, dlogs)
     @test powmod(K.gen, d, defPol) == P
 
     P = (13*x)*T^2+(9*x+4)*T+(11*x+4)
-    d = dlogBGJT(P, K, dlogs)
+    d = DlogGF.dlogBGJT(P, K, dlogs)
     @test powmod(K.gen, d, defPol) == P
 
     println("PASS")
@@ -361,6 +340,5 @@ function testAll()
 
     println("\nAll tests passed successfully.\n")
 end
-
 
 testAll()
