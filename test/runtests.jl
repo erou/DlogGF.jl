@@ -358,7 +358,6 @@ function testAll()
     testIsGenerator()
     testDlogSmallField()
     testLinearDlog()
-    testDlogBGJT()
 
     println("\nAll tests passed successfully.\n")
 end
