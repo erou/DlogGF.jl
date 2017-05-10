@@ -377,7 +377,6 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, h0::T, h1::T,
 
     S = MatrixSpace(ZZ, charac^2+1,charac^3+charac+1)
     M = zero(S)
-#   Pq = pglUnperfect(x)
     Pq = pglCosets(x)
 
     # We iterate over Pq = PGL(P_1(F_q²))/PGL(P_1(F_q)) to create new equations 

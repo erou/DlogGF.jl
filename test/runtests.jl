@@ -276,6 +276,31 @@ function testDlogSmallField()
     println("PASS")
 end
 
+function testPglCosets()
+    print("pglCosets... ")
+
+    F, x = FiniteField(5, 2, "x")
+    
+    cosets = DlogGF.pglCosets(x)
+
+    @test length(cosets) >= 5^3 + 5
+
+    @test parent(cosets[8][1, 2]) == F
+
+    boo = true
+
+    for a in cosets
+        if rank(a) != 2
+            boo = true
+        end
+    end
+
+    @test boo
+
+    println("PASS")
+end
+
+
 function testLinearDlog()
     print("linearDlog, dlogBGJT... ")
 
@@ -329,12 +354,13 @@ function testAll()
 
     testRandomSuite()
     testSmsrField()
+    testIsGenerator()
     testHomogeneEq()
     testIsSmooth()
     testFactorsList()
     testPohligHellman()
-    testIsGenerator()
     testDlogSmallField()
+    testPglCosets()
     testLinearDlog()
 
     println("\nAll tests passed successfully.\n")
