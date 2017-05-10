@@ -15,8 +15,28 @@ field.
   PGL_2(F-q) in PGL_2(F_q²)
 """
 module DlogGF
-
 using Nemo, Primes
+
+# Welcome message
+println("")
+print("Welcome to \n")
+print_with_color(:red, "                               
+         8I  ,dPYb,                       
+         8I  IP'`Yb                        
+         8I  I8  8I                          .oooooo.    oooooooooooo   
+         8I  I8  8'                         d8P'  `Y8b   `888'     `8  
+   ,gggg,8I  I8 dP    ,ggggg,     ,gggg,gg 888            888         
+  dP'  'Y8I  I8dP    dP'  'Y8ggg dP'  'Y8I 888            888oooo8     
+ i8'    ,8I  I8P    i8'    ,8I  i8'    ,8I 888     ooooo  888    '     
+ d8,   ,d8b,,d8b,_ ,d8,   ,d8'  d8,   ,d8I `88.    .88'   888           
+ 'Y8888P'`Y88P''Y88P'Y8888P'    'Y8888P'888  `Y8bood8P'   o888o           
+                                      ,d8I'                              
+                                    ,dP'8I                               
+                                   ,8'  8I                               
+                                   I8   8I                               
+                                   `8, ,8I                               
+                                    `Y8P'                             
+")
 
 # C functions
 
