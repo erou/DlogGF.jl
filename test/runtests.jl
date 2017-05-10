@@ -328,17 +328,19 @@ function testLinearDlog()
     @test powmod(g, i, defPol) == T + x+4
 
     P = (14*x+6)*T^2+(14*x+6)*T+(10*x+2)
-
     d = dlogBGJT(P, K, dlogs)
     @test powmod(K.gen, d, defPol) == P
 
     P = (10*x+6)*T^2+(10*x+4)*T+(13*x+5)
+    d = dlogBGJT(P, K, dlogs)
     @test powmod(K.gen, d, defPol) == P
 
     P = (9*x+12)*T^2+(13*x+13)*T+(2*x+14)
+    d = dlogBGJT(P, K, dlogs)
     @test powmod(K.gen, d, defPol) == P
 
     P = (13*x)*T^2+(9*x+4)*T+(11*x+4)
+    d = dlogBGJT(P, K, dlogs)
     @test powmod(K.gen, d, defPol) == P
 
     println("PASS")
