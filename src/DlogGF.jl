@@ -703,7 +703,7 @@ end
 export pohligHellmanPrime
 """
     pohligHellmanPrime{T <: PolyElem}(card::Integer, prime::Integer,
-                                           gen::T, elem::T, defPol::T)
+                                      gen::T, elem::T, defPol::T)
                                       
 Compute the discrete logarithm of `elem` mod `prime^n` in basis `gen`.
 
@@ -933,13 +933,15 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, h0::T, h1::T,
 
     # We compute a solution
     sol = Nemo.fmpz[(s*M[i,j])%card for i in 1:(charac^2+1)]
+#    sol = Nemo.fmpz[M[i,j] for i in 1:(charac^2+1)]
+
 
     # We compute the coordinates of the pivots (because we have redundant
     # equations)
-    piv = pivots(M, charac^2)
+    piv = pivots(M, charac^2+1)
 
-   # We add the new polynomials and their coefficients in our list
-    for j in 1:charac^2
+    # We add the new polynomials and their coefficients in our list
+    for j in 1:(charac^2+1)
         fact = factor(numerators[piv[j]])
         for f in fact
             push!(L, f[1], f[2]*sol[j]*coef)
@@ -1097,8 +1099,8 @@ function dlogBGJT(P::Nemo.fq_nmod_poly, K::SmsrField, dlogs::Dict{Any, Any})
     # log P = Σ e_i × log P_i (mod N) where the e_is where calculated during the
     # descent, and where the log P_is are given
     S = sum([L.coefs[j]*dlogs[L.factors[j]] for j in 1:length(L.factors)])
-    S += dlogSmallField(K.characteristic, K.extensionDegree, K.gen,
-                        R(L.unit), defPol)
+    #S += dlogSmallField(K.characteristic, K.extensionDegree, K.gen,
+    #                    R(L.unit), defPol)
 
     # Then we reconstruct the result using Chinese remindering theorem
     return crt(s, n, S, N)
@@ -1108,34 +1110,31 @@ end
 
 function checkeq(P, M, m, K)
     i = 1
-    Q = K.bigField
-    F = K.mediumSubField
-    tmp2=Q(1)
+    R = parent(P)
+    F = base_ring(P)
+    defPol = K.definingPolynomial
+    tmp2=R(1)
     for y in F
         if M[i, 1] == 1
             tmp2 *= P-y
         end
         i += 1
     end
+    tmp2 %= defPol
 
-    tmp1 = makeEquation(m, P, K.h0, K.h1)*inv(Q(K.h1))^degree(P)
+    tmp1 = powmod(gcdinv(K.h1, defPol)[2], degree(P), defPol)
+    tmp1 = mulmod(makeEquation(m, P, K.h0, K.h1), tmp1, defPol)
 
-    
     return tmp1,tmp2
 end
 
-function checklog(L, Q)
+function checklog(L, defPol)
     l = length(L.factors)
-    res = Q(1)
+    R = parent(L.factors[1])
+    res = R(1)
     for i in 1:l
-        if L.coefs[i] < 0
-            exp = -BigInt(L.coefs[i])
-            tmp = inv(Q(L.factors[i]))
-            res *= tmp^(exp)
-        elseif L.coefs[i] > 0
-            exp = BigInt(L.coefs[i])
-            res *= Q(L.factors[i])^exp
-        end
+        tmp = powmod(L.factors[i], L.coefs[i], defPol)
+        res = mulmod(res, tmp, defPol)
     end
     return res*L.unit
 end
@@ -1170,8 +1169,9 @@ function checknum(num, M, P, h1, Q)
     return res1, res2
 end
 
-function checkcol(M, j, P, F)
+function checkcol(M, j, P, defPol)
     i = 0
+    F = base_ring(P)
     ζ = parent(P)(1)
     for y in F
         i += 1
@@ -1179,27 +1179,28 @@ function checkcol(M, j, P, F)
             ζ *= P-y
         end
     end
-    return ζ
+    return ζ%defPol
 end
 
 function checkmat(M::MatElem, K, T::PolyElem)
     g = K.gen
-    F = K.mediumSubField
-    Q = K.bigField
+    R = parent(g)
+    F = base_ring(g)
+    defPol = K.definingPolynomial
     r, c = size(M)
     for j in 1:c
-        ζ = Q(1)
+        ζ = R(1)
         i = 0
         for y in F
             i += 1
             if M[i, j] != 0
-                τ = Q(T-y)
                 exp = Int(M[i, j])
-                ζ *= τ^exp
+                ζ *= powmod(T-y, exp, defPol)
             end
         end
-        ζ *= Q(K.h1)
-        ξ = g^BigInt(M[r, j])
+        ζ *= K.h1
+        ζ %= defPol
+        ξ = powmod(g, M[r, j], defPol)
         if ζ != ξ
             break
         end

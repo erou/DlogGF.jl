@@ -298,17 +298,16 @@ function testDlogSmallField()
 end
 
 function testLinearDlog()
-    print("linearDlog... ")
+    print("linearDlog, dlogBGJT... ")
 
-    K = smsrField(17, 17, 1, true)
-    F = base_ring(K.h0)
-    x = gen(F)
+    F, x = FiniteField(17, 2, "x")
+    R, T = PolynomialRing(F, T)
+    K = SmsrField(17,17,684326450885775034048946719925754910487329,(9*x+11)*T+(11*x+5),T+(15*x+7),T^17+(15*x+6)*T^16+(2*x+11)*T^15+(15*x+6)*T^14+(2*x+11)*T^13+(15*x+6)*T^12+(2*x+11)*T^11+(15*x+6)*T^10+(2*x+11)*T^9+(15*x+6)*T^8+(2*x+11)*T^7+(15*x+6)*T^6+(2*x+11)*T^5+(15*x+6)*T^4+(2*x+11)*T^3+(15*x+6)*T^2+(2*x+11)*T+(6*x+12),T+(10*x+8))
     g = K.gen
     k = K.extensionDegree
     h0 = K.h0
     h1 = K.h1
     card = K.cardinality
-    T = gen(parent(h0))
     defPol = K.definingPolynomial
 
     dlogs = linearDlog(g, k, h0, h1, card, defPol)
@@ -328,6 +327,20 @@ function testLinearDlog()
     i = dlogs[T + x+4]
     @test powmod(g, i, defPol) == T + x+4
 
+    P = (14*x+6)*T^2+(14*x+6)*T+(10*x+2)
+
+    d = dlogBGJT(P, K, dlogs)
+    @test powmod(K.gen, d, defPol) == P
+
+    P = (10*x+6)*T^2+(10*x+4)*T+(13*x+5)
+    @test powmod(K.gen, d, defPol) == P
+
+    P = (9*x+12)*T^2+(13*x+13)*T+(2*x+14)
+    @test powmod(K.gen, d, defPol) == P
+
+    P = (13*x)*T^2+(9*x+4)*T+(11*x+4)
+    @test powmod(K.gen, d, defPol) == P
+
     println("PASS")
 end
 
@@ -343,6 +356,7 @@ function testAll()
     testIsGenerator()
     testDlogSmallField()
     testLinearDlog()
+    testDlogBGJT()
 
     println("\nAll tests passed successfully.\n")
 end
