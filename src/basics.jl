@@ -47,26 +47,45 @@ function powmodPreinv(x::Nemo.fq_nmod_poly, n::Nemo.fmpz, y::Nemo.fq_nmod_poly,
   return z
 end
 
-# Iterator over medium subfields (of type F_q²)
+# Iterator over finite fields
 # The elements are iterated in the order 0, 1, ..., q-1, x, 1 + x, 2 + x,
-# ..., (q-1) + (q-1)x, where x is the generator of F_q²
+# ..., (q-1) + (q-1)x + ... + (q-1)x^(n-1), where x is the generator of F_q^n
 
-function Base.start(::Nemo.FqNmodFiniteField)
-    return (0,0)
+function Base.start(F::Nemo.FqNmodFiniteField)
+    n = F.mod_length - 1
+    return zeros(Int, n)
 end
 
-function Base.next(F::Nemo.FqNmodFiniteField, state::Tuple{Int, Int})
+function Base.next(F::Nemo.FqNmodFiniteField, state::Array{Int, 1})
     q = F.p - 1
-    if state[1] < q
-        nex = (state[1] + 1, state[2])
+    n = F.mod_length - 1
+    x = gen(F)
+    nex = deepcopy(state)
+    i = 1
+    l = n
+
+    if nex[1] < q
+        nex[1] += 1
     else
-        nex = (0, state[2] + 1)
+        for i in 1:n
+            if nex[i] != q
+                l = i
+                break
+            end
+        end
+
+        for i in 1:(l-1)
+            nex[i] = 0
+        end
+        nex[l] += 1
     end
-    return (state[1]+state[2]*gen(F), nex)
+
+    res = sum(Nemo.fq_nmod[state[i]*x^(i-1) for i in 1:n])
+    return (res, nex)
 end
 
-function Base.done(F::Nemo.FqNmodFiniteField, state::Tuple{Int, Int})
-    return state[2] == F.p
+function Base.done(F::Nemo.FqNmodFiniteField, state::Array{Int, 1})
+    return state[end] == F.p
 end
 
 function Base.eltype(::Type{Nemo.FqNmodFiniteField})

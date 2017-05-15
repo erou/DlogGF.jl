@@ -92,3 +92,46 @@ end
 
 pohligHellman{T}(card::Nemo.fmpz, gen::T, elem::T, defPol::T) =
 pohligHellman(BigInt(card), gen, elem, defPol)
+
+"""
+This function is faster than `pohligHellmanPrime` when working modulo p^n with
+n ≥ 3, but in practice we often work with p = 1.
+"""
+function pohligHellmanPrime2{T <: PolyElem}(card::Integer, prime::Integer,
+                                           gen::T, elem::T, defPol::T)
+
+    # We compute the largest integer `n` such that `prime^n` divides `card`
+    n = 1
+    while divisible(fmpz(card-1), prime^(n+1))
+        n += 1
+    end
+
+    d::Integer = div(card-1, prime)
+    f::Integer = div(card-1, prime^n)
+
+    # We compute a table of the `prime`-th roots of unit
+    g = powmod(gen, d, defPol)
+    arr = Array(T, prime)
+    for i in 0:(prime-1)
+        arr[i + 1] = powmod(g, i, defPol)
+    end
+
+    res = 0
+    tmp = powmod(elem, f, defPol)
+    inverse = gcdinv(gen, defPol)[2]
+    inverse = powmod(inverse, f, defPol)
+
+    # We compute the coefficients `b_i` such that x = Σ b_i × prime^i, meaning
+    # that we compute `x` in basis `prime`
+    d = prime^n
+    for i in 0:(n-1)
+        d = div(d, prime)
+        b = findfirst(arr, powmod(tmp, d, defPol)) - 1
+        res += b*prime^i
+        tmp = mulmod(tmp, powmod(inverse, b*prime^i, defPol), defPol)
+    end
+
+    return (fmpz(res), fmpz(prime)^n)
+end
+
+
