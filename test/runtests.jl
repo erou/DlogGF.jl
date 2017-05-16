@@ -189,13 +189,6 @@ function testPohligHellman()
     c = K.cardinality
     defPol = K.definingPolynomial
 
-    @test DlogGF.pohligHellmanPrime(c, 3, g, powmod(g, 5, defPol), defPol) == (2, 3)
-    @test DlogGF.pohligHellmanPrime(c, 53, g, powmod(g, 5, defPol), defPol) == (5, 53)
-    @test DlogGF.pohligHellmanPrime(c, 53, g, powmod(g, 85, defPol), defPol) == (32, 53)
-    @test DlogGF.pohligHellmanPrime(c, 2, g, powmod(g, 7, defPol), defPol) == (7, 8)
-    @test DlogGF.pohligHellmanPrime(c, 2, g, powmod(g, 17, defPol), defPol) == (1, 8)
-    @test DlogGF.pohligHellmanPrime(c, 7, g, powmod(g, 4, defPol), defPol) == (4, 7)
-    @test DlogGF.pohligHellmanPrime(c, 7, g, powmod(g, 33, defPol), defPol) == (5, 7)
     @test DlogGF.pohligHellman(c, g, powmod(g, 147, defPol), defPol) == (147, 8904)
     @test DlogGF.pohligHellman(c, g, powmod(g, 5913, defPol), defPol) == (5913, 8904)
     @test DlogGF.pohligHellman(c, g, powmod(g, 81426, defPol), defPol) == (1290, 8904)
@@ -205,10 +198,6 @@ function testPohligHellman()
     c = K.cardinality
     defPol = K.definingPolynomial
 
-    @test DlogGF.pohligHellmanPrime(c, 2, g, powmod(g, 10, defPol), defPol) == (10, 32)
-    @test DlogGF.pohligHellmanPrime(c, 2, g, powmod(g, 14, defPol), defPol) == (14, 32)
-    @test DlogGF.pohligHellmanPrime(c, 3, g, powmod(g, 4, defPol), defPol) == (4, 9)
-    @test DlogGF.pohligHellmanPrime(c, 3, g, powmod(g, 7, defPol), defPol) == (7, 9)
     @test DlogGF.pohligHellman(c, g, powmod(g, 814, defPol), defPol) == (238, 288)
     @test DlogGF.pohligHellman(c, g, powmod(g, 135, defPol), defPol) == (135, 288)
     @test DlogGF.pohligHellman(c, g, powmod(g, 79, defPol), defPol) == (79, 288)
@@ -218,10 +207,6 @@ function testPohligHellman()
     c = K.cardinality
     defPol = K.definingPolynomial
 
-    @test DlogGF.pohligHellmanPrime(c, 29, g, powmod(g, 25, defPol), defPol) == (25, 29)
-    @test DlogGF.pohligHellmanPrime(c, 29, g, powmod(g, 123, defPol), defPol) == (7, 29)
-    @test DlogGF.pohligHellmanPrime(c, 3, g, powmod(g, 4, defPol), defPol) == (1, 3)
-    @test DlogGF.pohligHellmanPrime(c, 3, g, powmod(g, 7, defPol), defPol) == (1, 3)
     @test DlogGF.pohligHellman(c, g, powmod(g, 514, defPol), defPol) == (514, 1392)
     @test DlogGF.pohligHellman(c, g, powmod(g, 2941, defPol), defPol) == (157, 1392)
     @test DlogGF.pohligHellman(c, g, powmod(g, 602, defPol), defPol) == (602, 1392)
