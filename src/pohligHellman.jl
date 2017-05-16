@@ -91,16 +91,16 @@ function pohligHellman{T}(card::Integer, gen::T, elem::T, defPol::T)
     # each prime factor, using pohligHellmanPrime, then we compute our final
     # result using Chinese remindering theorem
     if length(A) > 1
-        a = pohligHellmanPrime2(B[1, 1], B[2, 1], k, mid, elemid, defPol)
-        b = pohligHellmanPrime2(B[1, 2], B[2, 2], k, mid, elemid, defPol)
+        a = pohligHellmanPrime(B[1, 1], B[2, 1], k, mid, elemid, defPol)
+        b = pohligHellmanPrime(B[1, 2], B[2, 2], k, mid, elemid, defPol)
         res, n = crt(a[1], a[2], b[1], b[2]), a[2]*b[2]
         for i in 1:(length(A)-2)
-            a = pohligHellmanPrime2(B[1, i+2], B[2, i+2], k, mid, elemid, defPol)
+            a = pohligHellmanPrime(B[1, i+2], B[2, i+2], k, mid, elemid, defPol)
             res, n = crt(res, n, a[1], a[2]), n*a[2]
         end
         return res, n
     else 
-        return pohligHellmanPrime2(B[1, 1], B[2, 1], k, mid, elemid, defPol)
+        return pohligHellmanPrime(B[1, 1], B[2, 1], k, mid, elemid, defPol)
     end
 end
 
