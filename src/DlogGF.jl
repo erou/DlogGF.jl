@@ -68,6 +68,10 @@ include("linfactors.jl")
 
 include("bgjt.jl")
 
+# GKZ algorithm
+
+include("gkz.jl")
+
 # Debug
 include("debug.jl")
 
