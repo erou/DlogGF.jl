@@ -2,3 +2,13 @@
 *.jl.*.cov
 *.jl.mem
 tests.jl
+
+*.aux
+*.bbl
+*.pdf
+*.backup
+*.out
+*.blg
+*.log
+*.swp
+
