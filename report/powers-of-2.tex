@@ -73,7 +73,7 @@
 
 % opening
 \title{}
-\author{Understanding the powers-of-2 descent}
+\author{The powers-of-2 descent}
 
 
 \begin{document}
@@ -117,10 +117,41 @@ slow. The DLP first appeared in the article of Diffie and
 Hellman in 1976, ``New Directions in Cryptography''~\cite{DH76}. It was supposed to be a very hard problem,
 \ie only an exponential time algorithm was known at that time, and all the
 security of the protocol invented in this article relied on the hardness of the
-DLP.
+DLP. This article attracted a lot of attention, and so did the DLP, which has
+been widely studied since then. Originally, the group involved in the Diffie-Hellman
+protocol was $(\mathbb{Z}/N\mathbb{Z})^\times$, but there are other interesting
+groups, such as the points of an elliptic curve or the invertible element of a
+finite field. Over the years, two types of algorithms emerged:
+\begin{itemize}
+  \item the \emph{generic} algorithms, that can be used for any group, with an
+    exponential complexity of type $O(\sqrt N)$, where $N=|G|$ is the cardinal
+    of the group;
+  \item the \emph{index calculus} algorithms, that are built on the structure of
+    the group considered, and that have very different complexities, depending
+    on the kind of the studied group.
+\end{itemize}
+
+The recent algorithms that achieve quasi-polynomial complexity are index
+calculus algorithms, so we will introduce these algorithms a bit more.
+
 \section{The index calculus method}
 
+Here again, we consider a group $G=\left\langle g \right\rangle$, an element
+$g^k = y\in G$, and we want to compute $k$. The index calculus algorithms always
+follow the same pattern:
+\begin{enumerate}
+  \item[0.] we choose $F\subset G$ such that $\left\langle F \right\rangle = G$
+    (we often have $g\in F$), this subset is called the \emph{factor base};
+  \item we generate multiplicative relations between the elements of $F$, \ie we
+    find $f_1, \dots, f_n \in F$ and $e_1, \dots, e_n\in \mathbb{Z}$ such that
+    $\prod_i f_i^{e_i} = 1$, that is equivalent to the linear equation $\sum_i
+    e_i\log_g(f_i) = 0$;
+  \item we solve the linear system with unknowns $\log_g(f_i)$ arising from step
+    1 to obtain $\log(f)$ for all $f\in F$;
+  \item 
+\end{enumerate}
 
+\section{The powers-of-2 algorithm}
 
 \clearpage
 \bibliographystyle{plain}
