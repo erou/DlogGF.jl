@@ -9,7 +9,7 @@
 %\usepackage{array}
 %\usepackage[top=1cm,bottom=1cm]{geometry}
 %\usepackage{listings}
-%\usepackage{xcolor}
+\usepackage{xcolor}
 \usepackage{hyperref}
 \hypersetup{
     colorlinks=true,
@@ -61,7 +61,7 @@
 
 % opening
 \title{}
-\author{The powers-of-2 descent}
+\author{The powers-of-2 descent\\\textcolor{violet}{\textbf{Work in progress}}}
 
 
 \begin{document}
@@ -145,12 +145,36 @@ follow the same pattern:
   \newline
   \newline
   An \textcolor{red}{(other ?)} example is given by the algorithm of Granger,
-  Kleinjung and Zumbrägel in \cite{GKZ14}, that we call powers-of-2 algorithm here.
+  Kleinjung and Zumbrägel in~\cite{GKZ14}, that we call powers-of-2 algorithm here.
 \section{The powers-of-2 algorithm}
 
-Let $G = (\mathbb{F}_{q})^\times$ the group of invertible elements of a finite
-field of small characteristic $\mathbb{F}_q$, where $q=p^n$ is a prime
-power. 
+Let $G = (\mathbb{F}_{q^n})^\times$ the group of invertible elements of a finite
+field of small characteristic $\mathbb{F}_{q^n}$, where $q=p^l$ is a prime
+power, and we represent elements of $\mathbb{F}_{q^n}$ by polynomials over
+$\mathbb{F}_q$ of degree less than $n$. The setup in which we present the algorithm is slightly different from
+the original, thanks to the work of Joux and Pierrot in \cite{JP14}. Indeed,
+they remarked that working with polynomials of degree up to $d$ over $F_q$ is
+essentially equivalent as working with linear polynomials over $F_{q^d}$. Thus,
+instead of working with a factor base composed of linear polynomials over
+$\mathbb{F}_{q^d}$ (with $d$ usually between $2$ and $4$), we will work with a
+factor base composed of irreducible polynomials up to degree $4$. Joux and Pierrot
+precisely give a way to compute such a factor base in~\cite{JP14}, that is based
+on previous work~\cite{Joux13, BGJT13} and has a complexity of $O(q^6)$. Since
+we work in the case where $q$ is polynomial in the bitsize of the field
+$\log(q^n)$, this precomputation time is polynomial.
+
+Let us come back to the elements of $\mathbb{F}_{q^n}$, we said that they were
+represented by polymomials of degree at most $n-1$ over $\mathbb{F}_q$. More
+precisely, we consider $\mathbb{F}_{q^n}\cong \mathbb{F}_{q}[X]/(P)$ where $P\in
+\mathbb{F}_{q}[X]$ is an irreducible polynomial of degree $n$ over
+$\mathbb{F}_{q}$ dividing $h_1X^q-h_0$, and $h_0, h_1\in \mathbb{F}_q[X]$ are
+polynomials of degree at most $2$ over $\mathbb{F}_q$. Different options are
+available to choose $h_0$ and $h_1$, and the respective results are also
+discussed in~\cite{JP14}. The existence of such parameters $h_0$ and $h_1$ is
+critical for the algorithm, and the fact that every finite field admits such a
+structure is \emph{heuristic}, and remains one of the major open problems in the
+area.
+
 
 \clearpage
 \bibliographystyle{plain}
