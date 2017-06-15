@@ -17,17 +17,6 @@
     citecolor=red,
 }
 
-
-% fancy headers and footers
-
-%\usepackage{fancyhdr}
-%\pagestyle{fancy}
-%\fancyhead[L]{BCPST 2 - Lycée Jacques Prévert}
-%\fancyhead[R]{Rappels d'analyse}
-%\pagenumbering{gobble} % no page numbering
-
-% Création des labels Théorème, Lemme, etc...
-
 \newtheoremstyle{break}%
 {}{}%
 {\itshape}{}%
@@ -56,7 +45,6 @@
 \theoremstyle{remark}
 \newtheorem{rem}[thm]{Remark}
 
-% Raccourcis pour les opérateurs mathématiques (les espaces avant-après sont modifiés pour mieux rentrer dans les codes mathématiques usuels)
 \DeclareMathOperator{\Ker}{Ker}
 \DeclareMathOperator{\Id}{Id}
 \DeclareMathOperator{\Img}{Im}
@@ -148,10 +136,21 @@ follow the same pattern:
     e_i\log_g(f_i) = 0$;
   \item we solve the linear system with unknowns $\log_g(f_i)$ arising from step
     1 to obtain $\log(f)$ for all $f\in F$;
-  \item 
+  \item we find a multiplicative relation between $y$ and elements of $F$, or
+    equivalently, we express $\log_g y = k$ as a linear combination of the
+  $\log_g(f_i)$.
 \end{enumerate}
-
+\textcolor{red}{Example : Hellman-Reyneri algorithm, like in the slides for
+  F.Paulin ?}
+  \newline
+  \newline
+  An \textcolor{red}{(other ?)} example is given by the algorithm of Granger,
+  Kleinjung and Zumbrägel in \cite{GKZ14}, that we call powers-of-2 algorithm here.
 \section{The powers-of-2 algorithm}
+
+Let $G = (\mathbb{F}_{q})^\times$ the group of invertible elements of a finite
+field of small characteristic $\mathbb{F}_q$, where $q=p^n$ is a prime
+power. 
 
 \clearpage
 \bibliographystyle{plain}
