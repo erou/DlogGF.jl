@@ -58,6 +58,8 @@
 \newcommand{\ent}[2]{[\![#1,#2]\!]}
 \newcommand{\diff}{\mathop{}\!\mathrm{d}}
 \newcommand{\ie}{\emph{i.e. }}
+\newcommand{\q}{\textcolor{violet}{\textbf{ (???) }}} % when I do not really
+% know what is going on or when I still need to ckeck
 
 % opening
 \title{}
@@ -208,7 +210,15 @@ $\mathcal B$ be the set of elements $B\in \mathbb{F}_{q^m}$ such that $\mathcal
 P_B$ splits completely. In~\cite{Bluher04}, the roots and the splitting field of
 $\mathcal P_B$ are studied and it is shown that the cardinality of $\mathcal B$
 is approximately $q^{m-3}$ ($(q^{m-1}-1)/(q^2-1)$ when $m$ is odd,
-$(q^{m-1}-q)/(q^2-1)$ when $m$ is even)
+$(q^{m-1}-q)/(q^2-1)$ when $m$ is even). Thus, if $B\in \mathcal B$,
+$a,b,c\in\mathbb{F}_{q^m}$ such that $c\neq ab$, $a^q\neq b$, we see by the change of variable
+$X\to\frac{c-ab}{a^q-b}X-a$ in $\mathcal P_B$ that the polynomial
+$X^{q+1}+aX^q+bX+c$ also splits completely \q. Note that using~\cite{Bluher04,
+HK10, GKZ14}, we also know that $\mathcal B$ is the image of
+$\mathbb{F}_{q^k}\setminus\mathbb{F}_{q^2}$ under the map 
+\[
+  u\mapsto \frac{(u-u^{q^2})^{q+1}}{(u-u^q)^{q^2+1}}.\q
+\]
 \subsection{The descent}
 
 \section{A few comments}
