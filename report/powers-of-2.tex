@@ -253,11 +253,57 @@ $q^2+q$ polynomial. Alternatively, we can write $b$ in a $\mathbb{F}_{q^m}/\math
 basis and solve a quadratic system in $m$ variables with Gröbner bases
 algorithms, with an exponential time in $m$. In practice~\cite{Adj16}, the
 second option is used, because this on-the-fly elimination is used with small $m$.
+
+We also emphasize on the fact that this elimination works if a suitable element
+$b$ is found. For each $B\in\mathcal B$, the probability of finding a suitable
+$b$ is $\frac{1}{2}$\footnote{This information is in \cite{Adj16}, but
+without any explanation, I have to think about it or ask Gora.}, so if
+$m\geq4$, then $|\mathcal B|\approx q$ and the probability than the
+elimination works is overwhelming.
+
 \subsection{The descent}
 
+Let now $Q\in\mathbb{F}_{q}[X]$ be an irreducible polynomial over $\mathbb{F}_{q}$ of degree
+$2m$, with $m\geq4$. We have
+\[
+  Q = \prod_{i=0}^{m-1}Q_{i}
+\]
+where the polynomials $Q_i\in\mathbb{F}_{q^m}[X]$ are irreducible
+polynomials over $\mathbb{F}_{q^m}$ of degree $2$, and are all
+conjugates. By conjugates, we mean that for all $0\leq i\leq m-1$,
+$Q_i=Q_0^{[i]}$, where $Q_0^{[i]}$ denotes the polynomial $Q_0$ with all
+coefficients raised to the power $q^i$. By applying the on-the-fly
+elimination to $Q_0$, wo obtain 
+\[
+  R_0Q_0=\prod_{j=1}^{q+1}R_j
+\]
+where, for all $0\leq j\leq q+1$, $R_j\in\mathbb{F}_{q^m}[X]$ is a linear
+polynomial over $\mathbb{F}_{q^m}$. We also deduce that
+\[
+  R_{0}^{[i]}Q_i=\prod_{j=1}^{q+1}R_j^{[i]}
+\]
+and it follows that
+\[
+  (\prod_{i=0}^{m-1}R_{0}^{[i]})\times Q =
+  \prod_{j=1}^{q+1}(\prod_{i=0}^{m-1}R_j^{[i]}).
+\]
+Now recall that $N_j:=\prod_{i=0}^{m-1}R_{j}^{[i]}$ is the norm of the
+polynomial $R_j$, and that the norm of a linear polynomial over
+$\mathbb{F}_{q^m}/\mathbb{F}_q$ is an irreducible polynomial over
+$\mathbb{F}_q$ of degree
+$e$, raised to the power $f$, such that $ef=m$. Hence, we have
+$N_j=T_j^{f_j}$, with $T_j\in\mathbb{F}_{q}[X]$, $\deg T_j = e_j$, and
+$e_jf_j=m$. In the end, we have expressed the polynomial $Q$ as a product of
+polynomials with degree dividing $m$.
 \section{A few comments}
 
-In practical works, summarised in Gora Adj PhD thesis~\cite{Adj16}, we can see that this algorithm in not really used...
+\begin{itemize}
+  \item In practical works, summarised in Gora Adj PhD thesis~\cite{Adj16}, we
+    can see that this algorithm in not really used all the way from elements
+    of high degree (\ie $\geq 200$ in~\cite{Adj16}) to elements in the factor base. Instead, other descents
+    with smaller arity are first used to reduce the degree of the elements
+    until having elements of small degree (\ie $16$ in~\cite{Adj16}).
+\end{itemize}
 
 \clearpage
 \bibliographystyle{plain}
