@@ -83,7 +83,11 @@ The discrete logarithm problem has seen dramatic improvements these last
 years in the small characteristic case~\cite{Joux13, BGJT13, GKZ14},
 culminating with two \emph{quasi-polynomial} algorithms in 2014. ``On the powers
 of $2$'' is the paper~\cite{GKZ14} introducing one of those two algorithms and this document is
-meant to give some explanations about it. Before going into details about this
+meant to give some explanations about it. First we explain the
+terminology: a quasi-polynomial complexity is of the form $l^{\log l}$, where
+$l$ is the bitsize of the input. And if we work with a finite field
+$\mathbb{F}_{q^n}$, it is said to be of small characteristic if $q\ll q^n$, here
+we ask that $q$ is polynomial in $\log(q^n)$. Before going into details about this
 algorithm, we recall a few facts about discrete logarithm. A more complete
 panorama can be found in suveys such as~\cite{JP16, GKZ16}.
 
@@ -193,7 +197,7 @@ still note $Q$ for the polynomial representing $Q\in
 the same process reccursively, we are able to express $\log Q$ as a linear
 combination of elements of degree at most $4$, \ie elements in $\mathcal F$.
 This whole procedure is called the \emph{descent}, and we explain it in the
-following.
+following. 
 
 \subsection{On-the-fly degree $2$ elimination}
 
@@ -295,6 +299,18 @@ $e$, raised to the power $f$, such that $ef=m$. Hence, we have
 $N_j=T_j^{f_j}$, with $T_j\in\mathbb{F}_{q}[X]$, $\deg T_j = e_j$, and
 $e_jf_j=m$. In the end, we have expressed the polynomial $Q$ as a product of
 polynomials with degree dividing $m$.
+
+To be able to really perform this descent, we must have a polynomial $Q$ with a 
+power of $2$ degree, this is possible thanks to Theorem $5.1$ proved 
+in~\cite{Wan97} by Wan that roughly states that we can represent any element in
+$\mathcal G$ by a polynomial with a power of $2$ degree. Performing the
+descent, a tree is built in which the logarithm of a node is expressed
+as a linear combination of its children. The total complexity of the algorithm
+is then the number of nodes of this tree. We have seen that the arity of the
+tree is $q+2$, and the height of the tree is $O(\log n)$, the number of nodes
+is then $(q+2)^{\log n}$. Since we are in the small characteristic case, we
+can write this complexity $l^{O(\log l)}$, where $l=\log(q^n)$ is the bitsize of
+$\mathcal G$, and we see that the algorithm is quasi-polynomial.
 \section{A few comments}
 
 \begin{itemize}
@@ -303,6 +319,8 @@ polynomials with degree dividing $m$.
     of high degree (\ie $\geq 200$ in~\cite{Adj16}) to elements in the factor base. Instead, other descents
     with smaller arity are first used to reduce the degree of the elements
     until having elements of small degree (\ie $16$ in~\cite{Adj16}).
+  \item There are technicalities hidden in this document, they are discussed
+    in~\cite{GKZ14}.
 \end{itemize}
 
 \clearpage
