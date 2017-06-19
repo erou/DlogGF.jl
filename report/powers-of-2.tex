@@ -229,10 +229,12 @@ In order to eliminate the polynomial $Q$, we define the lattice $L_Q\subset
   L_Q = \left\{ (w_0,
     w_1)\in\mathbb{F}_{q^m}[X]^2\;|\;w_0h_0+w_1h_1\equiv0\;\mod Q \right\}.
 \]
-If $Q$ divides $w_0h_0+w_1h_1$ for $w_0, w_1\in \mathbb{F}_{q^m}$, then we have
-$Q = w(w_0h_0+w_1h_1)$ for some $w\in\mathbb{F}_{q^m}^\times$
-\footnote{I re-wrote the setup of \cite{GKZ14} to simplify it, but I have to
-check how we can deal with that case in the simplified setup.}. Otherwise we can find a basis of $L_Q$
+If $Q$ divides $w_0h_0+w_1h_1\neq0$ for $w_0, w_1\in \mathbb{F}_{q^m}$, then we have
+$Q = w(w_0h_0+w_1h_1)$ for some $w\in\mathbb{F}_{q^m}^\times$ because the degree
+of the right hand side is at most $2$. Hence, the logarithm of $Q$ is linked
+with the logarithm of $w_0X^q+w_1=(w_0^{q^{m-1}}X+w_1^{q^{m-1}})^q$, and so the
+logarithm of $Q$ is linked to the logarithm of a linear
+polynomial over $\mathbb{F}_{q^m}$. Otherwise we can find a basis of $L_Q$
 of the form $(u_0, X+u_1), (X+v_0, v_1)$ with $u_i, v_i\in\mathbb{F}_{q^m}$.
 Since we have
 \[
@@ -320,7 +322,12 @@ $\mathcal G$, and we see that the algorithm is quasi-polynomial.
     with smaller arity are first used to reduce the degree of the elements
     until having elements of small degree (\ie $16$ in~\cite{Adj16}).
   \item There are technicalities hidden in this document, they are discussed
-    in~\cite{GKZ14}.
+    in~\cite{GKZ14}. For example there are ``traps'' that we must avoid: it is
+    impossible to eliminate a polynomial $Q\neq P$ that divides
+    $h_1X^q-h_0$, where $P$ is again the defining polynomial of
+    $\mathbb{F}_{q^n}$. The reason behind that is that we act as if our
+    computations were living in $\mathbb{F}_{q^m}$, but they are in fact living
+    in $\mathbb{F}_{q}[X]/(h_1X^q-h_0)$.
 \end{itemize}
 
 \clearpage
