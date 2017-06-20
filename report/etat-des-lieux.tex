@@ -1,0 +1,116 @@
+\documentclass[a4paper,11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{amsmath,amssymb,amsthm,amsopn}
+\usepackage{mathrsfs}
+\usepackage{graphicx}
+%\usepackage{tikz}
+%\usepackage{array}
+%\usepackage[top=1cm,bottom=1cm]{geometry}
+%\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=red,
+}
+
+\newtheoremstyle{break}%
+{}{}%
+{\itshape}{}%
+{\bfseries}{}%  % Note that final punctuation is omitted.
+{\newline}{}
+
+\newtheoremstyle{sc}%
+{}{}%
+{}{}%
+{\scshape}{}%  % Note that final punctuation is omitted.
+{\newline}{}
+
+\theoremstyle{break}
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{lm}[thm]{Lemma}
+\newtheorem{prop}[thm]{Proposition}
+\newtheorem{cor}[thm]{Corollary}
+
+\theoremstyle{sc}
+\newtheorem{exo}{Exercise}
+
+\theoremstyle{definition}
+\newtheorem{defi}[thm]{Definition}
+\newtheorem{ex}[thm]{Example}
+
+\theoremstyle{remark}
+\newtheorem{rem}[thm]{Remark}
+
+\DeclareMathOperator{\Ker}{Ker}
+\DeclareMathOperator{\Id}{Id}
+\DeclareMathOperator{\Img}{Im}
+\DeclareMathOperator{\Card}{Card}
+\DeclareMathOperator{\Vect}{Vect}
+\DeclareMathOperator{\Tr}{Tr}
+
+
+% Nouvelles commandes
+\newcommand{\ps}[2]{\left\langle#1,#2\right\rangle}
+\newcommand{\ent}[2]{[\![#1,#2]\!]}
+\newcommand{\diff}{\mathop{}\!\mathrm{d}}
+\newcommand{\ie}{\emph{i.e. }}
+% know what is going on or when I still need to ckeck
+
+% opening
+\title{État des lieux du stage}
+\author{Édouard \textsc{Rousseau}}
+
+
+\begin{document}
+
+\maketitle
+
+%\begin{abstract}
+
+%\end{abstract}
+
+%\tableofcontents
+
+%\clearpage
+
+\section{Encadrement}
+
+J'effectue mon stage au Canada, à l'université de Waterloo, sous la direction
+d'Éric \textsc{Schost}. Nous discutons également très régulièrement avec Luca
+\textsc{De Feo}. Je suis arrivé au Canada le 16 Mars et devrait repartir le 8
+Septembre.
+
+\section{Sujet}
+
+Le stage porte sur l'étude du problème du logarithme discret dans les corps
+finis de petite caractéristique. Le problème est relativement simple à
+expliquer : soit $G=\left\langle g\right\rangle$ un groupe cyclique engendré par
+un élément $g$, de cardinal $N$. On a alors un isomorphisme :
+\[
+   \begin{array}{cccc}
+        exp_g: & \mathbb{Z}/N\mathbb{Z} & \to & \mathcal G \\
+        & n & \mapsto & g^n,
+   \end{array}
+\]
+dont on note $\exp_g^{-1}=\log_g$ (ou plus simplement $\log$) l'isomorphisme
+inverse. L'essence du problème vient du fait que, en pratique, on dispose
+d'algorithmes efficaces pour calculer $g^n=\exp_g(n)$ (les algorithmes de types
+\emph{square and multiply}), mais que cela n'est plus vrai pour les calculs de
+l'isomorphisme inverse. En effet, étant donné un élément $y=g^n$, on ne dispose
+pas d'algorithme aussi efficace pour calculer $n = \log y$.
+Historiquement, Gauss s'intéressait déjà à des
+calculs de logarithmes discrets, qu'il appelait ``indices'', mais le problème
+est véritablement devenu célèbre en 1976 suite à l'article ``New directions in
+cryptography'' de Diffie et Hellman~\cite{DH76}. Au cœur de cet article, qui 
+est à l'origine même du concept de cryptographie à clé publique, on trouve le 
+protocole d'échange de clés Diffie-Hellman. La sécurité de ce protocole 
+s'appuie sur la difficulté supposée de calculer des logarithmes discrets dans le
+groupe $(\mathbb{Z}/N\mathbb{Z})^\times$. 
+
+\bibliographystyle{plain}
+\bibliography{dlog}
+\end{document}
