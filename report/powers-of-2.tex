@@ -107,7 +107,9 @@ efficiently, \ie in polynomial time. But, given $y = g^k$, the computation of $k
 = \log_g(y)$ is not as easy. This kind of function $f$, where $f$ is easy to
 compute but $f^{-1}$ is hard to compute, are called \emph{one-way} functions. They are
 typically used in cryptology to make the encryption fast and the deciphering
-slow. The DLP first appeared in the article of Diffie and
+slow. Gauss, in its \emph{Disquisitiones Arithmeticae}, was already computing
+logarithms, that he reffered to as \emph{indices}. Nevertheless, the DLP first
+appeared as an important computationnal problem in the article of Diffie and
 Hellman in 1976, ``New Directions in Cryptography''~\cite{DH76}. It was supposed to be a very hard problem,
 \ie only an exponential time algorithm was known at that time, and all the
 security of the protocol invented in this article relied on the hardness of the
@@ -220,7 +222,7 @@ B=\frac{(a^q-b)^{q+1}}{(c-ab)^q}$, we see by the change of variable
 $X\to\frac{c-ab}{a^q-b}X-a$ in $\mathcal P_B$ that the polynomial
 $X^{q+1}+aX^q+bX+c$ also splits completely\footnote{I still have to check that.}. Note that using~\cite{Bluher04,
 HK10, GKZ14}, we also know that $\mathcal B$ is the image of
-$\mathbb{F}_{q^k}\setminus\mathbb{F}_{q^2}$ under the map 
+$\mathbb{F}_{q^m}\setminus\mathbb{F}_{q^2}$ under the map 
 \[
   u\mapsto \frac{(u-u^{q^2})^{q+1}}{(u-u^q)^{q^2+1}}\footnote{There is a proof
   in \cite{GKZ16b} but it is quite mysterious to me.}.
