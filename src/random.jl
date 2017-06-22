@@ -53,5 +53,13 @@ end
 # Random B such that X^(q+1) - BX + B factors
 
 function randomSplitElem(polyRing::Nemo.Ring, defPol)
-    randElem = polyRing(randomList(base_ring(polyRing)))
+    F = base_ring(polyRing)
+    n = F.mod_length - 1
+    randElem = polyRing(randomList(F, n))
+    card = length(F)
+    while randElem == powmod(randElem, card^2, defPol)
+        randElem = polyRing(randomList(F, n))
+    end
+    res = randElem - powmod(randElem, card, defPol)
+#    res = 
 end
