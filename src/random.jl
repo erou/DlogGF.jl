@@ -4,31 +4,35 @@
 #
 ################################################################################
 
-# Random suite over medium subfields (of type F_q²)
-# That is all we need as we use it only to find h0 and h1
+# Random suite over finite fields in Nemo
 
 export randomPolynomial
 
 """
-    randomElem(ring::Nemo.Ring)
+    randomElem(finField::Nemo.FinField)
 
-Return an random element in `ring`.
+Return a random element in `finField`.
 """
-function randomElem(ring::Nemo.Ring)
-    x = gen(ring)
-    c::Int = characteristic(ring) - 1
-    return ring(rand(0:c)) + rand(0:c)*x
+function randomElem(finField::Nemo.FinField)
+    x = gen(finField)
+    c::Int = characteristic(finField) - 1
+    n = finField.mod_length - 2
+    res = finField(rand(0:c))
+    for j in 1:n
+        res += rand(0:c)*x^j
+    end
+    return res
 end
 
 """
-    randomList(ring::Nemo.Ring, len::Integer)
+    randomList(finField::Nemo.FinField, len::Integer)
 
-Return an `Array` of length `len` with random elements in `ring`.
+Return an `Array` of length `len` with random elements in `finField`.
 """
-function randomList(ring::Nemo.Ring, len::Integer)
-    A = Array(ring, len)
+function randomList(finField::Nemo.FinField, len::Integer)
+    A = Array(finField, len)
     for i in 1:len
-        A[i] = randomElem(ring)
+        A[i] = randomElem(finField)
     end
     return A
 end
@@ -44,4 +48,10 @@ function randomPolynomial(polyRing::Nemo.PolyRing, degree::Integer)
         L = randomList(base_ring(polyRing), degree + 1)
     end
     return polyRing(L)
+end
+
+# Random B such that X^(q+1) - BX + B factors
+
+function randomSplitElem(polyRing::Nemo.Ring, defPol)
+    randElem = polyRing(randomList(base_ring(polyRing)))
 end
