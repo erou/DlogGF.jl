@@ -1,7 +1,7 @@
 using Nemo, DlogGF, Base.Test
 
 function testRandomSuite()
-    print("randomElem, randomList, randomPolynomial... ")
+    print("randomElem, randomList, randomPolynomial, randomIrrPolynomial... ")
 
     F, x = FiniteField(5, 2, "x")
 
@@ -13,6 +13,14 @@ function testRandomSuite()
 
     @test degree(DlogGF.randomPolynomial(R, 34)) == 34
     @test parent(DlogGF.randomPolynomial(R, 34)) == R
+
+    @test length(factor(DlogGF.randomIrrPolynomial(R, 10))) == 1
+    @test degree(DlogGF.randomIrrPolynomial(R, 10)) == 10
+    @test parent(DlogGF.randomIrrPolynomial(R, 10)) == R
+
+    @test length(factor(DlogGF.randomIrrPolynomial(R, 18))) == 1
+    @test degree(DlogGF.randomIrrPolynomial(R, 18)) == 18
+    @test parent(DlogGF.randomIrrPolynomial(R, 18)) == R
 
     println("PASS")
 end

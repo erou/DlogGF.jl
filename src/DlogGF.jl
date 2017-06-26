@@ -6,13 +6,14 @@ field.
 
 # References
 
-1. R. Barbulescu, P. Gaudry, A. Joux and E. Thomé : A quasi-polynomial algorithm
+1. R. Barbulescu, P. Gaudry, A. Joux and E. Thomé: A quasi-polynomial algorithm
   for discrete logarithm in finite fields of small characteristic.
-2. Stephen C. Pohlig and Martin E. Hellman : An Improved Algorithm for Computing
+2. Stephen C. Pohlig and Martin E. Hellman: An Improved Algorithm for Computing
   Logarithms over GF(p) and Its Cryptographic Signifiance, IEEE transactions on
   information theory, vol. it-24, no. 1, January 1978.
-3. Jincheng Zhuang and Qi Cheng : On Generating Coset Representatives of
+3. Jincheng Zhuang and Qi Cheng: On Generating Coset Representatives of
   PGL_2(F-q) in PGL_2(F_q²)
+4. R. Granger, T. Kleinjung and J. Zumbrägel: On the Powers of 2
 """
 module DlogGF
 using Nemo, Primes

@@ -67,14 +67,27 @@ end
 
 # Random B such that X^(q+1) - BX + B factors
 
-function randomSplitElem(polyRing::Nemo.Ring, defPol)
+"""
+    randomSplitElem(polyRing::Nemo.Ring, q::Int)
+
+Return a random element B in the base ring of `polyRing` such that the
+polynomial X^(q+1) - BX + B splits into linear factors.
+
+See Reference **[4]** for an explanation about the formula. The references can
+be found in the module documentation.
+"""
+function randomSplitElem(polyRing::Nemo.Ring, q::Int)
+
+    # We pick a random element in F_q^k\F_q^2, where F_q^k is the base ring of
+    # `polyRing`
     F = base_ring(polyRing)
-    n = F.mod_length - 1
-    randElem = polyRing(randomList(F, n))
-    card = length(F)
-    while randElem == powmod(randElem, card^2, defPol)
-        randElem = polyRing(randomList(F, n))
+    randEl = randomElem(F)
+    while randEl == randEl^(q^2)
+        randEl = randomElem(F)
     end
-    res = randElem - powmod(randElem, card, defPol)
-#    res = 
+
+    # Then we apply the formula
+    res = (randEl-randEl^(q^2))^(q+1)*(randEl-randEl^q)^(-q^2-1)
+
+    return res
 end
