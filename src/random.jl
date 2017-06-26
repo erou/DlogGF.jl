@@ -50,6 +50,21 @@ function randomPolynomial(polyRing::Nemo.PolyRing, degree::Integer)
     return polyRing(L)
 end
 
+"""
+    randomIrrPolynomial(polyRing::Nemo.PolyRing, degree::Integer)
+
+Return a randon irreducible polynomial of degree `degree` in the ring
+`polyRing`.
+"""
+function randomIrrPolynomial(polyRing::Nemo.PolyRing, degree::Integer)
+    P = randomPolynomial(polyRing, degree)
+    while length(factor(P)) != 1
+        P = randomPolynomial(polyRing, degree)
+    end
+    return P
+end
+
+
 # Random B such that X^(q+1) - BX + B factors
 
 function randomSplitElem(polyRing::Nemo.Ring, defPol)

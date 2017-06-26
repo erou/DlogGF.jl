@@ -150,15 +150,23 @@ function modulusCoeffs(F::FqNmodFiniteField)
 end
 
 """
-    (F::FqNmodFiniteField)(a::fq_nmod)
+    anyFactor{T <: PolyElem}(P::T)
 
-Coercion function between finite fields.
+Return a factor of the polynomial `P`.
 """
+function anyFactor{T <: PolyElem}(P::T)
 
-function (F::FqNmodFiniteField)(a::fq_nmod)
+    # We factor P
+    fact = factor(P)
 
-    # We first check for impossible embeddings
-    f = parent(a)
+    # And we return the first encountered factor
+    for f in fact
+        return f[1]
+    end
+end
+
+function findImg(F::FqNmodFiniteField, f::FqNmodFiniteField)
+
     df = degree(f)
     if degree(F)%df != 0
         error("There is no embedding: check the degrees of the fields involved")
@@ -179,10 +187,83 @@ function (F::FqNmodFiniteField)(a::fq_nmod)
         break
     end
 
+    return img
+end
+
+"""
+    (F::FqNmodFiniteField)(a::fq_nmod)
+
+Coercion function between finite fields.
+
+This function will compute the image of the generator every time.
+"""
+function (F::FqNmodFiniteField)(a::fq_nmod)
+
+    # We compute the image of the generator of the field in which `a` lives
+    f = parent(a)
+    img = findImg(F, f)
+
     # And we compute the final result by linearity
-    for j in 0:(degree(f)-1)
+    df = degree(f)
+    res = F()
+
+    for j in 0:df-1
         res += coeff(a, j)*img^j
     end
 
     return res
 end
+
+"""
+    (F::FqNmodFiniteField)(a::fq_nmod, img::fq_nmod)
+    
+Coercion function between finite fields.
+
+The element `img` is the image of the generator of the field where `a` is living
+in the field `F`.
+"""
+function (F::FqNmodFiniteField)(a::fq_nmod, img::fq_nmod)
+    res = F()
+    df = degree(parent(a))
+
+    for j in 0:df-1
+        res += coeff(a, j)*img^j
+    end
+
+    return res
+end
+
+"""
+    (R::FqNmodPolyRing)(p::fq_nmod_poly)
+
+Coercion function between polynomial rings over finite fields.
+
+This is a coefficient-wise coercion.
+"""
+function (R::FqNmodPolyRing)(p::fq_nmod_poly)
+
+    # We first coerce each coefficient
+    F = base_ring(R)
+    coeffs = [F(coeff(p, i)) for i in 0:degree(p)]
+
+    # And we return the polynomial corresponding to these coefficients
+    return R(coeffs)
+end
+
+"""
+    (R::FqNmodPolyRing)(p::fq_nmod_poly, img::fq_nmod)
+
+Coercion function between polynomial rings over finite fields.
+
+This is a coefficient-wise coercion.
+"""
+function (R::FqNmodPolyRing)(p::fq_nmod_poly, img::fq_nmod)
+
+    # We first coerce each coefficient
+    F = base_ring(R)
+    coeffs = [F(coeff(p, i), img) for i in 0:degree(p)]
+
+    # And we return the polynomial corresponding to these coefficients
+    return R(coeffs)
+end
+
