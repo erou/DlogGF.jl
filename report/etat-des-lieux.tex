@@ -80,11 +80,12 @@
 \section{Encadrement}
 
 J'effectue mon stage au Canada, à l'université de Waterloo, sous la direction
-d'Éric \textsc{Schost}. Nous discutons également très régulièrement avec Luca
-\textsc{De Feo}. Je suis arrivé au Canada le 16 Mars et devrait repartir le 8
+d'Éric \textsc{Schost}. Je suis arrivé au Canada le 16 Mars et devrais repartir le 8
 Septembre.
 
 \section{Sujet}
+
+\paragraph{Arrière-plan.} 
 
 Le stage porte sur l'étude du problème du logarithme discret dans les corps
 finis de petite caractéristique. Le problème est relativement simple à
@@ -109,8 +110,43 @@ cryptography'' de Diffie et Hellman~\cite{DH76}. Au cœur de cet article, qui
 est à l'origine même du concept de cryptographie à clé publique, on trouve le 
 protocole d'échange de clés Diffie-Hellman. La sécurité de ce protocole 
 s'appuie sur la difficulté supposée de calculer des logarithmes discrets dans le
-groupe $(\mathbb{Z}/N\mathbb{Z})^\times$. 
+groupe $(\mathbb{Z}/N\mathbb{Z})^\times$. D'autres groupes ont un intérêt
+cryptographique, par exemple le groupe des points d'une courbe
+elliptique, ou bien le groupe des éléments inversible d'un corps fini.
+C'est d'ailleurs ce dernier cas auquel nous nous intéressons pendant ce stage.
+Plus précisément, nous étudions les corps finis de \emph{petite
+caractéristique}, c'est-à-dire les corps $\mathbb{F}_{q^n}$ où $q$ est petit
+devant la taille du corps ($q\ll q^n$).
 
+\paragraph{Un problème difficile ?}
+
+Bien que des algorithmes \emph{sous-exponentielles} aient été
+découverts, le problème du logarithme discret n'a pas réellement connu
+d'avancées majeures pendant les trentes dernières années. C'était en tous cas
+le cas avant 2013, où Antoine Joux a publié un article~\cite{Joux13} avec des
+idées novatrices dans le cas des corps finis de petite
+caractéristique. Dès l'année suivante, deux
+algorithmes~\cite{BGJT13, GKZ14} \emph{quasi-polynomiaux}, tous deux issus de ces
+mêmes idées mais indépendants l'un de
+l'autre, ont vu le jour, toujours en petite caractéristique. Par quasi-polynomial, on entend une compléxité
+de la forme $l^{O(\log l)}$ où $l$ est la taille de l'entrée (ici $l=\log
+(q^n)$). Nous ne sommes donc plus très loin de la complexité
+polynomiale (\ie de la forme $l^{O(1)}$), qui ferait définitivement passer 
+le problème du logarithme discret dans la catégorie des problèmes
+``faciles'', en petite caractéristique du moins. Cependant, si ces
+algorithmes réalisent une grande avancée en terme de complexité
+assymptotique, leur intérêt pratique est beaucoup plus incertain, et il n'existe
+pas encore d'implémentation complète de ces algorithmes.
+
+\section{Objectifs}
+
+Notre but est de comprendre les nouveaux algorithmes
+quasi-polynomiaux~\cite{BGJT13, GKZ14}, en particulier d'étudier le côté
+pratique de ces algorithmes. Pour aller dans ce sens, nous avons implémenté
+l'algorithme~\cite{BGJT13}. Dans la seconde moitié du stage, nous
+envisageons d'implémenter le second algorithme~\cite{GKZ14}, qui est
+actuellement le plus efficace en pratique, et éventuellement d'en proposer
+des améliorations.
 \bibliographystyle{plain}
 \bibliography{dlog}
 \end{document}

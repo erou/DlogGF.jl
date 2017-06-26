@@ -123,3 +123,66 @@ function dlogSmallField{T}(carac::Integer, degExt::Integer, gen::T, elem::T,
     # Amd we translate the result in basis `gen`
     return (i*c)%(q^degExt-1)
 end
+
+# Basic functions for finite fields
+
+"""
+    modulusCoeffs(F::FqNmodFiniteField)
+
+Return the coefficients of the modulus defining the field `F`.
+"""
+function modulusCoeffs(F::FqNmodFiniteField)
+
+    # We compute -x^d, where x is the generator of `F` and d its degree
+    deg = degree(F)
+    tail = -gen(F)^deg
+
+    # Then we read the result, since we know that -x^d = P(x), with the
+    # modulus defining `F` being T^d + P(T)
+    coeffs = Array(Int, deg+1)
+    for j in 1:deg
+        coeffs[j] = coeff(tail, j-1)
+    end
+
+    coeffs[end] = 1
+
+    return coeffs
+end
+
+"""
+    (F::FqNmodFiniteField)(a::fq_nmod)
+
+Coercion function between finite fields.
+"""
+
+function (F::FqNmodFiniteField)(a::fq_nmod)
+
+    # We first check for impossible embeddings
+    f = parent(a)
+    df = degree(f)
+    if degree(F)%df != 0
+        error("There is no embedding: check the degrees of the fields involved")
+    
+    elseif characteristic(f) != characteristic(F)
+        error("Fields must be of the same characteristic")
+    end
+
+    # Then we compute the image of the generator of the field in which `a`
+    # lives, by finding a root of the polynomial defining `f` over F
+    coeffs = modulusCoeffs(f)
+    R, T = PolynomialRing(F, "T")
+    fact = factor(R(coeffs))
+    img = F()
+    res = F()
+    for r in fact
+        img = -coeff(r[1],0)
+        break
+    end
+
+    # And we compute the final result by linearity
+    for j in 0:(degree(f)-1)
+        res += coeff(a, j)*img^j
+    end
+
+    return res
+end
