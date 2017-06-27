@@ -22,6 +22,23 @@ function testRandomSuite()
     @test degree(DlogGF.randomIrrPolynomial(R, 18)) == 18
     @test parent(DlogGF.randomIrrPolynomial(R, 18)) == R
 
+    q = 3^5
+    G, y = FiniteField(3, q*8, "y")
+    S, U = PolynomialRing(G, "U")
+    B = DlogGF.randomSplitElem(S, q)
+    P = U^(q+1) - B*U + B
+    fact = factor(P)
+    boo = true
+
+    for f in fact
+        if degree(f[1]) != 1
+            boo = false
+            break
+        end
+    end
+
+    @test boo
+
     println("PASS")
 end
 
