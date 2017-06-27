@@ -360,6 +360,26 @@ function testLinearDlog()
     println("PASS")
 end
 
+function testAscent()
+    print("ascent...")
+
+    F, z = FiniteField(3, 5, "z")
+    R, T = PolynomialRing(F, "T")
+    P = (z^4+2*z^2+2*z+2)*T^16+(z^4+z+1)*T^15+(z^4+z^2+2*z+2)*T^14+(2*z^4+2*z^3)*T^13+(2*z^3+z^2+2*z+1)*T^12+(z^3+z)*T^11+(z^4+z^3+2*z+1)*T^10+(z^4+2*z^3+2*z^2)*T^9+(2*z^3+z^2+z+1)*T^8+(z^3+z^2+z+1)*T^7+(z^4+2*z^3+2*z^2+1)*T^6+(2*z^4+z^3+2*z^2+2*z+2)*T^5+(z^4+z^2+2*z)*T^4+(z+2)*T^3+(2*z^4+z^3+2*z+2)*T^2+(z^4+z^2)*T+(z^4+z^2+z+1)
+    Q = DlogGF.ascent(P)
+
+    @test length(factor(Q)) == 1
+    @test parent(Q)(P) % Q == 0 
+
+    P = (2*z^4+z^3+2*z^2)*T^16+(z^4+2*z^3+z+2)*T^15+(z^3+2*z^2+z+1)*T^14+(z^3+z^2+1)*T^13+(2*z^4+z^3+z^2+z+1)*T^12+(2*z^4+2*z^3+z+1)*T^11+(z^4+2*z^2+2)*T^10+(z^4+2*z^2+z+1)*T^9+(2*z^3+z^2+2*z+2)*T^8+(2*z)*T^7+(2*z^4+2*z^2+2*z)*T^6+(2*z^3+2*z^2+1)*T^5+(2*z^4+z^3+2*z)*T^4+(2*z^4+z+1)*T^3+(2*z^4+z^2+2*z+2)*T^2+(2*z^4+2*z^2+2*z+2)*T+(z^4+2*z^3)
+    Q = DlogGF.ascent(P)
+
+    @test length(factor(Q)) == 1
+    @test parent(Q)(P) % Q == 0 
+
+    println("PASS")
+end
+
 function testAll()
 
     testRandomSuite()
@@ -372,6 +392,7 @@ function testAll()
     testDlogSmallField()
     testPglCosets()
     testLinearDlog()
+    testAscent()
 
     println("\nAll tests passed successfully.\n")
 end
