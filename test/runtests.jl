@@ -1,7 +1,8 @@
 using Nemo, DlogGF, Base.Test
 
 function testRandomSuite()
-    print("randomElem, randomList, randomPolynomial, randomIrrPolynomial... ")
+    print("randomElem, randomList, randomPolynomial, randomIrrPolynomial,
+          randomSplitElem... ")
 
     F, x = FiniteField(5, 2, "x")
 
@@ -23,7 +24,7 @@ function testRandomSuite()
     @test parent(DlogGF.randomIrrPolynomial(R, 18)) == R
 
     q = 3^5
-    G, y = FiniteField(3, q*8, "y")
+    G, y = FiniteField(3, q^8, "y")
     S, U = PolynomialRing(G, "U")
     B = DlogGF.randomSplitElem(S, q)
     P = U^(q+1) - B*U + B
