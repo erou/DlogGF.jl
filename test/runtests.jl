@@ -372,9 +372,9 @@ function testAscent()
     F3_20, z20 = FiniteField(3, 20, "z20")
     F3_40, z40 = FiniteField(3, 40, "z40")
 
-    R3_10, T = PolynomialRing(F3_10, "T")
-    R3_20, T = PolynomialRing(F3_20, "T")
-    R3_40, T = PolynomialRing(F3_40, "T")
+    R3_10 = PolynomialRing(F3_10, "T")[1]
+    R3_20 = PolynomialRing(F3_20, "T")[1]
+    R3_40 = PolynomialRing(F3_40, "T")[1]
 
 
     @test length(factor(Q)) == 1
