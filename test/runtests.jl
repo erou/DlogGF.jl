@@ -363,19 +363,28 @@ end
 function testAscent()
     print("ascent...")
 
-    F, z = FiniteField(3, 5, "z")
-    R, T = PolynomialRing(F, "T")
-    P = (z^4+2*z^2+2*z+2)*T^16+(z^4+z+1)*T^15+(z^4+z^2+2*z+2)*T^14+(2*z^4+2*z^3)*T^13+(2*z^3+z^2+2*z+1)*T^12+(z^3+z)*T^11+(z^4+z^3+2*z+1)*T^10+(z^4+2*z^3+2*z^2)*T^9+(2*z^3+z^2+z+1)*T^8+(z^3+z^2+z+1)*T^7+(z^4+2*z^3+2*z^2+1)*T^6+(2*z^4+z^3+2*z^2+2*z+2)*T^5+(z^4+z^2+2*z)*T^4+(z+2)*T^3+(2*z^4+z^3+2*z+2)*T^2+(z^4+z^2)*T+(z^4+z^2+z+1)
+    F3_5, z5 = FiniteField(3, 5, "z5")
+    R3_5, T = PolynomialRing(F3_5, "T")
+    P = (z5^3+z5^2)*T^16+(z5^3+z5^2+2*z5+2)*T^15+(2*z5^4+2*z5^3+z5+1)*T^14+(2*z5^4+2*z5^2+2*z5)*T^13+(2*z5^4+2*z5^2+z5+2)*T^12+(z5^4+z5^3+z5^2+z5+2)*T^11+(z5^4+z5^2+z5)*T^10+(2*z5^2+2)*T^9+(2*z5^3+2*z5+1)*T^8+(z5^3+2*z5^2+2*z5+2)*T^7+(2*z5^4+z5^2+2*z5+1)*T^6+(z5^4+z5^3+z5^2+z5+2)*T^5+(2*z5^3+2*z5+1)*T^4+(z5^4+2*z5^3+z5^2+1)*T^3+(2*z5^4+2*z5^3+z5+2)*T^2+(2*z5^4+2*z5^3)*T+(2*z5^2)
     Q = DlogGF.ascent(P)
 
+    F3_10, z10 = FiniteField(3, 10, "z10")
+    F3_20, z20 = FiniteField(3, 20, "z20")
+    F3_40, z40 = FiniteField(3, 40, "z40")
+
+    R3_10, T = PolynomialRing(F3_10, "T")
+    R3_20, T = PolynomialRing(F3_20, "T")
+    R3_40, T = PolynomialRing(F3_40, "T")
+
+
     @test length(factor(Q)) == 1
-    @test parent(Q)(P) % Q == 0 
+    @test R3_40(R3_20(R3_10(P))) % Q == 0 
 
     P = (2*z^4+z^3+2*z^2)*T^16+(z^4+2*z^3+z+2)*T^15+(z^3+2*z^2+z+1)*T^14+(z^3+z^2+1)*T^13+(2*z^4+z^3+z^2+z+1)*T^12+(2*z^4+2*z^3+z+1)*T^11+(z^4+2*z^2+2)*T^10+(z^4+2*z^2+z+1)*T^9+(2*z^3+z^2+2*z+2)*T^8+(2*z)*T^7+(2*z^4+2*z^2+2*z)*T^6+(2*z^3+2*z^2+1)*T^5+(2*z^4+z^3+2*z)*T^4+(2*z^4+z+1)*T^3+(2*z^4+z^2+2*z+2)*T^2+(2*z^4+2*z^2+2*z+2)*T+(z^4+2*z^3)
     Q = DlogGF.ascent(P)
 
     @test length(factor(Q)) == 1
-    @test parent(Q)(P) % Q == 0 
+    @test R3_40(R3_20(R3_10(P))) % Q == 0 
 
     println("PASS")
 end
