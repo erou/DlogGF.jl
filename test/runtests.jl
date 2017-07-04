@@ -360,6 +360,19 @@ function testLinearDlog()
     println("PASS")
 end
 
+function testGkzContext()
+    print("gkzContext... ")
+
+    K = DlogGF.gkzContext(3, 5, 10)
+    F, z5 = FiniteField(3, 5, "z5")
+
+    @test length(factor(K.definingPolynomial)) == 1
+    @test K.characteristic == 5
+    @test K.baseField == F
+
+    println("PASS")
+end
+
 function testAscent()
     print("ascent...")
 
@@ -401,6 +414,7 @@ function testAll()
     testDlogSmallField()
     testPglCosets()
     testLinearDlog()
+    testGkzContext()
     testAscent()
 
     println("\nAll tests passed successfully.\n")
