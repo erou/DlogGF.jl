@@ -135,3 +135,24 @@ function ascent(Q::fq_nmod_poly)
 
     return P
 end
+
+function latticeBase(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
+    h0b = h0 % Q
+    h1b = h1 % Q
+
+    Qb = parent(Q)([coeff(Q, 2)^(-1)*coeff(Q, i) for i in 0:2])
+    a, b = coeff(Qb, 1), coeff(Qb, 0)
+    
+    a0, b0 = coeff(h0b, 1), coeff(h0b, 0)
+    a1, b1 = coeff(h1b, 1), coeff(h1b, 0)
+
+    t = (a0*b1-b0*a1)^(-1)
+    u = a0^(-1)
+
+    v1 = (b0*u*(a*a0+b0) - a0*b)*a0*t
+    u1 = (b0*u*(a*a1+b1) - a1*b)*a0*t
+    v0 = -u*(a1*v1 + a*a0 + b0)
+    u0 = -u*(a1*u1 + a*a1 + b1)
+
+    return u0, u1, v0, v1
+end
