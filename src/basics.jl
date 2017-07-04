@@ -6,6 +6,8 @@
 
 export dlogSmallField
 
+# Arithmetic in finite fields
+
 function Nemo.powmod(x::Nemo.fq_nmod_poly, n::Nemo.fmpz, y::Nemo.fq_nmod_poly)
    check_parent(x,y)
    z = parent(x)()
@@ -96,7 +98,7 @@ function Base.length(F::Nemo.FqNmodFiniteField)
     return BigInt((F.p))^(F.mod_length - 1)
 end
 
-# Some functions
+# Discrete log in a small subfield
 
 """
     dlogSmallField{T}(carac::Integer, degExt::Integer, gen::T, elem::T,
@@ -124,7 +126,7 @@ function dlogSmallField{T}(carac::Integer, degExt::Integer, gen::T, elem::T,
     return (i*c)%(q^degExt-1)
 end
 
-# Basic functions for finite fields
+# Basic functions for embedding of finite fields
 
 """
     modulusCoeffs(F::FqNmodFiniteField)
@@ -165,6 +167,11 @@ function anyFactor{T <: PolyElem}(P::T)
     end
 end
 
+"""
+    findImg(F::FqNmodFiniteField, f::FqNmodFiniteField)
+
+Find the image of the generator of `f` in `F`.
+"""
 function findImg(F::FqNmodFiniteField, f::FqNmodFiniteField)
 
     df = degree(f)
@@ -265,5 +272,62 @@ function (R::FqNmodPolyRing)(p::fq_nmod_poly, img::fq_nmod)
 
     # And we return the polynomial corresponding to these coefficients
     return R(coeffs)
+end
+
+# Functions checking if an element is a generator
+
+"""
+    isGenerator(gen::RingElem, card::Integer, defPol::PolyElem)
+
+Return `true` if gen is a generator of the group of the inversible elements of
+the finite field of cardinal `card`. Return `false` otherwise.
+"""
+function isGenerator(gen::RingElem, card::Integer, defPol::PolyElem)
+    # We compute the factorisation of card-1 
+    fact = factor(card-1)
+    d::Integer = 0
+
+    # If gen is not a generator, there is a integer d < card-1 of that form for
+    # which we have gen^d = 1
+    for x in fact
+        d = (card-1)//x[1]
+        if powmod(gen, d, defPol) == 1
+            return false
+        end
+    end
+    return true
+end
+
+"""
+    miniCheck(gen::RingElem, card::Integer, defPol::PolyElem)
+
+Check that `gen` is not trivially not generator.
+
+By trivially not generator, we mean that ``gen^(k/d) = 1``, for ``k`` the cardinal of
+the group of the invertible elements of the field, and ``d`` a small divisor of this
+cardinal. 
+
+Passing this test does *not* guarantee that `gen` is a generator.
+"""
+function miniCheck(gen::RingElem, card::Integer, defPol::PolyElem)
+
+    # We find the small primes dividing our cardinal
+    d::Integer = 0
+    l::Int = ceil(Integer, log2(card))
+    A = Array{Int, 1}()
+    for i in primes(l)
+        if card%i == 1
+            push!(A, i)
+        end
+    end
+
+    # And we test the generator on those primes
+    for x in A
+        d = (card-1)//x
+        if powmod(gen, d, defPol) == 1
+            return false
+        end
+    end
+    return true
 end
 

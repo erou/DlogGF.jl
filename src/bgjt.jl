@@ -100,61 +100,6 @@ function smsrField(q::Integer, k::Integer, deg::Integer = 1, check::Bool = false
     return SmsrField(q, k, card, h0, h1, definingPolynomial, gen)
 end
 
-"""
-    isGenerator(gen::RingElem, card::Integer, defPol::PolyElem)
-
-Return `true` if gen is a generator of the group of the inversible elements of
-the finite field of cardinal `card`. Return `false` otherwise.
-"""
-function isGenerator(gen::RingElem, card::Integer, defPol::PolyElem)
-    # We compute the factorisation of card-1 
-    fact = factor(card-1)
-    d::Integer = 0
-
-    # If gen is not a generator, there is a integer d < card-1 of that form for
-    # which we have gen^d = 1
-    for x in fact
-        d = (card-1)//x[1]
-        if powmod(gen, d, defPol) == 1
-            return false
-        end
-    end
-    return true
-end
-
-"""
-    miniCheck(gen::RingElem, card::Integer, defPol::PolyElem)
-
-Check that `gen` is not trivially not generator.
-
-By trivially not generator, we mean that ``gen^(k/d) = 1``, for ``k`` the cardinal of
-the group of the invertible elements of the field, and ``d`` a small divisor of this
-cardinal. 
-
-Passing this test does *not* guarantee that `gen` is a generator.
-"""
-function miniCheck(gen::RingElem, card::Integer, defPol::PolyElem)
-
-    # We find the small primes dividing our cardinal
-    d::Integer = 0
-    l::Int = ceil(Integer, log2(card))
-    A = Array{Int, 1}()
-    for i in primes(l)
-        if card%i == 1
-            push!(A, i)
-        end
-    end
-
-    # And we test the generator on those primes
-    for x in A
-        d = (card-1)//x
-        if powmod(gen, d, defPol) == 1
-            return false
-        end
-    end
-    return true
-end
-
 ## FactorsList : this type is used to represent a factorisation of the type 
 ##               P = (unit) × P_1^(e_1) × ... × P_n^(e_n), we use it because
 ##               the algorithm of Barbulescu et al. consist of finding such
