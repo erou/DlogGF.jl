@@ -402,6 +402,34 @@ function testAscent()
     println("PASS")
 end
 
+function testLatticeBasis()
+    print("latticeBasis...")
+
+    F, z5 = FiniteField(3, 5, "z5")
+    R, T = PolynomialRing(F, "T")
+    h0 = (2*z5+2)*T+(2*z5^4+z5^3+2*z5^2+z5)
+    h1 = T^2+(2*z5^4+z5+1)*T
+    Q = (2*z5^4+2*z5^3+2*z5^2+z5+2)*T^2+(2*z5^4+2*z5^3+z5+2)*T+(2*z5^3+z5^2+2*z5+1)
+    u0, u1, v0, v1 = DlogGF.latticeBasis(Q, h0, h1)
+
+    @test ((T+v0)*h0+(v1)*h1)%Q == 0
+    @test ((u0)*h0+(T+u1)*h1)%Q == 0
+
+    Q = (z5^4+2*z5^3+z5^2+2*z5+2)*T^2+(z5^4+2*z5^2+z5+2)*T+(2*z5^3+z5^2)
+    u0, u1, v0, v1 = DlogGF.latticeBasis(Q, h0, h1)
+
+    @test ((T+v0)*h0+(v1)*h1)%Q == 0
+    @test ((u0)*h0+(T+u1)*h1)%Q == 0
+
+    Q = (z5^4+1)*T^2+(2*z5^2+z5)*T+(2*z5^3+z5^2)
+    u0, u1, v0, v1 = DlogGF.latticeBasis(Q, h0, h1)
+
+    @test ((T+v0)*h0+(v1)*h1)%Q == 0
+    @test ((u0)*h0+(T+u1)*h1)%Q == 0
+
+    println("PASS")
+end
+
 function testAll()
 
     testRandomSuite()
