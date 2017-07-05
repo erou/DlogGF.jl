@@ -331,3 +331,51 @@ function miniCheck(gen::RingElem, card::Integer, defPol::PolyElem)
     return true
 end
 
+# Functions on polynomials
+
+"""
+    monic(Q::PolyElem)
+
+Return the normalized polynomial, assuming that the leading coefficient is
+invertible.
+"""
+function monic(Q::PolyElem)
+    
+    # We compute the degree
+    d = degree(Q)
+
+    # And we divide every coefficient by the leading coefficient
+    return parent(Q)([coeff(Q, d)^(-1)*coeff(Q, i) for i in 0:d])
+end
+
+"""
+    anyRoot(Q::PolyElem)
+
+Return a couple (`bool`, `root`), where `root` is a root of `Q` and `bool` is
+`true` if there is a root, otherwise it is `false` and `root` is set to zero.
+
+# Notes
+* Type stability in the output helps the compiler to optimize the code, that is
+  why we choose to always output a couple with the same type here, and to output
+  ``root = 0`` even if zero is not a root.
+
+* This algorithm does *a lot* more than finding a root (it actually factors the
+  input polynomial)
+"""
+function anyRoot(Q::PolyElem)
+
+    # We factor the polynomial
+    fact = factor(Q)
+
+    # And we look for a degree one factor
+    for f in fact
+
+        # If there is one, we return the associated root
+        if degree(f[1]) == 1
+            return true, -coeff(f[1],0)
+        end
+    end
+
+    # Otherwise we know there is no root
+    return false, zero(base_ring(Q))
+end

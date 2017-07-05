@@ -149,7 +149,7 @@ function latticeBasis(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
     h0b = h0 % Q
     h1b = h1 % Q
 
-    Qb = parent(Q)([coeff(Q, 2)^(-1)*coeff(Q, i) for i in 0:2])
+    Qb = monic(Q)
     a, b = -coeff(Qb, 1), -coeff(Qb, 0)
     
     a0, b0 = coeff(h0b, 1), coeff(h0b, 0)
@@ -166,4 +166,25 @@ function latticeBasis(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
     u0 = -u*(a1*u1 + a*a1 + b1)
 
     return u0, u1, v0, v1
+end
+
+function onTheFly(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
+    R = parent(Q)
+    T = gen(R)
+    F = base_ring(Q)
+    f = base_ring(h0)
+    img = findImg(F, f)
+    q::Int = length(f)
+    B = randomSplitElem(R, q)
+    u0, u1, v0, v1 = latticeBasis(Q, R(h0, img), R(h1, img))
+    P = (u0*T^q-T+v0^q)^(q+1)-B*(-u0*T^2+(u1-v0)*T+v1)^q
+    @time boo, r = anyRoot(P)
+
+    while !boo
+        B = randomSplitElem(R, q)
+        P = (u0*T^q-T+v0^q)^(q+1)-B*(-u0*T^2+(u1-v0)*T+v1)^q
+        @time boo, r = anyRoot(P)
+    end
+    
+    return r*u0+v0, r, r*u1+v1
 end
