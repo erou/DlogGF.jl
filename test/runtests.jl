@@ -444,6 +444,7 @@ function testAll()
     testLinearDlog()
     testGkzContext()
     testAscent()
+    testLatticeBasis()
 
     println("\nAll tests passed successfully.\n")
 end
