@@ -49,6 +49,29 @@ function powmodPreinv(x::Nemo.fq_nmod_poly, n::Nemo.fmpz, y::Nemo.fq_nmod_poly,
   return z
 end
 
+function iteratedFrobenius(P::fq_nmod_poly, n::Int)
+
+    #
+    # CAUTION:
+    #
+    # This producte a segmentation fault for now
+    #
+
+    R = parent(P)
+    Prev = reverse(P)
+    X = gen(R)
+    inv = gcdinv(Prev, X^degree(P))[2]
+    iterates = Array(fq_nmod_poly, n)
+    for i in 1:n
+        iterates[i] = gen(R)
+    end
+
+    ccall((:fq_nmod_poly_iterated_frobenius_preinv, :libflint), Void,
+          (Ptr{Ptr{fq_nmod_poly}}, Int, Ptr{fq_nmod_poly}, Ptr{fq_nmod_poly},
+           Ptr{FqNmodFiniteField}), &iterates, n, &P, &inv, &base_ring(P))
+    return iterates
+end
+
 # Iterator over finite fields
 # The elements are iterated in the order 0, 1, ..., q-1, x, 1 + x, 2 + x,
 # ..., (q-1) + (q-1)x + ... + (q-1)x^(n-1), where x is the generator of F_q^n
@@ -364,18 +387,14 @@ Return a couple (`bool`, `root`), where `root` is a root of `Q` and `bool` is
 """
 function anyRoot(Q::PolyElem)
 
-    # We factor the polynomial
-    fact = factor(Q)
+    F = base_ring(Q)
+    q = length(F)
+    X = gen(parent(Q))
 
-    # And we look for a degree one factor
-    for f in fact
+    tmp = powmod(X, q, Q) # Sub optimal, better use a frobenius based thing
+    tmp -= X
 
-        # If there is one, we return the associated root
-        if degree(f[1]) == 1
-            return true, -coeff(f[1],0)
-        end
-    end
+    g = gcd(tmp, Q)
 
-    # Otherwise we know there is no root
-    return false, zero(base_ring(Q))
+    return g
 end

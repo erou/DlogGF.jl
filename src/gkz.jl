@@ -188,3 +188,8 @@ function onTheFly(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
     
     return r*u0+v0, r, r*u1+v1
 end
+
+function norm(Q::fq_nmod_poly, q::Integer)
+    conj = parent(Q)([coeff(Q, i)^q for i in 0:degree(Q)])
+    return Q*conj
+end
