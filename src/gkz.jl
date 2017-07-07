@@ -178,14 +178,15 @@ function onTheFly(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
     B = randomSplitElem(R, q)
     u0, u1, v0, v1 = latticeBasis(Q, R(h0, img), R(h1, img))
     P = (u0*T^q-T+v0^q)^(q+1)-B*(-u0*T^2+(u1-v0)*T+v1)^q
-    @time boo, r = anyRoot(P)
+    
+    r = anyRoot(P)
 
-    while !boo
+    while r == nothing
         B = randomSplitElem(R, q)
         P = (u0*T^q-T+v0^q)^(q+1)-B*(-u0*T^2+(u1-v0)*T+v1)^q
-        @time boo, r = anyRoot(P)
+        r = anyRoot(P)
     end
-    
+
     return r*u0+v0, r, r*u1+v1
 end
 

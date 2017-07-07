@@ -63,12 +63,12 @@ function iteratedFrobenius(P::fq_nmod_poly, n::Int)
     inv = gcdinv(Prev, X^degree(P))[2]
     iterates = Array(fq_nmod_poly, n)
     for i in 1:n
-        iterates[i] = gen(R)
+        iterates[i] = R()
     end
 
     ccall((:fq_nmod_poly_iterated_frobenius_preinv, :libflint), Void,
-          (Ptr{Ptr{fq_nmod_poly}}, Int, Ptr{fq_nmod_poly}, Ptr{fq_nmod_poly},
-           Ptr{FqNmodFiniteField}), &iterates, n, &P, &inv, &base_ring(P))
+          (Ptr{fq_nmod_poly}, Int, Ptr{fq_nmod_poly}, Ptr{fq_nmod_poly},
+           Ptr{FqNmodFiniteField}), iterates, n, &P, &inv, &base_ring(P))
     return iterates
 end
 
@@ -396,5 +396,8 @@ function anyRoot(Q::PolyElem)
 
     g = gcd(tmp, Q)
 
-    return g
+    fact = factor(g)
+    for f in fact
+        return -coeff(f[1], 0)
+    end
 end
