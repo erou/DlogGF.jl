@@ -451,6 +451,7 @@ function testProject()
     @test DlogGF.projectLinAlg(F3_5, F3_20(f), M, piv) == f
 
     println("PASS")
+end
 
 function testAll()
 
