@@ -485,7 +485,7 @@ function projectLinAlg(f::FinField, x::FinFieldElem)
 end
 
 """
-    projectLinAlg(f::FinField, x::FInFieldElem, M::MatElem, piv::Array{Int, 1})
+    projectLinAlg(f::FinField, x::FinFieldElem, M::MatElem, piv::Array{Int, 1})
 
 Return the projection of the element `x` in the field `f`, given informations
 about the embedding involved in the operation. 
@@ -497,7 +497,7 @@ embedding and the chosen lines used to construct this submatrix.
 # Remarks
   * No test is done to be sure that `x` is indeed an element in `f`.
 """
-function projectLinAlg(f::FinField, x::FInFieldElem, M::MatElem, piv::Array{Int, 1})
+function projectLinAlg(f::FinField, x::FinFieldElem, M::MatElem, piv::Array{Int, 1})
 
     # We create a column vector with the coordinates of `x`
     F = parent(x)
