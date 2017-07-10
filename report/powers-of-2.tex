@@ -253,10 +253,10 @@ find a triple $(a, b, c)$ satisfying the two conditions. To do that, we choose
 $B\in \mathcal B$ and we remark that $(X+a,
 bX+c)\in L_Q$ implies that $(X+a, bX+c)=b(u_0, X+u_1)+(X+v_0, v_1)$. Hence, we
 have $a=bu_0+v_0$ and $c=bu_1+v_1$. Rewriting $a$ and $c$ in the conditions
-on $(a,b,c)$: $c\neq ab,b\neq a^q$ and $\frac{(a^q-b)^{q+1}}{(c-ab)^q}=B$, we
+on $(a,b,c)$: $c\neq ab,b\neq a^q$ and $\frac{(b-a^q)^{q+1}}{(c-ab)^q}=B$, we
 get the condition
 \[
-  B = \frac{(b-b^qu_0^q+v_0)^{q+1}}{(-b^2+b(u_1-v_0)+v_1)^q}
+  B = \frac{(-u_0^qb^q+b-v_0^q)^{q+1}}{(-u_0b^2+(u_1-v_0)b+v_1)^q}
 \]
 and we can find a suitable $b$ in polynomial time in $q$ and $m$ by finding a root to a degree
 $q^2+q$ polynomial. Alternatively, we can write $b$ in a $\mathbb{F}_{q^m}/\mathbb{F}_q$

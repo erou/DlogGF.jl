@@ -127,7 +127,8 @@ function ascent(Q::fq_nmod_poly)
         # We embed the polynomial in that extension
         img = findImg(Fext, F)
         F = Fext
-        R, T = PolynomialRing(Fext, "T")
+        T = string("T", deg*2^j)
+        R = PolynomialRing(Fext, T)[1]
 
         # And we compute a factor
         P = anyFactor(R(P, img))
@@ -183,7 +184,7 @@ function onTheFly(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
 
     while r == nothing
         B = randomSplitElem(R, q)
-        P = (u0*T^q-T+v0^q)^(q+1)-B*(-u0*T^2+(u1-v0)*T+v1)^q
+        P = (-u0^q*T^q+T-v0^q)^(q+1)-B*(-u0*T^2+(u1-v0)*T+v1)^q
         r = anyRoot(P)
     end
 

@@ -401,3 +401,123 @@ function anyRoot(Q::PolyElem)
         return -coeff(f[1], 0)
     end
 end
+
+"""
+    projectFindInv{T <: FinField}(F::T, f::T)
+
+Return an invertible submatrix of the matrix of the embedding of the field `f`
+in the field `F`, along with the lines chosen.
+"""
+function projectFindInv{T <: FinField}(F::T, f::T)
+
+    # We construct the matrix of the embedding of `f` in `F`
+    p = characteristic(F)
+    m = degree(F)
+    n = degree(f)
+    R = ResidueRing(ZZ, p)
+    S = MatrixSpace(R, m, n)
+    M = S()
+
+    # And we we fill it
+    M[1, 1] = 1
+    img = findImg(F, f)
+    for i in 2:n
+        t = img^(i-1) 
+        for j in 1:m
+            M[j, i] = coeff(t, j-1)
+        end
+    end
+
+    # We find an invertible submatrix
+    Mr= rref(transpose(M))
+    piv = pivots(Mr, n)
+    
+    # We copy this submatrix
+    Ssub = MatrixSpace(R, n, n)
+    Msub = Ssub()
+    for i in 1:n
+        for j in 1:n
+            Msub[j, i] = M[piv[j], i]
+        end
+    end
+
+    # And we return its inverse and the chosen lines
+    return inv(Msub), piv
+end
+
+"""
+    projectLinAlg(f::FinField, x::FinFieldElem)
+Return the projection of the element `x` in the field `f`. 
+
+In other words return the preimage of the element `x` by the embedding of `f`
+into the field in which `x` lives.
+
+# Remarks
+  * No test is done to be sure that `x` is indeed an element in `f`.
+  * See `projectFindInv` to perform expensive operations only once.
+"""
+function projectLinAlg(f::FinField, x::FinFieldElem)
+
+    # We find an invertible sumbatrix of the embedding f->F
+    F = parent(x)
+    d = degree(f)
+    M, piv = projectFindInv(F, f)
+
+    # We create a column vector with the coordinates of `x`
+    S = MatrixSpace(base_ring(M), d, 1)
+    col = S()
+    for i in 1:d
+        col[i, 1] = coeff(x, piv[i]-1)
+    end
+
+    # We perform the matrix-vector product
+    product = M*col
+        
+    # And return the corresponding element in `f`
+    res = f()
+    g = gen(f)
+
+    for i in 1:d
+        res += data(product[i, 1])*g^(i-1)
+    end
+
+    return res
+end
+
+"""
+    projectLinAlg(f::FinField, x::FInFieldElem, M::MatElem, piv::Array{Int, 1})
+
+Return the projection of the element `x` in the field `f`, given informations
+about the embedding involved in the operation. 
+
+In other words return the preimage of the element `x` by the embedding of `f`
+into the field in which `x` lives, provided an invertible submatrix of this
+embedding and the chosen lines used to construct this submatrix.
+
+# Remarks
+  * No test is done to be sure that `x` is indeed an element in `f`.
+"""
+function projectLinAlg(f::FinField, x::FInFieldElem, M::MatElem, piv::Array{Int, 1})
+
+    # We create a column vector with the coordinates of `x`
+    F = parent(x)
+    d = degree(f)
+    S = MatrixSpace(base_ring(M), d, 1)
+    col = S()
+    for i in 1:d
+        col[i, 1] = coeff(x, piv[i]-1)
+    end
+
+    # We perform the matrix-vector product
+    product = M*col
+        
+    # And return the corresponding element in `f`
+    res = f()
+    g = gen(f)
+
+    for i in 1:d
+        res += data(product[i, 1])*g^(i-1)
+    end
+
+    return res
+end

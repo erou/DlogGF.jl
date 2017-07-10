@@ -403,7 +403,7 @@ function testAscent()
 end
 
 function testLatticeBasis()
-    print("latticeBasis...")
+    print("latticeBasis... ")
 
     F, z5 = FiniteField(3, 5, "z5")
     R, T = PolynomialRing(F, "T")
@@ -430,6 +430,28 @@ function testLatticeBasis()
     println("PASS")
 end
 
+function testProject()
+    print("projectLinAlg... ")
+
+    F3_5, z5 = FiniteField(3, 5, "z5")
+    F3_20, z20 = FiniteField(3, 20, "z20")
+
+    a = z5^2+z5+1
+    b = z5^4+2*z5^2+2
+    c = z5^4+z5^3+z5^2+z5+1
+    d = 2*z5^4+z5^3+z5^2+2*z5
+    f = z5^4+z5^3+2*z5^2+2
+
+    M, piv = DlogGF.projectFindInv(F3_20, F3_5)
+    
+    @test DlogGF.projectLinAlg(F3_5, F3_20(a), M, piv) == a
+    @test DlogGF.projectLinAlg(F3_5, F3_20(b), M, piv) == b
+    @test DlogGF.projectLinAlg(F3_5, F3_20(c), M, piv) == c
+    @test DlogGF.projectLinAlg(F3_5, F3_20(d), M, piv) == d
+    @test DlogGF.projectLinAlg(F3_5, F3_20(f), M, piv) == f
+
+    println("PASS")
+
 function testAll()
 
     testRandomSuite()
@@ -445,6 +467,7 @@ function testAll()
     testGkzContext()
     testAscent()
     testLatticeBasis()
+    testProject()
 
     println("\nAll tests passed successfully.\n")
 end
