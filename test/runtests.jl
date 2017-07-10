@@ -377,7 +377,7 @@ function testAscent()
     print("ascent...")
 
     F3_5, z5 = FiniteField(3, 5, "z5")
-    R3_5, T = PolynomialRing(F3_5, "T")
+    R3_5, T = PolynomialRing(F3_5, "T5")
     P = (z5^3+z5^2)*T^16+(z5^3+z5^2+2*z5+2)*T^15+(2*z5^4+2*z5^3+z5+1)*T^14+(2*z5^4+2*z5^2+2*z5)*T^13+(2*z5^4+2*z5^2+z5+2)*T^12+(z5^4+z5^3+z5^2+z5+2)*T^11+(z5^4+z5^2+z5)*T^10+(2*z5^2+2)*T^9+(2*z5^3+2*z5+1)*T^8+(z5^3+2*z5^2+2*z5+2)*T^7+(2*z5^4+z5^2+2*z5+1)*T^6+(z5^4+z5^3+z5^2+z5+2)*T^5+(2*z5^3+2*z5+1)*T^4+(z5^4+2*z5^3+z5^2+1)*T^3+(2*z5^4+2*z5^3+z5+2)*T^2+(2*z5^4+2*z5^3)*T+(2*z5^2)
     Q = DlogGF.ascent(P)
 
@@ -385,9 +385,9 @@ function testAscent()
     F3_20, z20 = FiniteField(3, 20, "z20")
     F3_40, z40 = FiniteField(3, 40, "z40")
 
-    R3_10 = PolynomialRing(F3_10, "T")[1]
-    R3_20 = PolynomialRing(F3_20, "T")[1]
-    R3_40 = PolynomialRing(F3_40, "T")[1]
+    R3_10 = PolynomialRing(F3_10, "T10")[1]
+    R3_20 = PolynomialRing(F3_20, "T20")[1]
+    R3_40 = PolynomialRing(F3_40, "T40")[1]
 
 
     @test length(factor(Q)) == 1
