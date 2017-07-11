@@ -465,8 +465,8 @@ function testProject()
   img = DlogGF.findImg(F3_40, F3_20)
 
   @test DlogGF.projectLinAlgPoly(R3_20, R3_40(P, img), M, piv) == P
-  @test DlogGF.projectLinAlgPoly(R3_20, R3_40(Q, img), M, piv) == P
-  @test DlogGF.projectLinAlgPoly(R3_20, R3_40(R, img), M, piv) == P
+  @test DlogGF.projectLinAlgPoly(R3_20, R3_40(Q, img), M, piv) == Q
+  @test DlogGF.projectLinAlgPoly(R3_20, R3_40(R, img), M, piv) == R
  
     println("PASS")
 end
