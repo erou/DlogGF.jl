@@ -274,7 +274,9 @@ function (R::FqNmodPolyRing)(p::fq_nmod_poly)
 
     # We first coerce each coefficient
     F = base_ring(R)
-    coeffs = [F(coeff(p, i)) for i in 0:degree(p)]
+    img = findImg(F, base_ring(p))
+
+    coeffs = [F(coeff(p, i), img) for i in 0:degree(p)]
 
     # And we return the polynomial corresponding to these coefficients
     return R(coeffs)
@@ -517,6 +519,92 @@ function projectLinAlg(f::FinField, x::FinFieldElem, M::MatElem, piv::Array{Int,
 
     for i in 1:d
         res += data(product[i, 1])*g^(i-1)
+    end
+
+    return res
+end
+
+"""
+    projectLinAlgPoly(R::PolyRing, P::PolyElem)
+
+Return the projection of the polynomial `P` in the ring `R`.
+"""
+function projectLinAlgPoly(R::PolyRing, P::PolyElem)
+
+    # We setup some variables, among them an invertible submatrix of an
+    # embedding of the fields involded
+    f = base_ring(R)
+    F = base_ring(P)
+    M, piv = projectFindInv(F, f)
+    d = degree(f)
+    n = degree(P)
+
+    # We create a matrix with the coordinates of the coefficients of `P`
+    S = MatrixSpace(base_ring(M), d, n+1)
+    cols = S()
+    for j in 1:(n+1)
+        x = coeff(P, j-1)
+        for i in 1:d
+            cols[i, j] = coeff(x, piv[i]-1)
+        end
+    end
+
+    # We perform the matrix-matrix product
+    product = M*cols
+        
+    # And return the corresponding element in `R`
+    res = R()
+    g = gen(f)
+
+    for j in 1:(n+1)
+        tmp = f()
+        for i in 1:d
+            tmp += data(product[i, j])*g^(i-1)
+        end
+        setcoeff!(res, j-1, tmp)
+    end
+
+    return res
+end
+
+"""
+    projectLinAlgPoly(R::PolyRing, P::PolyElem, M::MatElem, piv::Array{Int, 1})
+
+Return the projection of the polynomial `P` in the ring `R`, given information
+about the embedding involved.
+"""
+function projectLinAlgPoly(R::PolyRing, P::PolyElem, M::MatElem, piv::Array{Int, 1})
+
+    # We setup some variables, among them an invertible submatrix of an
+    # embedding of the fields involded
+    f = base_ring(R)
+    F = base_ring(P)
+    d = degree(f)
+    n = degree(P)
+
+    # We create a matrix with the coordinates of the coefficients of `P`
+    S = MatrixSpace(base_ring(M), d, n+1)
+    cols = S()
+    for j in 1:(n+1)
+        x = coeff(P, j-1)
+        for i in 1:d
+            cols[i, j] = coeff(x, piv[i]-1)
+        end
+    end
+
+    # We perform the matrix-matrix product
+    product = M*cols
+        
+    # And return the corresponding element in `R`
+    res = R()
+    g = gen(f)
+
+    for j in 1:(n+1)
+        tmp = f()
+        for i in 1:d
+            tmp += data(product[i, j])*g^(i-1)
+        end
+        setcoeff!(res, j-1, tmp)
     end
 
     return res

@@ -431,10 +431,11 @@ function testLatticeBasis()
 end
 
 function testProject()
-    print("projectLinAlg... ")
+    print("projectLinAlg, projectLinAlgPoly... ")
 
     F3_5, z5 = FiniteField(3, 5, "z5")
     F3_20, z20 = FiniteField(3, 20, "z20")
+    img = DlogGF.findImg(F3_20, F3_5)
 
     a = z5^2+z5+1
     b = z5^4+2*z5^2+2
@@ -444,12 +445,29 @@ function testProject()
 
     M, piv = DlogGF.projectFindInv(F3_20, F3_5)
     
-    @test DlogGF.projectLinAlg(F3_5, F3_20(a), M, piv) == a
-    @test DlogGF.projectLinAlg(F3_5, F3_20(b), M, piv) == b
-    @test DlogGF.projectLinAlg(F3_5, F3_20(c), M, piv) == c
-    @test DlogGF.projectLinAlg(F3_5, F3_20(d), M, piv) == d
-    @test DlogGF.projectLinAlg(F3_5, F3_20(f), M, piv) == f
+    @test DlogGF.projectLinAlg(F3_5, F3_20(a, img), M, piv) == a
+    @test DlogGF.projectLinAlg(F3_5, F3_20(b, img), M, piv) == b
+    @test DlogGF.projectLinAlg(F3_5, F3_20(c, img), M, piv) == c
+    @test DlogGF.projectLinAlg(F3_5, F3_20(d, img), M, piv) == d
+    @test DlogGF.projectLinAlg(F3_5, F3_20(f, img), M, piv) == f
 
+    R3_20, T20 = PolynomialRing(F3_20, "T20")
+    F3_40, z40 = FiniteField(3, 40, "z40")
+    R3_40, T40 = PolynomialRing(F3_40, "T40")
+
+    P = (z20^19+z20^18+2*z20^17+2*z20^15+z20^13+2*z20^12+2*z20^11+2*z20^10+2*z20^9+2*z20^8+2*z20^6+z20^5+2*z20^3+z20^2+z20+1)*T20^5+(2*z20^19+z20^17+2*z20^15+z20^14+2*z20^13+z20^12+2*z20^11+z20^9+z20^6+z20^5+z20^4+z20^2+2*z20)*T20^4+(z20^19+2*z20^16+2*z20^14+z20^13+2*z20^12+z20^11+z20^10+z20^9+z20^8+2*z20^7+z20^5+2*z20^3+1)*T20^3+(z20^19+z20^16+2*z20^15+2*z20^14+2*z20^13+z20^11+z20^10+z20^8+2*z20+1)*T20^2+(z20^18+z20^17+z20^15+z20^14+2*z20^11+2*z20^10+z20^9+2*z20^8+2*z20^6+2*z20^4+z20^3+2*z20^2)*T20+(z20^18+z20^17+2*z20^16+z20^15+z20^13+z20^12+z20^11+z20^10+2*z20^9+2*z20^6+2*z20^5+2*z20^4+2*z20^3+z20+2)
+
+   Q = (z20^18+2*z20^17+2*z20^16+2*z20^15+z20^14+z20^13+z20^12+z20^10+z20^8+2*z20^7+z20^5+z20^4+2*z20^3+z20+2)*T20^5+(z20^18+2*z20^15+z20^14+2*z20^11+2*z20^9+2*z20^7+z20^5+z20^4+2*z20^3+z20^2+2*z20)*T20^4+(z20^19+z20^18+z20^17+z20^15+2*z20^14+z20^12+z20^11+2*z20^10+2*z20^9+2*z20^8+z20^6+z20^5+z20^4)*T20^3+(z20^19+2*z20^18+z20^16+z20^15+2*z20^13+2*z20^12+z20^11+2*z20^8+2*z20^7+z20^4+z20^3+2*z20^2+2*z20+1)*T20^2+(z20^19+2*z20^18+z20^15+z20^14+2*z20^13+2*z20^11+2*z20^10+z20^9+z20^7+2*z20^6+z20^4+z20^3+2*z20^2+1)*T20+(z20^19+z20^17+z20^16+2*z20^15+z20^14+2*z20^13+2*z20^12+2*z20^9+z20^8+2*z20^7+z20^6+2*z20^5+2*z20^3+2*z20^2+2*z20+2)
+
+  R = (2*z20^19+z20^18+2*z20^17+z20^15+2*z20^12+z20^9+z20^6+z20^4+z20^3+2*z20^2+2*z20)*T20^5+(z20^19+2*z20^18+2*z20^17+2*z20^16+2*z20^15+2*z20^14+2*z20^13+2*z20^11+z20^10+z20^9+z20^8+z20^7+z20^6+z20^3+2*z20^2+z20+1)*T20^4+(2*z20^19+2*z20^16+2*z20^15+2*z20^14+z20^13+2*z20^11+z20^8+z20^7+z20^5+2*z20^4+2*z20^3+z20^2+2*z20)*T20^3+(z20^18+z20^17+z20^15+z20^14+z20^12+2*z20^10+z20^8+z20^7+z20^6+z20^5+2*z20^4+z20^3+z20^2+2*z20)*T20^2+(z20^19+2*z20^18+z20^17+z20^15+2*z20^14+2*z20^13+2*z20^11+2*z20^10+z20^9+z20^8+2*z20^7+2*z20^6+z20^4+z20^3+z20+2)*T20+(z20^17+z20^16+2*z20^15+2*z20^14+z20^13+z20^11+2*z20^10+2*z20^9+2*z20^8+2*z20^7+z20^4+2*z20^3+z20+2)
+
+  M, piv = DlogGF.projectFindInv(F3_40, F3_20)
+  img = DlogGF.findImg(F3_40, F3_20)
+
+  @test DlogGF.projectLinAlgPoly(R3_20, R3_40(P, img), M, piv) == P
+  @test DlogGF.projectLinAlgPoly(R3_20, R3_40(Q, img), M, piv) == P
+  @test DlogGF.projectLinAlgPoly(R3_20, R3_40(R, img), M, piv) == P
+ 
     println("PASS")
 end
 
