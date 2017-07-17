@@ -170,7 +170,7 @@ function latticeBasis(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
 end
 
 """
-    onTheFlyAbc(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
+    onTheFlyAbc(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly, q::Int)
 
 Perform the 'on-the-fly' elimination of degree 2 elements.
 
@@ -178,24 +178,19 @@ In other words, return a, b, c such that the polynomial P = X^(q+1) + aX^q + bX 
 splits completely in the base field of `Q` and such that h1*P (mod h1*X^q - h0)
 = 0 mod Q.
 """
-function onTheFlyAbc(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
+function onTheFlyAbc(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly, q::Int)
 
     # We set some usefull variables
     R = parent(Q)
     T = gen(R)
     F = base_ring(Q)
-    f = base_ring(h0)
-    q::Int = length(f)
-
-    # We work with embeddings of h0 and h1
-    img = findImg(F, f)
 
     # We pick B such that T^(q+1) - BT + B splits completely
     B = randomSplitElem(R, q)
 
     # We find ui's and vi's such that (u0, T+u1), (T+v0, v1) is a basis of the
     # lattice L_Q = {(w0, w1) | w0h0 + w1h1 = 0 (mod Q)}
-    u0, u1, v0, v1 = latticeBasis(Q, R(h0, img), R(h1, img))
+    u0, u1, v0, v1 = latticeBasis(Q, h0, h1)
 
     # We write the polynomial arising from the conditions wanted
     P = (-u0^q*T^q+T-v0^q)^(q+1)-B*(-u0*T^2+(u1-v0)*T+v1)^q
@@ -212,6 +207,43 @@ function onTheFlyAbc(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
 
     # And we return a, b, c
     return r*u0+v0, r, r*u1+v1
+end
+
+"""
+    onTheFlyElimination(Q::fq_nmod_poly, h0::fq_nmod_poly,
+                        h1::fq_nmod_poly, q::Int)
+
+Eliminate the polynomial `Q`. In other words, return polynomials L_i of degree 1
+such that Π_i P_i^e_i = Q (mod h1×X^q - h0) for some coefficients e_i.
+"""
+function onTheFlyElimination(Q::fq_nmod_poly, h0::fq_nmod_poly,
+                             h1::fq_nmod_poly, q::Int)
+
+    # We define some usefull variables
+    R = parent(Q)
+    T = gen(R)
+
+    # We find suitable constants a, b, c to perform the elimination
+    a, b, c = onTheFlyAbc(Q, h0, h1, q)
+
+    # We define the a polynomial that splits into linear factors
+    P = T^(q+1) + a*T^q + b*T + c
+    fact = factor(P)
+
+    # And such that it is also divisible by Q modulo h1×X^q - h0, in the sense
+    # that we have h1×P = L×Q (mod h1×Q - h0), with L of degree 1
+    L = divexact((T+a)*h0+(b*T+c)*h1, Q)
+
+    # Finally we return the factors of `P` and the linear polynomial `L`
+    res = Array(fq_nmod_poly, q+2)
+    j = 1
+    for f in fact
+        res[j] = f[1]
+        j += 1
+    end
+
+    res[j] = L
+    return res
 end
 
 function norm(Q::fq_nmod_poly, q::Integer)

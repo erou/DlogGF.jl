@@ -482,8 +482,10 @@ function testOnTheFly()
     R = parent(Q)
     T = gen(R)
     q = 3^5
+    h0 = R(h0)
+    h1 = R(h1)
 
-    a, b, c = DlogGF.onTheFlyAbc(Q, K.h0, K.h1)
+    a, b, c = DlogGF.onTheFlyAbc(Q, h0, h1, q)
 
     ρ = T^(q+1) + a*T^q + b*T + c
 
@@ -496,12 +498,12 @@ function testOnTheFly()
     end
 
     @test β
-    @test ((T+a)*R(K.h0)+(b*T+c)*R(K.h1))%Q == 0
+    @test ((T+a)*h0+(b*T+c)*h1)%Q == 0
 
     P = (2*z5^3+1)*T5^8+(2*z5^2)*T5^7+(2*z5^4+2*z5^3+z5^2+2*z5+2)*T5^6+(2*z5^4+2*z5^3+z5^2+z5+1)*T5^5+(2*z5^4+z5^2+z5)*T5^4+(2*z5^3+2*z5^2+z5)*T5^3+(z5^3+2*z5^2+z5+2)*T5^2+(z5^4+2*z5+1)*T5+(z5^4+2*z5^3+2*z5^2+z5)
     Q = DlogGF.ascent(P)
 
-    a, b, c = DlogGF.onTheFlyAbc(Q, K.h0, K.h1)
+    a, b, c = DlogGF.onTheFlyAbc(Q, h0, h1, q)
 
     ρ = T^(q+1) + a*T^q + b*T + c
 
@@ -514,12 +516,12 @@ function testOnTheFly()
     end
 
     @test β
-    @test ((T+a)*R(K.h0)+(b*T+c)*R(K.h1))%Q == 0
+    @test ((T+a)*h0+(b*T+c)*h1)%Q == 0
 
     P = (2*z5^4+2*z5^2+z5+2)*T5^8+(2*z5^3+z5)*T5^7+(z5^4+z5^3+2*z5^2+2*z5+2)*T5^6+(2*z5^3+2*z5^2+z5+2)*T5^5+(2*z5^4+z5^3+2*z5^2)*T5^4+(z5^4+z5^3+2*z5)*T5^3+(2*z5^3+2*z5^2+1)*T5^2+(z5^4+2*z5^2+z5+1)*T5+(2*z5^4+z5^3+2*z5)
     Q = DlogGF.ascent(P)
 
-    a, b, c = DlogGF.onTheFlyAbc(Q, K.h0, K.h1)
+    a, b, c = DlogGF.onTheFlyAbc(Q, h0, h1, q)
 
     ρ = T^(q+1) + a*T^q + b*T + c
 
@@ -532,7 +534,29 @@ function testOnTheFly()
     end
 
     @test β
-    @test ((T+a)*R(K.h0)+(b*T+c)*R(K.h1))%Q == 0
+    @test ((T+a)*h0+(b*T+c)*h1)%Q == 0
+
+    P = (z5^4+2*z5^2+2*z5)*T5^8+(z5^4+z5^3+1)*T5^7+(z5^4+2*z5^3+z5^2+z5+2)*T5^6+(z5^4+2*z5^2+z5)*T5^5+(z5^4+z5^2+2*z5+2)*T5^4+(z5^4+2*z5^2+2)*T5^3+(2*z5^4+z5^3+1)*T5^2+(2*z5^4+z5^3+2*z5^2+2*z5+2)*T5+(z5^4+z5^3+z5^2)
+    Q = DlogGF.ascent(P)
+
+    A = DlogGF.onTheFlyElimination(Q, h0, h1, q)
+    product = h1
+    for j in 1:(q+1)
+        product *= A[j]
+    end
+    
+    @test (product - A[end]*Q) % (h1*T^q-h0) == 0
+
+    P = (z5^3+z5^2+2)*T5^8+(z5^4+z5^3+z5^2+2*z5+1)*T5^7+(z5^3+2*z5^2+2*z5)*T5^6+(z5^4+z5^2+2*z5)*T5^5+(2*z5^4+z5^3+2*z5^2+2*z5+2)*T5^4+(2*z5^4+2*z5^3+2*z5)*T5^3+(2*z5^4+2*z5^3+z5^2)*T5^2+(2*z5^4+z5^3+1)*T5+(z5^4+z5^2+2*z5+2)
+    Q = DlogGF.ascent(P)
+
+    A = DlogGF.onTheFlyElimination(Q, h0, h1, q)
+    product = h1
+    for j in 1:(q+1)
+        product *= A[j]
+    end
+    
+    @test (product - A[end]*Q) % (h1*T^q-h0) == 0
 
     println("PASS")
 end
