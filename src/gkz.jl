@@ -169,25 +169,48 @@ function latticeBasis(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
     return u0, u1, v0, v1
 end
 
-function onTheFly(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
+"""
+    onTheFlyAbc(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
+
+Perform the 'on-the-fly' elimination of degree 2 elements.
+
+In other words, return a, b, c such that the polynomial P = X^(q+1) + aX^q + bX + c
+splits completely in the base field of `Q` and such that h1*P (mod h1*X^q - h0)
+= 0 mod Q.
+"""
+function onTheFlyAbc(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
+
+    # We set some usefull variables
     R = parent(Q)
     T = gen(R)
     F = base_ring(Q)
     f = base_ring(h0)
-    img = findImg(F, f)
     q::Int = length(f)
+
+    # We work with embeddings of h0 and h1
+    img = findImg(F, f)
+
+    # We pick B such that T^(q+1) - BT + B splits completely
     B = randomSplitElem(R, q)
+
+    # We find ui's and vi's such that (u0, T+u1), (T+v0, v1) is a basis of the
+    # lattice L_Q = {(w0, w1) | w0h0 + w1h1 = 0 (mod Q)}
     u0, u1, v0, v1 = latticeBasis(Q, R(h0, img), R(h1, img))
-    P = (u0*T^q-T+v0^q)^(q+1)-B*(-u0*T^2+(u1-v0)*T+v1)^q
+
+    # We write the polynomial arising from the conditions wanted
+    P = (-u0^q*T^q+T-v0^q)^(q+1)-B*(-u0*T^2+(u1-v0)*T+v1)^q
     
+    # We find a root
     r = anyRoot(P)
 
+    # If there is no root, we try the process with an other B
     while r == nothing
         B = randomSplitElem(R, q)
         P = (-u0^q*T^q+T-v0^q)^(q+1)-B*(-u0*T^2+(u1-v0)*T+v1)^q
         r = anyRoot(P)
     end
 
+    # And we return a, b, c
     return r*u0+v0, r, r*u1+v1
 end
 

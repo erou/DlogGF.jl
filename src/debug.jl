@@ -137,3 +137,20 @@ function truePgl(pgl)
     end
     return new
 end
+
+function isSplit(P::PolyElem)
+    for f in factor(P)
+        if degree(f[1]) != 1
+            return false
+        end
+    end
+    return true
+end
+
+function substitute(P::PolyElem, S::PolyElem)
+    R = parent(S)()
+    for i in 0:degree(P)
+        R += coeff(P, i)*S^i
+    end
+    return R
+end

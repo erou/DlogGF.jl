@@ -471,6 +471,71 @@ function testProject()
     println("PASS")
 end
 
+function testOnTheFly()
+    print("onTheFlyAbc... ")
+
+    K = DlogGF.gkzContext(3, 5, 20)
+    F3_5, z5 = FiniteField(3, 5, "z5")
+    R3_5, T5 = PolynomialRing(F3_5, "T5")
+    P = (z5^3+z5+2)*T5^8+(2*z5^4+2*z5^3+2*z5)*T5^7+(z5+2)*T5^6+(2*z5^3+z5^2+1)*T5^5+(z5^4+z5^3+z5^2+2)*T5^4+(z5^4+z5^3+2*z5^2+2)*T5^3+(2*z5^3+z5^2+2)*T5^2+(2*z5^4+z5^2+z5)*T5+(2*z5^3+z5)
+    Q = DlogGF.ascent(P)
+    R = parent(Q)
+    T = gen(R)
+
+    a, b, c = DlogGF.onTheFlyAbc(Q, K.h0, K.h1)
+
+    ρ = T^(q+1) + a*T^q + b*T + c
+
+    β = true
+    for f in factor(ρ)
+        if degree(f[1]) != 1
+            β = false
+            break
+        end
+    end
+
+    @test β
+    @test (T+a)*R(K.h0)+(b*T+c)*R(K.h1)%Q == 0
+
+    P = (2*z5^3+1)*T5^8+(2*z5^2)*T5^7+(2*z5^4+2*z5^3+z5^2+2*z5+2)*T5^6+(2*z5^4+2*z5^3+z5^2+z5+1)*T5^5+(2*z5^4+z5^2+z5)*T5^4+(2*z5^3+2*z5^2+z5)*T5^3+(z5^3+2*z5^2+z5+2)*T5^2+(z5^4+2*z5+1)*T5+(z5^4+2*z5^3+2*z5^2+z5)
+    Q = DlogGF.ascent(P)
+
+    a, b, c = DlogGF.onTheFlyAbc(Q, K.h0, K.h1)
+
+    ρ = T^(q+1) + a*T^q + b*T + c
+
+    β = true
+    for f in factor(ρ)
+        if degree(f[1]) != 1
+            β = false
+            break
+        end
+    end
+
+    @test β
+    @test (T+a)*R(K.h0)+(b*T+c)*R(K.h1)%Q == 0
+
+    P = (2*z5^4+2*z5^2+z5+2)*T5^8+(2*z5^3+z5)*T5^7+(z5^4+z5^3+2*z5^2+2*z5+2)*T5^6+(2*z5^3+2*z5^2+z5+2)*T5^5+(2*z5^4+z5^3+2*z5^2)*T5^4+(z5^4+z5^3+2*z5)*T5^3+(2*z5^3+2*z5^2+1)*T5^2+(z5^4+2*z5^2+z5+1)*T5+(2*z5^4+z5^3+2*z5)
+    Q = DlogGF.ascent(P)
+
+    a, b, c = DlogGF.onTheFlyAbc(Q, K.h0, K.h1)
+
+    ρ = T^(q+1) + a*T^q + b*T + c
+
+    β = true
+    for f in factor(ρ)
+        if degree(f[1]) != 1
+            β = false
+            break
+        end
+    end
+
+    @test β
+    @test (T+a)*R(K.h0)+(b*T+c)*R(K.h1)%Q == 0
+
+    println("PASS")
+end
+
 function testAll()
 
     testRandomSuite()
@@ -487,6 +552,7 @@ function testAll()
     testAscent()
     testLatticeBasis()
     testProject()
+    testOnTheFly()
 
     println("\nAll tests passed successfully.\n")
 end
