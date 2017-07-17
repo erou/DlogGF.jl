@@ -482,8 +482,8 @@ function testOnTheFly()
     R = parent(Q)
     T = gen(R)
     q = 3^5
-    h0 = R(h0)
-    h1 = R(h1)
+    h0 = R(K.h0)
+    h1 = R(K.h1)
 
     a, b, c = DlogGF.onTheFlyAbc(Q, h0, h1, q)
 
