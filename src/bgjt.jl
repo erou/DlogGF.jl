@@ -155,6 +155,10 @@ function Base.getindex(L::FactorsList, i::Integer)
     return (L.factors[i],L.coefs[i])
 end
 
+function Base.length(L::FactorsList)
+    return length(L.coefs)
+end
+
 # The functions
 
 """

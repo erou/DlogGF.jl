@@ -95,6 +95,58 @@ function findParameters(F::FinField, n::Integer, check::Bool = false)
     return h0, h1, definingPolynomial, gen
 end
 
+"""
+    WeightedList
+
+Represent a list of polynomials with weights.
+
+# Fields
+
+* `poly::Array{Nemo.fq_nmod_poly, 1}` : the polynomials
+* `weight::Array{Int, 1}` : the weights of the polynomials
+"""
+type WeightedList
+    poly::Array{Nemo.fq_nmod_poly, 1}
+    weight::Array{Integer, 1}
+end
+
+"""
+    factorsList(P::Nemo.fq_nmod_poly)
+
+Construct an element of type `FactorsList`.
+"""
+function weightedList(P::Nemo.fq_nmod_poly)
+    return WeightedList([P], [1])
+end
+
+function Base.push!(L::WeightedList, P::Nemo.fq_nmod_poly, coef::Integer)
+
+    # We try to find if `P` is already in `L`
+    i = findfirst(L.poly, P)
+
+    # If it is, we just change the associated coefficient
+    if i != 0
+        L.weight[i] += coef
+    # Otherwise, we add `P` and its coefficient `coef` to `L`
+    else
+        push!(L.poly, P)
+        push!(L.weight, coef)
+    end
+end
+
+function Base.deleteat!(L::WeightedList, i::Integer)
+    deleteat!(L.poly, i)
+    deleteat!(L.weight, i)
+end
+
+function Base.getindex(L::WeightedList, i::Integer)
+    return (L.poly[i],L.weight[i])
+end
+
+function Base.length(L::WeightedList)
+    return length(L.weight)
+end
+
 # Ascent phase in the GKZ algorithm
 
 """
@@ -246,7 +298,89 @@ function onTheFlyElimination(Q::fq_nmod_poly, h0::fq_nmod_poly,
     return res
 end
 
-function norm(Q::fq_nmod_poly, q::Integer)
+function norm2(Q::fq_nmod_poly, q::Integer)
     conj = parent(Q)([coeff(Q, i)^q for i in 0:degree(Q)])
     return Q*conj
+end
+
+function norm4(Q::fq_nmod_poly, q::Integer)
+    res = Q
+    conj = Q
+    for j in 1:3
+        conj = parent(conj)([coeff(conj, i)^q for i in 0:degree(conj)])
+        res *= conj
+    end
+    return res
+end
+
+function descentGKZ(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly, q::Int)
+    F = base_ring(Q)
+    p::Int = characteristic(F)
+    c::Int = log(p, q)
+    d::Int = log(p, length(F))/c
+    f::Int = log2(d)
+    ff = base_ring(h0)
+    cpt_h1 = BigInt()
+
+    L = factorsList(Q)
+
+    for j in f:-1:3
+
+        l = length(L)
+        R = parent(L[1][1])
+        img = findImg(base_ring(R), ff)
+        t0, t1 = R(h0, img), R(h1, img)
+        exp = c*BigInt(2)^(j-1)
+        n = BigInt(p)^exp
+        s = string("z", exp)
+        G = FiniteField(p, exp, s)[1]
+        T = string("T", exp)
+        Rg = PolynomialRing(G, T)[1]
+        M, piv = projectFindInv(base_ring(R), G)
+
+        for i in 1:l
+
+            P, coef = L[1][1], L[1][2]
+            A = onTheFlyElimination(P, t0, t1, q)
+            cpt_h1 += 2*coef
+
+            for k in 1:(q+1)
+                N = norm2(A[k], n)
+                push!(L, projectLinAlgPoly(Rg, N, M, piv), coef)
+            end
+
+            N = norm2(A[q+2], n)
+            push!(L, projectLinAlgPoly(Rg, N, M, piv), -coef)
+
+            deleat!(L, 1)
+        end
+    end
+
+    l = length(L)
+    R = parent(L[1][1])
+    println(R)
+    img = findImg(base_ring(R), ff)
+    t0, t1 = R(h0, img), R(h1, img)
+    Rg = parent(h0)
+    G = base_ring(Rg)
+    M, piv = projectFindInv(base_ring(R), G)
+
+    for i in 1:l
+
+        P, coef = L[1][1], L[1][2]
+        A = onTheFlyElimination(P, t0, t1, q)
+        cpt_h1 += 2*coef
+
+        for k in 1:(q+1)
+            N = norm4(A[k], q)
+            push!(L, projectLinAlgPoly(Rg, N, M, piv), coef)
+        end
+
+        N = norm4(A[q+2], q)
+        push!(L, projectLinAlgPoly(Rg, N, M, piv), -coef)
+
+        deleat!(L, 1)
+    end
+
+    return L
 end
