@@ -219,8 +219,27 @@ is approximately $q^{m-3}$ ($(q^{m-1}-1)/(q^2-1)$ when $m$ is odd,
 $(q^{m-1}-q)/(q^2-1)$ when $m$ is even). Thus, if $B\in \mathcal B$,
 $a,b,c\in\mathbb{F}_{q^m}$ such that $c\neq ab$, $a^q\neq b,
 B=\frac{(b-a^q)^{q+1}}{(c-ab)^q}$, we see by the change of variable
-$X\to\frac{c-ab}{a^q-b}X-a$ in $X^{q+1}+aX^q+bX+c$ that this polynomials
-splits completely whenever $\mathcal P_B$ does.
+$X\to\frac{ab-c}{b-a^q}X-a$ in $X^{q+1}+aX^q+bX+c$ that this polynomial
+splits completely whenever $\mathcal P_B$ does. To see that, let us consider the
+change of variable $X\mapsto uX+v$ in $X^{q+1}+aX^q+bX+c$, where $u$ and $v$ are
+to be determined. We obtain the new polynomial
+\[
+  u^{q+1}X^{q+1}+(u^qv+au^q)X^q+(uv^q+bu)X+v^{q+1}+av^q+bv+c.
+\]
+If we want this polynomial to be of the form $\mathcal P_B$, we must impose that
+\[
+\begin{cases}
+  u^qv+au^q = 0 \\
+  uv^q+bu+v^{q+1}+av^q+bv+c = 0
+\end{cases}.
+\]
+We know that $u\neq0$, otherwise the change of variable is trivial, so we deduce
+that $v=-a$. Then, we note that $v^{q+1}+av^q=((-1)^{q+1}+(-1)^q)a^{q+1}=0$. So
+the second equation becomes $u(-1)^qa^q+bu-ba+c = 0$, and we deduce that
+$u=\frac{ab-c}{b+(-1)^qa^q}$. Assuming we work with odd characteristic
+(otherwise the formula can be adapted) that we obtain the annonced change of
+variable. Dividing by the leading coefficient $u^{q+1}$, we also have the
+equality $B = \frac{(b-a^q)^{q+1}}{(c-ab)^q}$.
 Note that using~\cite{Bluher04,
 HK10, GKZ14}, we also know that $\mathcal B$ is the image of
 $\mathbb{F}_{q^m}\setminus\mathbb{F}_{q^2}$ under the map 
@@ -228,6 +247,7 @@ $\mathbb{F}_{q^m}\setminus\mathbb{F}_{q^2}$ under the map
   u\mapsto \frac{(u-u^{q^2})^{q+1}}{(u-u^q)^{q^2+1}}\footnote{There is a proof
   in \cite{GKZ16b} but it is quite mysterious to me.}.
 \]
+
 In order to eliminate the polynomial $Q$, we define the lattice $L_Q\subset
 \mathbb{F}_{q^m}[X]^2$ by 
 \[
@@ -259,8 +279,21 @@ get the condition
 \[
   B = \frac{(-u_0^qb^q+b-v_0^q)^{q+1}}{(-u_0b^2+(u_1-v_0)b+v_1)^q}
 \]
-and we can find a suitable $b$ in polynomial time in $q$ and $m$ by finding a root to a degree
-$q^2+q$ polynomial. Alternatively, we can write $b$ in a $\mathbb{F}_{q^m}/\mathbb{F}_q$
+and we can find a suitable $b$ in polynomial time in $q$ and $m$ by finding a
+root to the degree
+$q^2+q$ polynomial
+\[
+  D = (-u_0^qX^q+X-v_0^q)^{q+1} - B(-u_0X^2+(u_1-v_0)X+v_1)^q.
+\]
+Expanding the polynomial, we can see that it is quite sparse, indeed the only
+non-zero coefficients are those of degree $q^2+q, q^2+1, q^2, 2q, q+1, q$ and
+the constant:
+\begin{eqnarray*}
+  D &=&
+  u_0^{q^2+q}X^{q^2+q}-u_0^{q^2}X^{q^2+1}-u_0^{q^2}v_0^qX^{q^2}+(Bu_0-u_0^q)X^{2q} \\
+  & & + X^{q+1}+(v_0^{q^2}u_0^q-v0^q+B(v_0^q-u_1^q))X^q+v_0^{q^2+q}-Bv_1^q.
+\end{eqnarray*}
+Alternatively, we can write $b$ in a $\mathbb{F}_{q^m}/\mathbb{F}_q$
 basis and solve a quadratic system in $m$ variables with Gröbner bases
 algorithms, with an exponential time in $m$. In practice~\cite{Adj16}, the
 second option is used, because this on-the-fly elimination is used with small $m$.
