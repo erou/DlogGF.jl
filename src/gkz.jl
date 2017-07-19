@@ -231,8 +231,7 @@ function latticeBasis(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
 end
 
 """
-    onTheFlyAbc(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly, 
-                q::Integer)
+    onTheFlyAbc(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly, q::Int)
 
 Perform the 'on-the-fly' elimination of degree 2 elements.
 
@@ -240,8 +239,7 @@ In other words, return a, b, c such that the polynomial P = X^(q+1) + aX^q + bX 
 splits completely in the base field of `Q` and such that h1*P (mod h1*X^q - h0)
 = 0 mod Q.
 """
-function onTheFlyAbc(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly,
-                     q::Integer)
+function onTheFlyAbc(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly, q::Int)
 
     # We set some usefull variables
     R = parent(Q)
@@ -274,13 +272,13 @@ end
 
 """
     onTheFlyElimination(Q::fq_nmod_poly, h0::fq_nmod_poly,
-                        h1::fq_nmod_poly, q::Integer)
+                        h1::fq_nmod_poly, q::Int)
 
 Eliminate the polynomial `Q`. In other words, return polynomials L_i of degree 1
 such that Π_i P_i^e_i = Q (mod h1×X^q - h0) for some coefficients e_i.
 """
 function onTheFlyElimination(Q::fq_nmod_poly, h0::fq_nmod_poly,
-                             h1::fq_nmod_poly, q::Integer)
+                             h1::fq_nmod_poly, q::Int)
 
     # We define some usefull variables
     R = parent(Q)
@@ -364,7 +362,7 @@ function descentGKZ(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
     F = base_ring(Q)
     p::Int = characteristic(F)
     ff = base_ring(h0)
-    q = length(ff)
+    q::Int = length(ff)
     c::Int = log(p, q)
     d::Int = log(p, length(F))/c
     f::Int = log2(d)
@@ -463,7 +461,7 @@ function descentGKZ(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
         P, coef = L[i][1], L[i][2]
         A = onTheFlyElimination(P, t0, t1, q)
 
-        # Here we have ||h1|| = h1⁴
+        # Here we have ||h1||=h1⁴
         cpt_h1 += 4*coef
 
         for k in 1:(q+1)
