@@ -472,7 +472,7 @@ function testProject()
 end
 
 function testOnTheFly()
-    print("onTheFlyAbc... ")
+    print("onTheFlyAbc, onTheFlyElimination... ")
 
     K = DlogGF.gkzContext(3, 5, 20)
     F3_5, z5 = FiniteField(3, 5, "z5")
@@ -561,6 +561,35 @@ function testOnTheFly()
     println("PASS")
 end
 
+function testDescent()
+    print("descentGKZ ...")
+
+    K = DlogGF.gkzContext(3, 5, 20)
+    q = 3^5
+    F3_5, z5 = FiniteField(3, 5, "z5")
+    R3_5, T5 = PolynomialRing(F3_5, "T5")
+    H = K.h1*T5^q-K.h0
+
+    P = T5^8+(z5^4+2*z5^2+2*z5)*T5^7+(2*z5^4+2*z5^3+z5^2+1)*T5^6+(z5^4+z5^3+1)*T5^5+(z5^4+2*z5^3+z5^2+2)*T5^4+(z5^4+z5+1)*T5^3+(z5^4+2*z5^2+2)*T5^2+(z5^4+z5^3+2*z5^2)*T5+(2*z5^4+z5^3+2*z5^2+2)
+    Q = DlogGF.ascent(P)
+    L = DlogGF.descentGKZ(Q, K.h0, K.h1)
+    product = one(R3_5)
+    
+    for i in 1:length(L)
+        poly = L[j][1]
+        coef = L[j][2]
+        if coef < 0
+            poly = gcdinv(poly, H)[2]
+            coef = -coef
+        end
+        product = mulmod(product, poly^coef, H)
+    end
+    
+    @test product == P
+
+    println("PASS")
+end
+
 function testAll()
 
     testRandomSuite()
@@ -578,6 +607,7 @@ function testAll()
     testLatticeBasis()
     testProject()
     testOnTheFly()
+    testDescent()
 
     println("\nAll tests passed successfully.\n")
 end
