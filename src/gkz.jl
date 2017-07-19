@@ -61,7 +61,10 @@ function findParameters(F::FinField, n::Integer, check::Bool = false)
 
     # We set our polynomials
     q = length(F)
-    polyRing, T = PolynomialRing(F, "T")
+    p::Int = characteristic(F)
+    d::Int = log(p, q)
+    sT = string("T", d)
+    polyRing, T = PolynomialRing(F, sT)
     h0, h1, definingPolynomial = polyRing(), polyRing(), polyRing()
 
     # And we search suitable polynomials h0, h1
@@ -111,12 +114,18 @@ type WeightedList
 end
 
 """
-    factorsList(P::Nemo.fq_nmod_poly)
+    weightedList(P::Nemo.fq_nmod_poly)
 
-Construct an element of type `FactorsList`.
+Construct an element of type `WeightedList`.
 """
 function weightedList(P::Nemo.fq_nmod_poly)
     return WeightedList([P], [1])
+end
+
+function weightedList()
+    A = Array{fq_nmod_poly, 1}()
+    B = Array{Integer, 1}()
+    return WeightedList(A, B)
 end
 
 function Base.push!(L::WeightedList, P::Nemo.fq_nmod_poly, coef::Integer)
@@ -298,33 +307,94 @@ function onTheFlyElimination(Q::fq_nmod_poly, h0::fq_nmod_poly,
     return res
 end
 
+"""
+    norm2(Q::fq_nmod_poly, q::Integer)
+
+Compute the norm of `Q` with respect to the field `F_q`, where the base field of
+`Q` is an extension of degree 2 of `F_q`.
+"""
 function norm2(Q::fq_nmod_poly, q::Integer)
+
+    # We compute the (only) conjugate of `Q`, meaning that all coefficients of
+    # `Q` are raised to the power `q`
     conj = parent(Q)([coeff(Q, i)^q for i in 0:degree(Q)])
+
+    # And we return the norm, i.e. the product of `Q` and its conjugate
     return Q*conj
 end
 
+"""
+    norm4(Q::fq_nmod_poly, q::Integer)
+
+Compute the norm of `Q` with respect to the field `F_q`, where the base field of
+`Q` is an extension of degree 4 of `F_q`.
+"""
 function norm4(Q::fq_nmod_poly, q::Integer)
+
+    # We compute the different conjugates and we compute the product as the same
+    # time, the conjugate are just the polynomial `Q` with coefficients raised
+    # to the power q^i
     res = Q
     conj = Q
+
     for j in 1:3
         conj = parent(conj)([coeff(conj, i)^q for i in 0:degree(conj)])
         res *= conj
     end
+
+    # We return the product, i.e. the norm
     return res
 end
 
-function descentGKZ(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly, q::Int)
+"""
+    descentGKZ(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
+
+Perform the descent of the GKZ algorithm.
+
+I.e. return a list of polynomials P_i and associated coefficients e_i such that
+Π_i P_i^e_i = P, where `P` is the polynomial such that `Q` is the result of the
+ascent in GKZ algorithm.
+"""
+function descentGKZ(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
+
+    # We first compute f such that the base field of `Q` is an extension of
+    # degree 2^f of the base field of h0
     F = base_ring(Q)
     p::Int = characteristic(F)
+    ff = base_ring(h0)
+    q = length(ff)
     c::Int = log(p, q)
     d::Int = log(p, length(F))/c
     f::Int = log2(d)
-    ff = base_ring(h0)
+
+    # Through the descent, we count the number of times we have h1 in an
+    # equation
     cpt_h1 = BigInt()
 
-    L = factorsList(Q)
+    # We will use a composite type to store the involved polynomials and their
+    # coefficients, L contains only Q and L2 is empty
+    L = weightedList(Q)
+    L2 = weightedList()
+
+    # We start the descent through the tower 
+    # 
+    #   F_q^(2^f)
+    #    |
+    #   F_q^(2^(f-1))
+    #    |
+    #    :
+    #    |
+    #   F_q^(2^2)
+    #    |
+    #   F_q
+    #
+    # The last step is treated differently after that loop.
 
     for j in f:-1:3
+
+        # We compute the embedding of h0 and h1 in the current floor of the
+        # tower, and precompute data to be able to perform the projection
+        # towards the floor below efficiently
 
         l = length(L)
         R = parent(L[1][1])
@@ -338,27 +408,48 @@ function descentGKZ(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly, q::Int)
         Rg = PolynomialRing(G, T)[1]
         M, piv = projectFindInv(base_ring(R), G)
 
+        # For each element in L, we perform an on-the-fly elimination, we
+        # project the obtained polynomials and store them in L2
+
         for i in 1:l
 
-            P, coef = L[1][1], L[1][2]
+            # We perforn the elimination
+            P, coef = L[i][1], L[i][2]
             A = onTheFlyElimination(P, t0, t1, q)
+
+            # We add 2*coef because h1 will appear in the equation, and then it
+            # will appear a second time when compute its norm, because h1 is its
+            # own conjugate, so ||h1|| = h1²
             cpt_h1 += 2*coef
 
             for k in 1:(q+1)
                 N = norm2(A[k], n)
-                push!(L, projectLinAlgPoly(Rg, N, M, piv), coef)
+                push!(L2, projectLinAlgPoly(Rg, N, M, piv), coef)
             end
 
             N = norm2(A[q+2], n)
-            push!(L, projectLinAlgPoly(Rg, N, M, piv), -coef)
+            push!(L2, projectLinAlgPoly(Rg, N, M, piv), -coef)
 
-            deleat!(L, 1)
         end
+
+        # We replace L by L2 to perform the same thing in the next floor
+        L = L2
+
+        # And we empty the list L2
+        L2 = weigthedList()
     end
+
+    # We treat the case 
+    #
+    # F_q⁴
+    #  |
+    # F_q
+    #
+    # where after the degree two elimination, we compute the norm of a degree 4
+    # extension instead of a degree 2 extension like we did for the first steps.
 
     l = length(L)
     R = parent(L[1][1])
-    println(R)
     img = findImg(base_ring(R), ff)
     t0, t1 = R(h0, img), R(h1, img)
     Rg = parent(h0)
@@ -367,20 +458,24 @@ function descentGKZ(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly, q::Int)
 
     for i in 1:l
 
-        P, coef = L[1][1], L[1][2]
+        P, coef = L[i][1], L[i][2]
         A = onTheFlyElimination(P, t0, t1, q)
-        cpt_h1 += 2*coef
+
+        # Here we have ||h1|| = h1⁴
+        cpt_h1 += 4*coef
 
         for k in 1:(q+1)
             N = norm4(A[k], q)
-            push!(L, projectLinAlgPoly(Rg, N, M, piv), coef)
+            push!(L2, projectLinAlgPoly(Rg, N, M, piv), coef)
         end
 
         N = norm4(A[q+2], q)
-        push!(L, projectLinAlgPoly(Rg, N, M, piv), -coef)
+        push!(L2, projectLinAlgPoly(Rg, N, M, piv), -coef)
 
-        deleat!(L, 1)
     end
 
-    return L
+    # We add h1 in the resulting list
+    push!(L2, h1, cpt_h1)
+
+    return L2
 end

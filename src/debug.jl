@@ -154,3 +154,22 @@ function substitute(P::PolyElem, S::PolyElem)
     end
     return R
 end
+
+function checkgkz(L, K)
+    l = length(L)
+    R = parent(L[1][1])
+    X = gen(R)
+    res = one(R)
+    q = length(K.baseField)
+    Q = K.h1*X^q-K.h0
+    for j in 1:l
+        poly = L[j][1]
+        coef = L[j][2]
+        if coef < 0
+            poly = gcdinv(poly, Q)[2]
+            coef = -coef
+        end
+        res = mulmod(res, poly^coef, Q)
+    end
+    return res
+end
