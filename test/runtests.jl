@@ -575,7 +575,7 @@ function testDescent()
     L = DlogGF.descentGKZ(Q, K.h0, K.h1)
     product = one(R3_5)
     
-    for i in 1:length(L)
+    for j in 1:length(L)
         poly = L[j][1]
         coef = L[j][2]
         if coef < 0
