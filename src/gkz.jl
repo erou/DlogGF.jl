@@ -231,7 +231,8 @@ function latticeBasis(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
 end
 
 """
-    onTheFlyAbc(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly, q::Int)
+    onTheFlyAbc(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly, 
+                q::Integer)
 
 Perform the 'on-the-fly' elimination of degree 2 elements.
 
@@ -239,7 +240,8 @@ In other words, return a, b, c such that the polynomial P = X^(q+1) + aX^q + bX 
 splits completely in the base field of `Q` and such that h1*P (mod h1*X^q - h0)
 = 0 mod Q.
 """
-function onTheFlyAbc(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly, q::Int)
+function onTheFlyAbc(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly,
+                     q::Integer)
 
     # We set some usefull variables
     R = parent(Q)
@@ -272,13 +274,13 @@ end
 
 """
     onTheFlyElimination(Q::fq_nmod_poly, h0::fq_nmod_poly,
-                        h1::fq_nmod_poly, q::Int)
+                        h1::fq_nmod_poly, q::Integer)
 
 Eliminate the polynomial `Q`. In other words, return polynomials L_i of degree 1
 such that Π_i P_i^e_i = Q (mod h1×X^q - h0) for some coefficients e_i.
 """
 function onTheFlyElimination(Q::fq_nmod_poly, h0::fq_nmod_poly,
-                             h1::fq_nmod_poly, q::Int)
+                             h1::fq_nmod_poly, q::Integer)
 
     # We define some usefull variables
     R = parent(Q)
