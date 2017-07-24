@@ -61,21 +61,26 @@
 % know what is going on or when I still need to ckeck
 
 % opening
-\title{}
-\author{The powers-of-2 descent\\\textcolor{violet}{\textbf{Work in progress}}}
-
+\title{Internship report\\\textbf{Discrete logarithm in finite fields of
+small characteristic}}
+\author{Édouard \textsc{Rousseau}\\\textit{Supervised by}\\Éric \textsc{Schost} and Luca
+\textsc{De Feo}}
 
 \begin{document}
 
 \maketitle
 
-%\begin{abstract}
+\begin{abstract}
+This internship took place from March to September 2017 in the Symbolic
+Computation Group of the University of Waterloo. We studied the recent
+breakthrough in the discrete logarithm world, in the small characteristic case.
+As part of this study, we implemented the encountered algorithms and made them
+available as an open-source library written in Julia/Nemo.
+\end{abstract}
 
-%\end{abstract}
+\tableofcontents
 
-%\tableofcontents
-
-%\clearpage
+\clearpage
 
 \section{Introduction}
 
@@ -286,12 +291,12 @@ $q^2+q$ polynomial
   D = (-u_0^qX^q+X-v_0^q)^{q+1} - B(-u_0X^2+(u_1-v_0)X+v_1)^q.
 \]
 Expanding the polynomial, we can see that it is quite sparse, indeed the only
-non-zero coefficients are those of degree $q^2+q, q^2+1, q^2, 2q, q+1, q$ and
+non-zero coefficients are those of degree $q^2+q, q^2+1, q^2, 2q, q+1, q, 1$ and
 the constant:
 \begin{eqnarray*}
   D &=&
-  u_0^{q^2+q}X^{q^2+q}-u_0^{q^2}X^{q^2+1}-u_0^{q^2}v_0^qX^{q^2}+(Bu_0-u_0^q)X^{2q} \\
-  & & + X^{q+1}+(v_0^{q^2}u_0^q-v0^q+B(v_0^q-u_1^q))X^q+v_0^{q^2+q}-Bv_1^q.
+  u_0^{q^2+q}X^{q^2+q}-u_0^{q^2}X^{q^2+1}+u_0^{q^2}v_0^qX^{q^2}+(Bu_0^q-u_0^q)X^{2q}+X^{q+1} \\
+  & & +(v_0^{q^2}u_0^q-v_0^q+B(v_0^q-u_1^q))X^q-v_0^{q^2}X+v_0^{q^2+q}-Bv_1^q.
 \end{eqnarray*}
 Alternatively, we can write $b$ in a $\mathbb{F}_{q^m}/\mathbb{F}_q$
 basis and solve a quadratic system in $m$ variables with Gröbner bases
@@ -300,8 +305,7 @@ second option is used, because this on-the-fly elimination is used with small $m
 
 We also emphasize on the fact that this elimination works if a suitable element
 $b$ is found. For each $B\in\mathcal B$, the probability of finding a suitable
-$b$ is $\frac{1}{2}$\footnote{This information is in \cite{Adj16}, but
-without any explanation, I have to think about it or ask Gora.}, so if
+$b$ is about $\frac{1}{2}$, so if
 $m\geq4$, then $|\mathcal B|\approx q$ and the probability than the
 elimination works is overwhelming.
 
