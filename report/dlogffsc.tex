@@ -86,10 +86,10 @@ available as an open-source library written in Julia/Nemo.
 
 With the rise of new technologies and new communication media, the importance of
 cryptography has been widely growing up. In 1976, a new era of cryptography was
-born, with the invention of \emph{public key} cryptography by Diffie and
+born, with the invention of \emph{public-key} cryptography by Diffie and
 Hellman, in their article ``New Directions in Cryptography''~\cite{DH76}. Today,
 cryptography is omnipresent, though mostly invisible to the user. Even if
-millions of public key protocols are executed each second, there are only two
+millions of public-key protocols are executed each second, there are only two
 main candidates to design those protocols. In other words, those protocols are
 very often based either on integer factorization (like the well known
 and intensively used RSA protocol), or discrete logarithm. The Discrete
@@ -107,7 +107,8 @@ denoted by $\log$). In practice, the
 \emph{square and multiply} algorithm allows us to compute $g^n=\exp_g(n)$
 efficiently, \ie in polynomial time. But, given $y = g^k$, the computation of $k
 = \log_g(y)$ is not as easy. This kind of function $f$, where $f$ is easy to
-compute but $f^{-1}$ is hard to compute, are called \emph{one-way} functions. They are
+compute but $f^{-1}$ is hard to compute, is called \emph{one-way} function.
+It is
 typically used in cryptology to make the encryption fast and the deciphering
 slow. 
 
@@ -120,7 +121,8 @@ with the invention of the Diffie-Hellman key exchange protocol~\cite{DH76}. The
 security of the protocol originally relied on the hardness of the discrete
 logarithm problem in $(\mathbb{Z}/N\mathbb{Z})^\times$. This group is no longer
 secure, but other interesting groups can be used, such as the points of an
-elliptic curve or the invertible elements of a finite field. Over the years, two
+elliptic curve or the invertible elements of a finite field. In this
+internship, we focused on that last case. Over the years, two
 types of algorithms emerged:
 \begin{itemize}
   \item the \emph{generic} algorithms, that can be used for any group, with an
@@ -143,7 +145,25 @@ between the polynomial complexity $L(0)=(\log N)^{c+o(1)}$ and the exponential
 complexity $L(1)=N^{c+o(1)}$. An algorithm with complexity $L(\alpha)$, for
 $0<\alpha<1$, is said to have a \emph{sub-exponential} complexity.
 
-
+When Diffie and Hellman wrote their article in 1976, the known algorithms
+had exponential complexities. The first sub-exponential algorithm for the
+discrete logarithm in finite field was analysed
+in 1979 by Adleman, it had complexity $L(1/2)$. In 1984, Coppersmith designed
+an algorithm to handle the case of binary fields with complexity $L(1/3)$. Other
+algorithms were invented, generalized, or improved, among them the FFS
+(Function Field Sieve) and NFS (Number Field Sieve), so that in 2006, every type
+of finite field was covered with complexity $L(1/3)$. This complexity remains
+the best in medium and large characteristic. In the small
+characteristic case, however, there had been a serie of dramatic
+improvements that let us with \emph{quasi-polynomial} algorithms. If we denote
+by $l$ the bitlength of the finite field in which we work, a quasi-polynomial
+complexity is of the form
+\[
+  l^{O(\log l)}.
+\]
+This complexity is smaller than $L(\varepsilon)$ for any
+$\varepsilon>0$, but larger than the polynomial complexity $L(0)$, so it
+is sometimes denoted as $L(o(1))$.
 
 The recent algorithms that achieve quasi-polynomial complexity are index
 calculus algorithms, so we introduce this method in
