@@ -173,3 +173,20 @@ function checkgkz(L, K)
     end
     return res
 end
+
+function checksplit(R, q)
+    F = base_ring(R)
+    X = gen(R)
+    κ = 0
+    l = length(F)
+    ι = 0
+    for B in F
+        ι += 1
+        P = X^(q+1)-B*X+B
+        if isSplit(P)
+            κ += 1
+        end
+        println((ι/l, κ))
+    end
+    return κ
+end
