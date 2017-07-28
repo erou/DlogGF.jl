@@ -363,7 +363,7 @@ function descentGKZ(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
     p::Int = characteristic(F)
     ff = base_ring(h0)
     q::Int = length(ff)
-    c::Int = log(p, q)
+    c::Int = floor(log(p, q))
     d::Int = log(p, length(F))/c
     f::Int = log2(d)
 
@@ -400,7 +400,8 @@ function descentGKZ(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
         R = parent(L[1][1])
         img = findImg(base_ring(R), ff)
         t0, t1 = R(h0, img), R(h1, img)
-        exp = c*BigInt(2)^(j-1)
+        exp = c*2^(j-1)
+        println(exp)
         n = BigInt(p)^exp
         s = string("z", exp)
         G = FiniteField(p, exp, s)[1]
@@ -436,7 +437,7 @@ function descentGKZ(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
         L = L2
 
         # And we empty the list L2
-        L2 = weigthedList()
+        L2 = weightedList()
     end
 
     # We treat the case 
