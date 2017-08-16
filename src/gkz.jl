@@ -401,7 +401,6 @@ function descentGKZ(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
         img = findImg(base_ring(R), ff)
         t0, t1 = R(h0, img), R(h1, img)
         exp = c*2^(j-1)
-        println(exp)
         n = BigInt(p)^exp
         s = string("z", exp)
         G = FiniteField(p, exp, s)[1]

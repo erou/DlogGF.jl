@@ -348,7 +348,32 @@ of the right hand side is at most $2$. Hence, the logarithm of $Q$ is linked
 with the logarithm of $w_0X^q+w_1=(w_0^{q^{m-1}}X+w_1^{q^{m-1}})^q$, and so the
 logarithm of $Q$ is linked to the logarithm of a linear
 polynomial over $\mathbb{F}_{q^m}$. Otherwise we can find a basis of $L_Q$
-of the form $(u_0, X+u_1), (X+v_0, v_1)$ with $u_i, v_i\in\mathbb{F}_{q^m}$.
+of the form $(u_0, X+u_1), (X+v_0, v_1)$ with $u_i, v_i\in\mathbb{F}_{q^m}$
+using linear algebra. To do that, we denote $Q = X^2 + dX+ e$ (it does not
+change the results to suppose that $Q$ is monic), $\bar h_0 = h_0 \mod Q =
+d_0X+e_0$, $\bar h_1 = h_1 \mod Q = d_1X+e_1$, and $(w_0, w_1)$ a solution, with
+$w_0=\alpha_0X+\beta_0$ and $w_1=\alpha_1X+\beta_1$. We seek a basis of the form
+$(u_0, X + u_1), (X+v_0, v_1)$, that is to say that the solutions $(w_0, w_1)$
+can be written $\lambda(u_0, X+u_1)+\mu(X+v_0, v_1)$ for some $\lambda, \mu\in
+\mathbb{F}_{q^m}$. Looking at the leading coefficients, we deduce that $\mu =
+\alpha_0$ and $\lambda=\alpha_1$. Now, writing the conditions such that $w_0\bar
+h_0+w_1\bar h_1\equiv 0 \mod Q$, we obtain a linear system of two equations in
+$4$ unknowns $\alpha_0, \alpha_1, \beta_0, \beta_1$. We solve the system by
+expressing the $\beta_i$'s as a linear combination of the $\alpha_i$'s:
+\[
+  \begin{cases}
+    \beta_0 = f_{0,0}(d, d_0, d_1, e, e_0, e_1)\alpha_0 + f_{0,1}(d, d_0, d_1, e,
+    e_0, e_1)\alpha_1 \\
+    \beta_1 = f_{1,0}(d, d_0, d_1, e, e_0, e_1)\alpha_0 + f_{1,1}(d, d_0, d_1, e,
+    e_0, e_1)\alpha_1 
+  \end{cases}
+\]
+where the expressions $f_{i, j}(d, d_0, d_1, e, e_0, e_1)$ depend only on the
+known constants $d, d_0, d_1, e, e_0, e_1$ and appear while solving the system. But we also have $\beta_0 = \mu v_0
++ \lambda u_0$, and recall that $\mu = \alpha_0$ and $\lambda = \alpha_1$, it
+follows that $\beta_0 = v_0\alpha_0+u_0\alpha_1$. By identification, we obtain
+that $v_0 = f_{0,0}(d, d_0, d_1, e, e_0, e_1)$ and $u_0 = f_{0,1}(d, d_0, d_1,
+e, e_0, e_1)\alpha_1$. The same discussion allows us to find $u_1$ and $v_1$.
 Since we have
 \[
   h_1(X^{q+1}+aX^q+bX+c)\equiv(X+a)h_0+(bX+c)h_1\mod P,
