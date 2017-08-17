@@ -280,12 +280,49 @@ $P$ we use to represent
 $\mathbb{F}_{q^n}=\mathbb{F}_{q^{2m}}\cong\mathbb{F}_{q^2}[X]/(P)$, but it is done
 in Section~\ref{ideas}. Again, we will make a notation abuse and if we have
 $Q\in \mathbb{F}_{q^2}[X]$, we will still note $Q$ for the class $\bar Q\in
-\mathbb{F}_{q^2}[X]/(P)$. Conversely, if we have an element $Q\in \mathbb{F}_{q^n}$, we
+\mathbb{F}_{q^2}[X]/(P)$. Conversely, if we have an element $Q\in
+\mathbb{F}_{q^{2m}}$, we
 will also denote by $Q$ the polynomial in $\mathbb{F}_{q^2}[X]$ representing the
 element.
 
 \subsection{Background ideas}
 \label{ideas}
+
+In the case of $\mathbb{Z}/p\mathbb{Z}$, we used the decomposition of the
+integers into prime factors to generate multiplicative relations. The situation
+here is analogue: we decompose some polynomials into irreducible polynomials of
+lower degree to get relations. Before going into details, we list three ideas
+(first stated in~\cite{Joux13}) used in the algorithm.
+
+\paragraph{Idea 1: homographies.} Given a polynomial $Q$ that factors nicely
+(and thus is susceptible to give nice relations), we can product a lot of other
+polynomials using change of variables induced by homographies:
+\[
+  X\to\frac{aX+b}{cX+d}.
+\]
+We see that $Q(\frac{aX+b}{cX+d})$ is not a polynomial, so by change of variable
+using homographies, we mean homogeneous evaluation at $\frac{aX+b}{cX+d}$,
+meaning the polynomial:
+\[
+  Q_{abcd}(X) = (cX+d)^{\deg Q}Q\left(\frac{aX+b}{cX+d} \right).
+\]
+If we have the decomposition $Q=\gamma\prod_j Q_j$, with $\gamma$ a constant and
+$Q_j$ irreducible and monic polynomials, then we also have
+\[
+  Q_{abcd}(X) = \gamma\prod_j (cX+d)^{\deg Q_j}Q_j(\frac{aX+b}{cX+d})
+\]
+but the new factors in this decomposition are not necessary irreducible, not
+necessary monic and may even have a lower degree than the original $Q_j$.
+
+\paragraph{Idea 2: systematic polynomial splitting.} The second idea is to use
+the polynomial $X^q-X$ because we already know that it factors into linear
+polynomial over $\mathbb{F}_q$. Thus, instead of looking for a random candidate to
+apply the first idea, we always use $X^q-X$.
+
+\paragraph{Idea 3: defining polynomial.} We want to take advantage of the liberty that we
+have for the irreducible polynomial $P$ defining
+$\mathbb{F}_{q^{2m}}=\mathbb{F}_{q^2}[X]/(P)$.
+
 
 \section{The powers-of-2 algorithm}
 \label{powers-of-2}
