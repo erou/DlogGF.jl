@@ -323,7 +323,8 @@ $2$, we somehow favor the term $X^q$ and spread it in our equations. That is why
 we make a choice of $P$ that transforms $X^q$ into something simpler. To do
 that, we ask $P$ to be an irreducible factor of degree $n$ of
 $h_1(X)X^q-h_0(X)$,
-where $h_0, h_1\in\mathbb{F}_{q}[X]$ are polynomials of low degree. If we
+where $h_0, h_1\in\mathbb{F}_{q}[X]$ are polynomials of low degree $\delta$
+(in practice, we take $\delta\leq2$). If we
 denote by $x$ the class of $X$ in $\mathbb{F}_{q^{n}}$, we have
 \[
   x^q=\frac{h_0(x)}{h_1(x)}.
@@ -331,7 +332,15 @@ denote by $x$ the class of $X$ in $\mathbb{F}_{q^{n}}$, we have
 Since this construction requires a simple expression of the map $x\mapsto x^q$, it
 is called \emph{Frobenius representation}. We do not know is it is always
 possible to find suitable polynomials $h_0, h_1$, the fact that every finite
-field can be represented that way is an \emph{heuristic}.
+field can be represented that way is an \emph{heuristic}. This construction
+might be impossible simply because $n > q+\delta$, but in fact, we can always
+assume that we have $n\leq q+\delta$ by embedding our first field into a bigger
+one. Let us start again from scratch: let $\mathbb{F}_{p^d}$ be the finite field
+in which we want to solve the DLP, let $q$ be the smallest power of $p$ such
+that $q\geq d$ and let $n=d$, then we embed $\mathbb{F}_{p^l}$ into
+$\mathbb{F}_{q^n}$ and we actually solve the DLP in $\mathbb{F}_{q^n}$. From now
+on, we will always assume that $\mathbb{F}_{q^n}$ has been constructed that way,
+so that there is no obstruction to the Frobenius representation.
 
 These ideas are used both to find relations between the elements in the factor
 base and to express a target element as a combination of elements in the base.
@@ -355,41 +364,92 @@ one given in the article.
 
 Let $\mathcal G = (\mathbb{F}_{q^n})^\times$ the multiplicative group of a finite
 field of small characteristic $\mathbb{F}_{q^n}$, where $q=p^l$ is a prime
-power. Here, and the same will be true for Section~\ref{powers-of-2}, by
-\emph{small characteristic} we mean that $q$ must be a polynomial in the size of
-the field $q^n$, \ie $q = L_{q^n}(0)$. In other documents, the term ``small
-characteristic'' may indicates that $q = L_{q^n}(\alpha)$ for
-$\alpha<\frac{1}{3}$. Assuming $q=L_{q^n}(\alpha)$ for a value
-$\alpha<\frac{1}{3}$ in the BGJT algorithm would result in complexity
-$L_{q^n}(\alpha+o(1))$, so it would no longer be quasi-polynomial, and that is
-why we make the assumption that $q$ is polynomial in $q^n$. Note that even if
-less impressive than quasi-polynomial complexity, $L_{q^n}(\alpha+o(1))$ is
-still better than previously known algorithms for a large sample of finite
-fields. We also assume that there is a ``medium subfield'' in
+power. We also assume that there is a ``medium subfield'' in
 $\mathbb{F}_{q^n}$, \ie a field of size $\mathbb{F}_{q^2}$. In other words, we
 ask that $n = 2m$ for some $m>0$. If this is not the case, we first embed our
-field $F_{q^n}$ in a larger field. In this context, we represent elements of
-$\mathbb{F}_{q^n}$ by polynomials over $\mathbb{F}_{q^2}$ of degree less than
-$m$. Our factor base $\mathcal F\subset\mathcal G$ will be the set of elements
-represented by degree one polynomials. We have not made precise what polynomial
-$P$ we use to represent
-$\mathbb{F}_{q^n}=\mathbb{F}_{q^{2m}}\cong\mathbb{F}_{q^2}[X]/(P)$, but it is done
-in Section~\ref{ideas}. Again, we will make a notation abuse and if we have
-$Q\in \mathbb{F}_{q^2}[X]$, we will still note $Q$ for the class $\bar Q\in
-\mathbb{F}_{q^2}[X]/(P)$. Conversely, if we have an element $Q\in
-\mathbb{F}_{q^{2m}}$, we
-will also denote by $Q$ the polynomial in $\mathbb{F}_{q^2}[X]$ representing the
-element.
+field $F_{q^n}$ in a larger field. Thus, we represent elements of
+$\mathbb{F}_{q^n} = \mathbb{F}_{q^{2m}} = \mathbb{F}_{q^2}[X]/(P)$ by
+polynomials over $\mathbb{F}_{q^2}$ of degree less than
+$m$. As described in Section~\ref{ideas}, the polynomial $P$ is an irreducible
+polynomial of degree $m$ dividing $h_1(X)X^q-h_0(X)$, where $h_0,
+h_1\in\mathbb{F}_{q^2}[X]$ are polynomials of small degree. Heuristically, it
+seems that taking polynomial of degree $2$ is sufficient. Our factor base
+$\mathcal F\subset\mathcal G$ will be the set of elements represented by degree
+one polynomials. Using the relation $X^q=\frac{h_0(X)}{h_1(X)}$, a power of
+$h_1$ appears in all equations, so we also add $h_1$ to the factor base
+$\mathcal F$. When we target an element $h\in\mathbb{F}_{q^{2m}}$, we implicitly
+assume that a basis for the discrete logarithm has been chosen and that it
+belongs to a subgroup of $\mathcal G$ whose cardinal has no small irreducible
+factor. This assumption is possible thanks to the use of the Pohlig-Hellman
+algorithm~\cite{PH78}.
 
-\subsection{Complexity}
+\subsection{Main result and complexity}
 
-Just to keep it smowhere:
+Now that we have the setup for the algorithm, we can state the main result and
+explain how to use it to recover the discrete logarithm of an element in
+$\mathbb{F}_{q^{2m}}$.
 
+\begin{prop}
+  \label{prop-bgjt}
+  Let $K = F_{q^{2m}}$ be a finite field with the structure discussed below.
+  There exists an heuristic algorithm whose complexity if polynomial in $q$ and
+  $m$ and which can be used for the following tasks.
 
-The BGJT algorithm would result in complexity
-$L_{q^n}(\alpha+o(1))$, so it would no longer be quasi-polynomial, and that is
-why we make the assumption that $q$ is polynomial in $q^n$. Note that even if
-less impressive than quasi-polynomial complexity, $L_{q^n}(\alpha+o(1))$ is
+  \begin{enumerate}
+    \item Given an element of $K$ represented by a polynomial
+      $Q\in\mathbb{F}_{q^2}[X]$ with $2\leq \deg Q \leq m-1$, the algorithm
+      returns an expression of $\log Q$ as a linear combination of at most
+      $O(q^2m)$ logarithms $\log Q_j$ with $\deg Q_j\leq
+      \lceil\frac{1}{2}\deg Q\rceil$ and of $\log h_1$.
+    \item The algorithm returns the logarithm of $h_1$ and of the logarithms of
+      all the elements of $K$ of the form $X+a$ for $a\in\mathbb{F}_{q^2}$.
+  \end{enumerate}
+\end{prop}
+
+Before explaining how to perform the algorithm in Proposition~\ref{prop-bgjt},
+we show how to use it to recover the discrete logarithm of an element, and we
+discuss the complexity of such a process. Let $h\in\mathbb{F}_{q^{2m}}$ be a
+target element, we denote by $Q\in\mathbb{F}_{q^2}[X]$ the polynomial
+representing $h$, and we assume that $2\leq \deg Q\leq m-1$, otherwise $h$ is
+already in the factor base $\mathcal F$. We start by applying
+Proposition~\ref{prop-bgjt} to $Q$, so we obtain a relation of the form
+\[
+  \log Q = q_0\log h_1 + \sum_j q_j\log Q_j
+\]
+where the sum has at most $O(q^2m)$ terms and where $\deg
+Q_j\leq\lceil\frac{1}{2}\deg Q\rceil$ for all $j$. We then apply the proposition
+recursively to the $Q_j$'s, creating a descent process in which the logarithm of
+each element is expressed as a linear combination of the logarithms of other
+elements with degrees two times smaller (rounded up). By the proposition, the
+arity of the descent tree is in $O(q^2m)$. At the end of the process, the
+logarithm of $Q$ is expressed as a linear combination of linear polynomials and
+of $h_1$. These are the elements of the factor base, and we can find their
+logarithm thanks to Proposition~\ref{prop-bgjt} too.
+
+The cost of each use of the proposition is bounded by a polynomial in $q$ and
+$k$, and each node of the descent tree corresponds to one application of the
+proposition. The complexity of the descent is therefore bouned by the number of
+nodes times a polynomial in $q$ and $k$. Since the degree of the polynomials
+involved is divided by two during each step, the depth of the tree is
+$O(\log m)$. The number of node in a tree is bounded by its arity to the power
+of its depth, so the number of node is bounded by $(q^2m)^{O(\log m)}$. Since
+any polynomial is absorbed in the $O()$ notation in the exponent, we can
+conclude that the descent has a complexity bounded by
+\[
+  \max(q, m)^{O(\log m)}.
+\]
+In the original article~\cite{BGJT13}, the authors discuss the consequences of
+such a result for various ranges of parameters. In our case, where we assume
+that $q$ is polynomial in the size of the input field $l=\log|\mathbb{F}_{q^{2m}}|$ and
+$q\geq m$, we can write the complexity
+\[
+  l^{O(\log l)}.
+\]
+Therefore, we have the claimed quasi-polynomial complexity. Note that if we had
+$q = L_{q^{2m}}(\alpha)$ with some value $\alpha<\frac{1}{3}$, the complexity of the BGJT
+algorithm would be in
+$L_{q^{2m}}(\alpha+o(1))$, so it would no longer be quasi-polynomial. Nevertheless, even if
+less impressive than quasi-polynomial complexity, $L_{q^{2m}}(\alpha+o(1))$ is
 still better than previously known algorithms for a large sample of finite
 fields. 
 \section{The powers-of-2 algorithm}
@@ -630,7 +690,16 @@ $\mathcal G$, and we see that the algorithm is quasi-polynomial.
     in $\mathbb{F}_{q}[X]/(h_1X^q-h_0)$.
 \end{itemize}
 
-\clearpage
+\section*{Acknowledgements}
+
+Of course, this work could not have been done without the help and advices of my
+supervisors, and I am very grateful that they let me work on this very exciting
+subject. I would also like to warmly thank Gora \textsc{Adj} for the
+precious explanations he gave me during all the internship, his expertise on the
+subject was helpful at the very least. Finally, I would like to thank all the
+people in the SCG lab for their welcome, and for the times chatting, having
+lunch, or \href{http://www.keeptalkinggame.com/}{defusing bombs}.
+
 \bibliographystyle{plain}
 \bibliography{dlog}
 \end{document}
