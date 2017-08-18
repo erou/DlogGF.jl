@@ -58,6 +58,7 @@
 \newcommand{\ent}[2]{[\![#1,#2]\!]}
 \newcommand{\diff}{\mathop{}\!\mathrm{d}}
 \newcommand{\ie}{\emph{i.e. }}
+\newcommand{\eg}{\emph{e.g. }}
 % know what is going on or when I still need to ckeck
 
 % opening
@@ -242,20 +243,115 @@ $B$, this algorithms has a $L(1/2)$ complexity.
 Even if the pattern is almost identical in every index calculus algorithm, there
 are a lot of available strategies to generate multiplicative relations and
 express the target element as a combination of elements in the factor base. This
-led to a a rich variety of algorithms, among them is the BGJT algorithm, that is
-studied in next section.
+led to a a rich variety of algorithms, among them are the quasi-polynomial
+algorithms, we introduce them briefly in the next section.
+
+\section{Quasi-polynomial algorithms}
+\label{quasi-pol}
+
+There are two quasi-polynomial algorithms, the BGJT algorithm~\cite{BGJT13} and
+the powers-of-2 algorithm~\cite{GKZ14}, they are respectively studied in
+Section~\ref{bgjt} and~\ref{powers-of-2}. They were published almost at the
+same time, in 2013 and 2014, and are independant. 
+The main ideas for those algorithms were already present in a
+previous work of Joux~\cite{Joux13}, published earlier in 2013 and leading to
+an algorithm with complexity $L(1/4 + o(1))$. Before giving those ideas, we
+recall the general setup in which we perform the algorithms.
+
+\subsection{Setup}
+\label{general-setup}
+
+Let $\mathcal G = (\mathbb{F}_{q^n})^\times$ the multiplicative group of a finite
+field of small characteristic $\mathbb{F}_{q^n}$, where $q=p^l$ is a prime
+power. By
+\emph{small characteristic} we mean that $q$ must be a polynomial in the size of
+the field $q^n$, \ie $q = L_{q^n}(0)$. In other documents, the term ``small
+characteristic'' may indicates that $q = L_{q^n}(\alpha)$ for
+$\alpha<\frac{1}{3}$, but this assumption would break the quasi-polynomial
+nature of these algorithms. We represent elements of
+$\mathbb{F}_{q^n}$ by polynomials over $\mathbb{F}_{q}$ of degree less than
+$n$. The factor base $\mathcal F\subset\mathcal G$ will contain elements
+represented by irreducible polynomials up to a certain degree, depending on the
+algorithm. We have not made
+precise what polynomial $P$ we use to represent
+$\mathbb{F}_{q^n}\cong\mathbb{F}_{q}[X]/(P)$, but it is done
+in Section~\ref{ideas}. Again, we will make a notation abuse and if we have
+$Q\in \mathbb{F}_{q}[X]$, we will still note $Q$ for the class $\bar Q\in
+\mathbb{F}_{q}[X]/(P)$. Conversely, if we have an element $Q\in
+\mathbb{F}_{q^{n}}$, we
+will also denote by $Q$ the polynomial in $\mathbb{F}_{q}[X]$ representing the
+element.
+
+\subsection{Background ideas}
+\label{ideas}
+
+In the case of $\mathbb{Z}/p\mathbb{Z}$, we used the decomposition of the
+integers into prime factors to generate multiplicative relations. The situation
+here is analogue: we decompose some polynomials into irreducible polynomials of
+lower degree to get relations. Before going into details, we list three ideas
+(first stated in~\cite{Joux13}) used in the algorithms.
+
+\paragraph{Idea 1: homographies.} Given a polynomial $Q$ that factors nicely
+(and thus is susceptible to give nice relations), we can product a lot of other
+polynomials using change of variables induced by homographies:
+\[
+  X\to\frac{aX+b}{cX+d}.
+\]
+We see that $Q(\frac{aX+b}{cX+d})$ is not a polynomial, so by change of variable
+using homographies, we mean homogeneous evaluation at $\frac{aX+b}{cX+d}$,
+that is, the polynomial:
+\[
+  Q_{abcd}(X) = (cX+d)^{\deg Q}Q\left(\frac{aX+b}{cX+d} \right).
+\]
+If we have the decomposition $Q=\gamma\prod_j Q_j$, with $\gamma$ a constant and
+$Q_j$ irreducible and monic polynomials, then we also have
+\[
+  Q_{abcd}(X) = \gamma\prod_j (cX+d)^{\deg Q_j}Q_j(\frac{aX+b}{cX+d})
+\]
+but the new factors in this decomposition are not necessary irreducible, not
+necessary monic and may even have a lower degree than the original $Q_j$.
+
+\paragraph{Idea 2: systematic polynomial splitting.} The second idea is to use
+the polynomial $X^q-X$ because we already know that it factors into linear
+polynomial over $\mathbb{F}_q$. Thus, instead of looking for a random candidate to
+apply the first idea, we always use $X^q-X$.
+
+\paragraph{Idea 3: defining polynomial.} We want to take advantage of the liberty that we
+have for the irreducible polynomial $P$ defining
+$\mathbb{F}_{q^{n}}=\mathbb{F}_{q}[X]/(P)$. In fact, by using the ideas $1$ and
+$2$, we somehow favor the term $X^q$ and spread it in our equations. That is why
+we make a choice of $P$ that transforms $X^q$ into something simpler. To do
+that, we ask $P$ to be an irreducible factor of degree $n$ of
+$h_1(X)X^q-h_0(X)$,
+where $h_0, h_1\in\mathbb{F}_{q}[X]$ are polynomials of low degree. If we
+denote by $x$ the class of $X$ in $\mathbb{F}_{q^{n}}$, we have
+\[
+  x^q=\frac{h_0(x)}{h_1(x)}.
+\]
+Since this construction requires a simple expression of the map $x\mapsto x^q$, it
+is called \emph{Frobenius representation}. We do not know is it is always
+possible to find suitable polynomials $h_0, h_1$, the fact that every finite
+field can be represented that way is an \emph{heuristic}.
+
+These ideas are used both to find relations between the elements in the factor
+base and to express a target element as a combination of elements in the base.
+In general, this last operation cannot be done in one single step. Instead, the
+target element will be expressed as ``simpler'' elements, \ie elements
+represented by polynomials with lower degrees. This strategy is applied
+recursively until all the elements are in the factor base $\mathcal F$, this
+whole operation is called the \emph{descent}. We give more detail in next
+section.
 
 \section{The BGJT algorithm}
 \label{bgjt}
 
 The BGJT algorithm gets its name from its author: Barbulescu, Gaudry, Joux and
 Thomé. It was first published in 2013~\cite{BGJT13} and it is the first
-(heuristic) quasi-polynomial algorithm. The main ideas were already present in a
-previous work of Joux~\cite{Joux13}, published earlier in 2013 and leading to
-an algorithm with complexity $L(1/4 + o(1))$. Before giving those ideas, we
-recall the general setup in which we perform the algorithm.
+(heuristic) quasi-polynomial algorithm. The setup is slightly different from the
+general one given in Section~\ref{general-setup}, it is the same as the original
+one given in the article.
 
-\subsection{Setup of the algorithms}
+\subsection{Setup of the BGJT algorithm}
 
 Let $\mathcal G = (\mathbb{F}_{q^n})^\times$ the multiplicative group of a finite
 field of small characteristic $\mathbb{F}_{q^n}$, where $q=p^l$ is a prime
@@ -285,45 +381,17 @@ $Q\in \mathbb{F}_{q^2}[X]$, we will still note $Q$ for the class $\bar Q\in
 will also denote by $Q$ the polynomial in $\mathbb{F}_{q^2}[X]$ representing the
 element.
 
-\subsection{Background ideas}
-\label{ideas}
+\subsection{Complexity}
 
-In the case of $\mathbb{Z}/p\mathbb{Z}$, we used the decomposition of the
-integers into prime factors to generate multiplicative relations. The situation
-here is analogue: we decompose some polynomials into irreducible polynomials of
-lower degree to get relations. Before going into details, we list three ideas
-(first stated in~\cite{Joux13}) used in the algorithm.
-
-\paragraph{Idea 1: homographies.} Given a polynomial $Q$ that factors nicely
-(and thus is susceptible to give nice relations), we can product a lot of other
-polynomials using change of variables induced by homographies:
-\[
-  X\to\frac{aX+b}{cX+d}.
-\]
-We see that $Q(\frac{aX+b}{cX+d})$ is not a polynomial, so by change of variable
-using homographies, we mean homogeneous evaluation at $\frac{aX+b}{cX+d}$,
-meaning the polynomial:
-\[
-  Q_{abcd}(X) = (cX+d)^{\deg Q}Q\left(\frac{aX+b}{cX+d} \right).
-\]
-If we have the decomposition $Q=\gamma\prod_j Q_j$, with $\gamma$ a constant and
-$Q_j$ irreducible and monic polynomials, then we also have
-\[
-  Q_{abcd}(X) = \gamma\prod_j (cX+d)^{\deg Q_j}Q_j(\frac{aX+b}{cX+d})
-\]
-but the new factors in this decomposition are not necessary irreducible, not
-necessary monic and may even have a lower degree than the original $Q_j$.
-
-\paragraph{Idea 2: systematic polynomial splitting.} The second idea is to use
-the polynomial $X^q-X$ because we already know that it factors into linear
-polynomial over $\mathbb{F}_q$. Thus, instead of looking for a random candidate to
-apply the first idea, we always use $X^q-X$.
-
-\paragraph{Idea 3: defining polynomial.} We want to take advantage of the liberty that we
-have for the irreducible polynomial $P$ defining
-$\mathbb{F}_{q^{2m}}=\mathbb{F}_{q^2}[X]/(P)$.
+Just to keep it smowhere:
 
 
+The BGJT algorithm would result in complexity
+$L_{q^n}(\alpha+o(1))$, so it would no longer be quasi-polynomial, and that is
+why we make the assumption that $q$ is polynomial in $q^n$. Note that even if
+less impressive than quasi-polynomial complexity, $L_{q^n}(\alpha+o(1))$ is
+still better than previously known algorithms for a large sample of finite
+fields. 
 \section{The powers-of-2 algorithm}
 \label{powers-of-2}
 \subsection{Setup of the algorithm}
