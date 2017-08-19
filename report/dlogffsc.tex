@@ -451,7 +451,39 @@ algorithm would be in
 $L_{q^{2m}}(\alpha+o(1))$, so it would no longer be quasi-polynomial. Nevertheless, even if
 less impressive than quasi-polynomial complexity, $L_{q^{2m}}(\alpha+o(1))$ is
 still better than previously known algorithms for a large sample of finite
-fields. 
+fields. Now that we have a global view of how to compute a discrete logarithm,
+we explain the algorithm the Proposition~\ref{prop-bgjt} refers to.
+
+\subsection{Proof of Proposition~\ref{prop-bgjt}}
+
+We start with the first point in the proposition, but as we will see, the method
+used in the second point is essentially the same. Let $Q$ be the element to
+be eliminated, the strategy is to find relations involving $Q$ and its
+translates by a constant $Q+a$, where $a\in\mathbb{F}_{q^2}$. We use a
+projective version of the
+\emph{systematic equation}:
+\[
+  X^q - X = \prod_{a\in\mathbb{F}_q} X-a 
+\]
+obtained via homogenization that we write as a product on the projective
+line $\mathbb{P}_1(\mathbb{F}_q)$:
+  \begin{equation}
+  X^qY-XY^q = \prod_{\alpha\in\mathbb{P}_1(\mathbb{F}_q)} X - \alpha Y
+    \label{proj-eq}
+  \end{equation}
+In this slightly abusive notation, when $\alpha=(1:a)$ is not the point at
+infinity, the expression $X-\alpha Y$ simply means $X-aY$, whereas when
+$\alpha=(0:1)$ is the point at infinity, the expression $X-\alpha Y$ means $Y$.
+
+To make the translates appear, we will use homographies, denoted by
+matrices $m=\begin{pmatrix} a&b\\c&d\end{pmatrix}$, on
+Equation~(\ref{proj-eq}). With each element $m$, we associate the equation
+$(E_m)$ by substituting $X$ by $aP+b$ and $Y$ by $cP+d$.
+\begin{align*}
+  (aP+b)^q(cP+d)-(aP+b)(cP+d)^q &=
+  \prod_{\alpha\in\mathbb{P}_1(\mathbb{F}_q)}(aP+b)-\alpha(cP+d)\\
+  &= bla
+\end{align*}
 \section{The powers-of-2 algorithm}
 \label{powers-of-2}
 \subsection{Setup of the algorithm}
