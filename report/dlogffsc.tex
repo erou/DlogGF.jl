@@ -459,31 +459,76 @@ we explain the algorithm the Proposition~\ref{prop-bgjt} refers to.
 We start with the first point in the proposition, but as we will see, the method
 used in the second point is essentially the same. Let $Q$ be the element to
 be eliminated, the strategy is to find relations involving $Q$ and its
-translates by a constant $Q+a$, where $a\in\mathbb{F}_{q^2}$. We use a
+translates by a constant $Q-\xi$, where $\xi\in\mathbb{F}_{q^2}$. We use a
 projective version of the
 \emph{systematic equation}:
 \[
-  X^q - X = \prod_{a\in\mathbb{F}_q} X-a 
+  X^q - X = \prod_{u\in\mathbb{F}_q} X-u 
 \]
 obtained via homogenization that we write as a product on the projective
 line $\mathbb{P}_1(\mathbb{F}_q)$:
-  \begin{equation}
+  \begin{equation} 
   X^qY-XY^q = \prod_{\alpha\in\mathbb{P}_1(\mathbb{F}_q)} X - \alpha Y
     \label{proj-eq}
   \end{equation}
-In this slightly abusive notation, when $\alpha=(1:a)$ is not the point at
-infinity, the expression $X-\alpha Y$ simply means $X-aY$, whereas when
-$\alpha=(0:1)$ is the point at infinity, the expression $X-\alpha Y$ means $Y$.
+In this slightly abusive notation, when $\alpha=(u:1)$ is not the point at
+infinity, the expression $X-\alpha Y$ simply means $X-uY$, whereas when
+$\alpha=(1:0)$ is the point at infinity, the expression $X-\alpha Y$ means $Y$.
 
 To make the translates appear, we will use homographies, denoted by
 matrices $m=\begin{pmatrix} a&b\\c&d\end{pmatrix}$, on
-Equation~(\ref{proj-eq}). With each element $m$, we associate the equation
-$(E_m)$ by substituting $X$ by $aP+b$ and $Y$ by $cP+d$.
-\begin{align*}
-  (aP+b)^q(cP+d)-(aP+b)(cP+d)^q &=
-  \prod_{\alpha\in\mathbb{P}_1(\mathbb{F}_q)}(aP+b)-\alpha(cP+d)\\
-  &= bla
-\end{align*}
+Equation~\eqref{proj-eq}. With each element $m$, we associate the equation
+$(E_m)$ by substituting $X$ by $aQ+b$ and $Y$ by $cQ+d$.
+\begin{align}
+  (aQ+b)^q(cQ+d)-(aQ+b)(cQ+d)^q &=
+  \prod_{\alpha\in\mathbb{P}_1(\mathbb{F}_q)}(aQ+b)-\alpha(cQ+d)\nonumber\\
+  &= \prod_{\alpha\in\mathbb{P}_1(\mathbb{F}_q)}(a-\alpha c)Q+b-\alpha
+  d\nonumber\\
+  \label{eqn:Em}
+  \tag{$E_m$}
+  &=
+  \lambda\prod_{\alpha\in\mathbb{P}_1(\mathbb{F}_q)}Q-m^{-1}\cdot\alpha
+\end{align}
+
+Again, in the products of the two first lines, some care has to be made about
+the meaning of the terms, but it follows directly from the explanations given
+above. In the last line, that gives our Equation~\eqref{eqn:Em}, the notation
+$Q-m^{-1}\cdot\alpha$ means $Q-u$ if $m^{-1}\cdot\alpha=(u:1)$ and
+$Q-m^{-1}\cdot\alpha$ means $1$ if $m^{-1}\cdot\alpha=\infty=(1:0)$.
+Finally, $\lambda\in\mathbb{F}_{q^2}$ is the constant such that the equality
+holds. We just reorganized the terms by factoring the constant multiplying $Q$.
+Note that one of the constant could be zero and the term $Q$ could then vanish,
+this is happening when $m^{-1}\cdot\alpha=\infty$. Therefore, the right hand of
+Equation~\eqref{eqn:Em} is, up to a multiplicative constant, a product of $q+1$ or $q$
+translates of $Q$.
+
+On the left side of the equation, we have a polynomial of high degree that seems
+hard to exploit. But recall that with the choice of defining polynomial for our
+field $\mathbb{F}_{q^{2m}}$, we have $X^q \equiv \frac{h_0(X)}{h_1(X)}$. This will
+be used to lower the degree of the left hand side. Let us denote by $\tilde a$
+the element $a^q$ for any $a\in\mathbb{F}_q^2$. Similarly, we denote by
+$\widetilde Q$ the polynomial $Q$ with all its coefficients raised to the power
+$q$. We can now write the left hand of Equation~\eqref{eqn:Em}
+\[
+  (\tilde a \widetilde Q (X^q)+\tilde b)(cQ(X)+d)-(aQ(X)+b)(\tilde c\widetilde
+  Q(X^q)+\tilde d),
+\]
+and using the defining polynomial for $\mathbb{F}_{q^{2m}}$, the left hand side of
+Equation~\eqref{eqn:Em} is congruent to the following.
+\begin{equation}
+  \tag{$\mathcal L_m$}
+  \left(\tilde a \widetilde Q \left(\frac{h_0(X)}{h_1(X)}\right)+\tilde
+  b\right)(cQ(X)+d)-(aQ(X)+b)\left(\tilde c\widetilde
+  Q\left(\frac{h_0(X)}{h_1(X)}\right)+\tilde d\right)
+  \label{eqn:Lm}
+\end{equation}
+The numerator of~\eqref{eqn:Lm} is a power of $h_1$, whose logarithm is supposed
+to be known, and its numerator has a much smaller degree than the original one
+in~\eqref{eqn:Em}. Indeed, the numerator of~\eqref{eqn:Lm} has degree at most
+$(1+\delta)\deg Q$, where $\delta=\max(\deg h_0, \deg h_1)$ (we can assume
+$\delta=2$ in practice), whereas the original degree in~\eqref{eqn:Em} is at
+most $(1+q)\deg Q$ (and we can have $q\geq 250$ in pratice).
+
 \section{The powers-of-2 algorithm}
 \label{powers-of-2}
 \subsection{Setup of the algorithm}
