@@ -51,6 +51,7 @@
 \DeclareMathOperator{\Card}{Card}
 \DeclareMathOperator{\Vect}{Vect}
 \DeclareMathOperator{\Tr}{Tr}
+\DeclareMathOperator{\pgl}{PGL}
 
 
 % Nouvelles commandes
@@ -477,7 +478,7 @@ $\alpha=(1:0)$ is the point at infinity, the expression $X-\alpha Y$ means $Y$.
 
 To make the translates appear, we will use homographies, denoted by
 matrices $m=\begin{pmatrix} a&b\\c&d\end{pmatrix}$, on
-Equation~\eqref{proj-eq}. With each element $m$, we associate the equation
+Equation~\eqref{proj-eq}, where $a, b, c, d\in\mathbb{F}_{q^2}$. With each element $m$, we associate the equation
 $(E_m)$ by substituting $X$ by $aQ+b$ and $Y$ by $cQ+d$.
 \begin{align}
   (aQ+b)^q(cQ+d)-(aQ+b)(cQ+d)^q &=
@@ -496,13 +497,42 @@ above. In the last line, that gives our Equation~\eqref{eqn:Em}, the notation
 $Q-m^{-1}\cdot\alpha$ means $Q-u$ if $m^{-1}\cdot\alpha=(u:1)$ and
 $Q-m^{-1}\cdot\alpha$ means $1$ if $m^{-1}\cdot\alpha=\infty=(1:0)$.
 Finally, $\lambda\in\mathbb{F}_{q^2}$ is the constant such that the equality
-holds. We just reorganized the terms by factoring the constant multiplying $Q$.
+holds.
+
+In the end, we just reorganized the terms by factoring the constants multiplying $Q$.
 Note that one of the constant could be zero and the term $Q$ could then vanish,
 this is happening when $m^{-1}\cdot\alpha=\infty$. Therefore, the right hand of
 Equation~\eqref{eqn:Em} is, up to a multiplicative constant, a product of $q+1$ or $q$
 translates of $Q$.
 
-On the left side of the equation, we have a polynomial of high degree that seems
+At this point, one can wander what do we mean about $m^{-1}$, since we
+did not specify anything about $m$. In fact, we have some constraints on this
+matrix. If $m$ is not invertible, we have only one translate appearing in the
+right hand side, leading to a trivial relation that we will not exploit. If the
+constants $a, b, c, d$ are all in $\mathbb{F}_q$, the relation generated is, up
+to a constant in $\mathbb{F}_q$, always the same, so we consider this case
+trivial too. Finally, we can see that multiplying all the coefficients by a
+non-zero constant will lead to the same relation, up to a constant, so we
+consider this trivial again. We consider that the relations are the same when
+they differ by a constant because the logarithms of the constants are easy to
+find: since $\mathbb{F}_{q^2}$ contains $q^2$ elements, and since $q$ is a
+polynomial in the size of the input, we can find the logarithms of all the
+constants in polynomial time by computing $\zeta^j$ for $1\leq j \leq q^2-1$ and
+$\zeta$ a generator of $\mathbb{F}_{q^2}^\times$. All that being said, we conclude that we have to take
+$m$ in the set of cosets:
+\[
+  \mathcal P_q = \pgl_2(\mathbb{F}_{q^2})/\pgl_2(\mathbb{F}_q).
+\]
+Note that in general $\pgl_2(\mathbb{F}_q)$ is not a normal subgroup of
+$\pgl_2(\mathbb{F}_{q^2})$, therefore $\mathcal P_q$ is not a quotient group.
+We do not have a nice way of iterating
+through its elements perfectly, \ie visiting each element only once and in
+$|\mathcal P_q|$ steps, but an efficient algorithm has been written
+in~\cite{ZC15}. It is a general result that
+$|\pgl_2(\mathbb{F}_{q^j})|=q^{3j}-q^j$, so the number of elements in the set of
+cosets $\mathcal P_q$ is $|\mathcal P_q| = (q^6-q^2)/(q^3-q)=q^3+q$.
+
+Now, let us go back to our Equation\eqref{eqn:Em}. On the left side of the equation, we have a polynomial of high degree that seems
 hard to exploit. But recall that with the choice of defining polynomial for our
 field $\mathbb{F}_{q^{2m}}$, we have $X^q \equiv \frac{h_0(X)}{h_1(X)}$. This will
 be used to lower the degree of the left hand side. Let us denote by $\tilde a$
@@ -527,7 +557,17 @@ to be known, and its numerator has a much smaller degree than the original one
 in~\eqref{eqn:Em}. Indeed, the numerator of~\eqref{eqn:Lm} has degree at most
 $(1+\delta)\deg Q$, where $\delta=\max(\deg h_0, \deg h_1)$ (we can assume
 $\delta=2$ in practice), whereas the original degree in~\eqref{eqn:Em} is at
-most $(1+q)\deg Q$ (and we can have $q\geq 250$ in pratice).
+most $(1+q)\deg Q$ (and we can have $q\geq 250$ in practice).
+
+But we did not explain why we want small degree polynomials so much in our
+equations. The answer is probabilistic: it is more probable that a polynomial
+has only irreducible factors of small degree if it has small degree itself. We
+say that a polynomial $Q$ is $D$-smooth is it has only irreducible factors of
+degree smaller that $D$. Hence, the probability that $Q$ is $D$-smooth, for a
+fixed $D$, increase when the degree of $Q$ increase. In our case, we are
+interested in $\lceil\frac{1}{2}\deg Q\rceil$-smooth polynomials. We say that
+$m$ yields a relation if the numerator of~\eqref{eqn:Lm} is
+$\lceil\frac{1}{2}\deg Q\rceil$-smooth. 
 
 \section{The powers-of-2 algorithm}
 \label{powers-of-2}
