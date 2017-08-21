@@ -380,7 +380,7 @@ $\mathcal F\subset\mathcal G$ will be the set of elements represented by degree
 one polynomials. Using the relation $X^q=\frac{h_0(X)}{h_1(X)}$, a power of
 $h_1$ appears in all equations, so we also add $h_1$ to the factor base
 $\mathcal F$. When we target an element $h\in\mathbb{F}_{q^{2m}}$, we implicitly
-assume that a basis for the discrete logarithm has been chosen and that it
+assume that a basis for the discrete logarithm has been chosen and that $h$
 belongs to a subgroup of $\mathcal G$ whose cardinal has no small irreducible
 factor. This assumption is possible thanks to the use of the Pohlig-Hellman
 algorithm~\cite{PH78}.
@@ -392,7 +392,7 @@ explain how to use it to recover the discrete logarithm of an element in
 $\mathbb{F}_{q^{2m}}$.
 
 \begin{prop}
-  \label{prop-bgjt}
+  \label{prop:bgjt}
   Let $K = F_{q^{2m}}$ be a finite field with the structure discussed below.
   There exists an heuristic algorithm whose complexity if polynomial in $q$ and
   $m$ and which can be used for the following tasks.
@@ -408,13 +408,13 @@ $\mathbb{F}_{q^{2m}}$.
   \end{enumerate}
 \end{prop}
 
-Before explaining how to perform the algorithm in Proposition~\ref{prop-bgjt},
+Before explaining how to perform the algorithm in Proposition~\ref{prop:bgjt},
 we show how to use it to recover the discrete logarithm of an element, and we
 discuss the complexity of such a process. Let $h\in\mathbb{F}_{q^{2m}}$ be a
 target element, we denote by $Q\in\mathbb{F}_{q^2}[X]$ the polynomial
 representing $h$, and we assume that $2\leq \deg Q\leq m-1$, otherwise $h$ is
 already in the factor base $\mathcal F$. We start by applying
-Proposition~\ref{prop-bgjt} to $Q$, so we obtain a relation of the form
+Proposition~\ref{prop:bgjt} to $Q$, so we obtain a relation of the form
 \[
   \log Q = q_0\log h_1 + \sum_j q_j\log Q_j
 \]
@@ -426,7 +426,7 @@ elements with degrees two times smaller (rounded up). By the proposition, the
 arity of the descent tree is in $O(q^2m)$. At the end of the process, the
 logarithm of $Q$ is expressed as a linear combination of linear polynomials and
 of $h_1$. These are the elements of the factor base, and we can find their
-logarithm thanks to Proposition~\ref{prop-bgjt} too.
+logarithm thanks to Proposition~\ref{prop:bgjt} too.
 
 The cost of each use of the proposition is bounded by a polynomial in $q$ and
 $k$, and each node of the descent tree corresponds to one application of the
@@ -454,9 +454,9 @@ $L_{q^{2m}}(\alpha+o(1))$, so it would no longer be quasi-polynomial. Neverthele
 less impressive than quasi-polynomial complexity, $L_{q^{2m}}(\alpha+o(1))$ is
 still better than previously known algorithms for a large sample of finite
 fields. Now that we have a global view of how to compute a discrete logarithm,
-we explain the algorithm the Proposition~\ref{prop-bgjt} refers to.
+we explain the algorithm the Proposition~\ref{prop:bgjt} refers to.
 
-\subsection{Proof of Proposition~\ref{prop-bgjt}}
+\subsection{Proof of Proposition~\ref{prop:bgjt}}
 
 We start with the first point in the proposition, but as we will see, the method
 used in the second point is essentially the same. Let $Q$ be the element to
@@ -591,8 +591,9 @@ minor the probability that $m$ yields a relation by a constant $\kappa$
 (see~\cite{BGJT13} for details),
 therefore, since $m\in\mathcal P_q$ and $|\mathcal P_q|=q^3+q$, the number of
 rows in $H(Q)$ is $\Theta(q^3)$. In order to finish the proof of
-Proposition~\ref{prop-bgjt}, we need the following heuristic.
+Proposition~\ref{prop:bgjt}, we need the following heuristic.
 \begin{heur}
+  \label{heur:full-rank}
   For any polynomial $Q\in\mathbb{F}_{q^{2}}[X]$, the set of rows $v(m)$ for
   cosets $m\in\mathcal P_q$ that yield a relation form a matrix $H(Q)$ that has
   full rank $q^2+1$.
@@ -601,7 +602,7 @@ Proposition~\ref{prop-bgjt}, we need the following heuristic.
 We implicitly ask for $q$ to be large enough for $\Theta(q^3)$ to be larger that
 $q^2+1$, otherwise the heuristic cannot hold. In other words, we ask the matrix
 $H(Q)$ to be sufficiently random to be invertible. The first point of
-Proposition~\ref{prop-bgjt} follows from linear algebra on $H(Q)$. Since the
+Proposition~\ref{prop:bgjt} follows from linear algebra on $H(Q)$. Since the
 matrix has full rank, there is a linear combination of the rows leading to the
 vector $(1, 0, \dots, 0)$. We can also assume that the first element in our
 iteration of $\mathbb{P}_1(\mathbb{F}_{q^2})$ is $\xi=(0:1)$, such that a $1$ in
@@ -623,61 +624,114 @@ Q\rceil$. The polynomial $h_1$ also appears as the denominator
 of~\eqref{eqn:Lm}, but this is not an issue since its logarithm is known. In
 this process, we perform some polynomial manipulations and smoothness test to
 know whether $m\in\mathcal P_q$ yields a relation. All these manipulations can
-be done in polynomial time in $q$ and $\deg P\leq m$. The linear algebra part,
+be done in polynomial time in $q$ and $\deg Q\leq m$. The linear algebra part,
 performed on a matrix with $q^2+1$ columns, has a cost of $O(q^{2\omega})$,
 using fast assymptotically fast matrix multiplication, or $O(q^5)$ using sparse
 matrix techniques (remember we have only $q+1$ non-zero coefficients out of
 $q^2+1$). Therefore, we have an algorithm with polynomial time in $q$ and $m$, as
-claimed, and the first point of Proposition~\ref{prop-bgjt} is proven.
+claimed, and the first point of Proposition~\ref{prop:bgjt} is proven.
+
+In order to prove the second part, we use the same process with $Q$ replaced by the
+polynomial $X$. In this particular case, the right hand side of
+Equation~\eqref{eqn:Em} involves only linear polynomials, and the condition
+``$m\in\mathcal P_q$ yields a relation'' means that the numerator
+of~\eqref{eqn:Lm} factors into linear polynomials. Thus, the generated relations
+involve only linear polynomials and $h_1$. That gives a us a linear system whose
+unknowns are the $\log X+\xi$ for $\xi\in\mathbb{F}_{q^2}$ and $\log h_1$. We
+cannot rely on Euristic~\ref{heur:full-rank} to know whether this system has
+solutions or not, so this is another heuristic. In practice, we find that the
+matrix associated with the system has a kernel of dimension $1$, that is the
+best we can hope for because dimension $0$ would mean that the only solution is
+$\log (X+\xi)=0=\log h_1$ for all $\xi\in\mathbb{F}_{q^2}$ and dimension larger
+than $2$ would mean too much solutions. If we choose the basis of the logarithm
+to be a linear element $X+\xi_0$, we are able to recover all the logarithms by
+chosing the only solution such that $\log (X+\xi_0)=1$. This concludes the proof
+of Proposition~\ref{prop:bgjt}.
+
+\subsection{Some concluding remarks}
+
+There are $3$ kinds of euristics used in this algorithms.
+\begin{itemize}
+  \item The existence of suitable polynomials $h_0$ and $h_1$, which give the
+    structure needed to perform the degree reduction in the left hand side
+    of~\eqref{eqn:Em} and obtain~\eqref{eqn:Lm}.
+  \item Euristic~\ref{heur:full-rank} and its equivalent in the case
+    $Q(X) = X$, needed for the linear algebra.
+  \item Finally, the analysis leading to the minoration of the probability that
+    $m\in\mathcal P_q$ yields a relation is based on the assumption that the
+    numerator of~\eqref{eqn:Lm} has the same probability to be
+    $\lceil\frac{1}{2}\deg Q\rceil$-smooth as a random polynomial of the same
+    degree.
+\end{itemize}
+Supporting arguments and experimental results are given in~\cite{BGJT13}. On
+other important thing is that the logarithm of some polynomials cannot
+be computed by that process. They are called \emph{problematic polynomials} and
+a result is given in~\cite{BGJT13} to overcome this issue without changing the
+quasi-polynomial nature of the algorithm. It happens when the polynomial to be
+eliminated $Q\neq P$, where $P$ is the defining polynomial of
+$\mathbb{F}_{q^{2m}}$, divides the polynomial $h_1(X)X^q-h_0(X)$. In that case,
+$Q$ also divides the numerator of~\eqref{eqn:Lm}, making it impossible to link
+the logarithm of $Q$ with smaller degree polynomials, or preventing the second
+part of Proposition~\ref{prop:bgjt} to succeed if $Q$ is a linear polynomial.
+
+The main obstacle preventing this algorithm to be very efficient in practice, in
+spite of its quasi-polynomial complexity, is the $O(q^2\deg Q)$ arity  of the
+descent tree. In the powers-of-2 algorithm, studied in
+Section~\ref{powers-of-2}, the arity is smaller and one heuristic is not needed
+anymore, making one step towards an heuristic-free algorithm.
 
 \section{The powers-of-2 algorithm}
 \label{powers-of-2}
+
+The algorithm gets its name from its design, particularly suited to target
+elements with a degree of the form $2^j$. It was written in 2014 by Granger,
+Kleinjung and Zumbrägel. Like the BGJT algorithm, this is base on an heuristic
+Frobenius representation and on the other ideas of Section~\ref{ideas}.
+The setup in which we present the algorithm is slightly different from
+the original, thanks to the work of Joux and Pierrot in \cite{JP14}. Indeed,
+they remarked that working with polynomials of degree up to $d$ over $\mathbb{F}_q$ is
+essentially equivalent to working with linear polynomials over $\mathbb{F}_{q^d}$. Thus,
+instead of working with a factor base composed of linear polynomials over
+$\mathbb{F}_{q^d}$ (with $d$ usually between $2$ and $4$), we work with a
+factor base composed of irreducible polynomials up to degree $4$. Joux and Pierrot
+precisely give a way to compute such a factor base in~\cite{JP14}, that is based
+on the technique used in the BGJT algorithm~\cite{Joux13, BGJT13} and has a
+complexity of $O(q^6)$. Since we work in the case where $q$ is polynomial in the
+bitsize of the input field, this precomputation time is polynomial.
+
 \subsection{Setup of the algorithm}
 
 Let $\mathcal G = (\mathbb{F}_{q^n})^\times$ the multiplicative group of a finite
 field of small characteristic $\mathbb{F}_{q^n}$, where $q=p^l$ is a prime
 power, and we represent elements of $\mathbb{F}_{q^n}$ by polynomials over
-$\mathbb{F}_q$ of degree less than $n$. The setup in which we present the algorithm is slightly different from
-the original, thanks to the work of Joux and Pierrot in \cite{JP14}. Indeed,
-they remarked that working with polynomials of degree up to $d$ over $\mathbb{F}_q$ is
-essentially equivalent as working with linear polynomials over $\mathbb{F}_{q^d}$. Thus,
-instead of working with a factor base composed of linear polynomials over
-$\mathbb{F}_{q^d}$ (with $d$ usually between $2$ and $4$), we work with a
-factor base composed of irreducible polynomials up to degree $4$. Joux and Pierrot
-precisely give a way to compute such a factor base in~\cite{JP14}, that is based
-on previous work~\cite{Joux13, BGJT13} and has a complexity of $O(q^6)$. Since
-we work in the case where $q$ is polynomial in the bitsize of the field
-$\log(q^n)$, this precomputation time is polynomial.
-
-Let us come back to the elements of $\mathbb{F}_{q^n}$, we said that they were
-represented by polymomials of degree at most $n-1$ over $\mathbb{F}_q$. More
-precisely, we consider $\mathbb{F}_{q^n}\cong \mathbb{F}_{q}[X]/(P)$ where $P\in
-\mathbb{F}_{q}[X]$ is an irreducible polynomial of degree $n$ over
+$\mathbb{F}_q$ of degree less than $n$. More
+precisely, we consider the field $\mathbb{F}_{q^n}\cong \mathbb{F}_{q}[X]/(P)$
+where $P\in \mathbb{F}_{q}[X]$ is an irreducible polynomial of degree $n$ over
 $\mathbb{F}_{q}$ dividing $h_1X^q-h_0$, and $h_0, h_1\in \mathbb{F}_q[X]$ are
 polynomials of degree at most $2$ over $\mathbb{F}_q$. Different options are
-available to choose $h_0$ and $h_1$, and the respective results are also
+available to choose $h_0$ and $h_1$, and the respective results are 
 discussed in~\cite{JP14}. The existence of such parameters $h_0$ and $h_1$ is
-critical for the algorithm, and the fact that every finite field admits such a
-structure is \emph{heuristic}, and remains one of the major open problems in the
-area.
+still heuristic and critical for the algorithm.
 
-We now assume that the factor base $\mathcal F$ is composed of all the
+We set the factor base $\mathcal F$ to be composed of all the
 elements of $\mathcal G$ represented by an irreducible polynomial of degree at
-most $4$. We also suppose that we know the logarithm of each element in
+most $4$. We assume that we know the logarithm of each element in
 $\mathcal F$. In other words, we assume that the steps $1$ and $2$ of the index
-calculus method have already been performed. The only remaining step is $3$,
-where we express the logarithm of an element in $\mathcal G$ as the linear
-combination of the logarithms of elements in $\mathcal F$. In order to perform
-that step, we express the logarithm of the element that we want to study, denoted by
-$Q\in\mathcal G$, as a linear combination of ``simpler'' $q+2$ elements $Q_j$,
-\ie elements represented by polynomials of degree two times smaller. We
-still note $Q$ for the polynomial representing $Q\in
-\mathcal G$, and so we have $\deg Q_i\leq \lceil \frac{1}{2}\deg Q\rceil$. Doing
-the same process reccursively, we are able to express $\log Q$ as a linear
-combination of elements of degree at most $4$, \ie elements in $\mathcal F$.
-This whole procedure is called the \emph{descent}, and we explain it in the
-following. 
-
+calculus method have already been performed. It can be done by using the BGJT-like
+techniques in the paper of Joux and Pierrot\cite{JP14}. In the original article,
+the authors proposed to use the second point of
+Proposition~\ref{prop:bgjt} to the field $\mathbb{F}_{q^4}$. The only remaining
+step is then $3$, where we express the logarithm of an element in $\mathcal G$
+as the linear combination of the logarithms of elements in $\mathcal F$. In
+order to perform that step, we use a descent strategy, like in the BGJT
+algorithm. We express the logarithm of the element that we want
+to study, denoted by $Q\in\mathcal G$, as a linear combination of ``simpler''
+$q+2$ elements $Q_j$, \ie elements represented by polynomials of degree two
+times smaller. Proceeding reccursively, we are able to express $\log Q$ as a
+linear combination of elements of degree at most $4$, \ie elements in $\mathcal
+F$. Before explaining the descent, we have to introduce its building block, the
+\emph{on-the-fly} elimination. Unlike the building block of the BGJT algorithm,
+namely Proposition~\ref{prop:bgjt}, there is no linear algebra in that step.
 \subsection{On-the-fly degree $2$ elimination}
 
 The crucial part of the descent is called the \emph{on-the-fly}
@@ -686,19 +740,21 @@ $Q\in\mathbb{F}_{q^m}[X]$ over $\mathbb{F}_{q^m}$ as a product of degree $1$
 polynomials over $\mathbb{F}_{q^m}$. The name ``on the fly'' is due to the fact
 that no relation gathering or linear algebra is performed during this
 elimination. At the core of this elimination we also use the fact that the
-polynomial $\mathcal P_B = X^{q+1}-BX+B$ splits completely over $\mathbb{F}_{q^m}$ (\ie is a
-product of polynomial of degree $1$ over $\mathbb{F}_{q^m}$) very often. Let
-$\mathcal B$ be the set of elements $B\in \mathbb{F}_{q^m}$ such that $\mathcal
+polynomials of the form $\mathcal P_B = X^{q+1}-BX+B$ splits completely over $\mathbb{F}_{q^m}$ (\ie is a
+product of polynomial of degree $1$ over $\mathbb{F}_{q^m}$) very often. We
+denote by
+$\mathcal B$ the set of elements $B\in \mathbb{F}_{q^m}$ such that $\mathcal
 P_B$ splits completely. In~\cite{Bluher04}, the roots and the splitting field of
 $\mathcal P_B$ are studied and it is shown that the cardinality of $\mathcal B$
-is approximately $q^{m-3}$ ($(q^{m-1}-1)/(q^2-1)$ when $m$ is odd,
-$(q^{m-1}-q)/(q^2-1)$ when $m$ is even). Thus, if $B\in \mathcal B$,
-$a,b,c\in\mathbb{F}_{q^m}$ such that $c\neq ab$, $a^q\neq b,
-B=\frac{(b-a^q)^{q+1}}{(c-ab)^q}$, we see by the change of variable
+is approximately $q^{m-3}$\footnote{$|\mathcal B| =
+  \begin{cases}(q^{m-1}-1)/(q^2-1)\text{ if }m\text{ is odd}\\
+  (q^{m-1}-q)/(q^2-1)\text{ if }m\text{ is even}\end{cases}$}. Thus, if $B\in \mathcal B$,
+$a,b,c\in\mathbb{F}_{q^m}$ such that $c\neq ab$, $a^q\neq b$ and
+$B=\frac{(b-a^q)^{q+1}}{(c-ab)^q}$, we see by the change of variable
 $X\to\frac{ab-c}{b-a^q}X-a$ in $X^{q+1}+aX^q+bX+c$ that this polynomial
 splits completely whenever $\mathcal P_B$ does. To see that, let us consider the
 change of variable $X\mapsto uX+v$ in $X^{q+1}+aX^q+bX+c$, where $u$ and $v$ are
-to be determined. We obtain the new polynomial
+yet to be determined. We obtain the new polynomial
 \[
   u^{q+1}X^{q+1}+(u^qv+au^q)X^q+(uv^q+bu)X+v^{q+1}+av^q+bv+c.
 \]
@@ -720,8 +776,8 @@ Note that using~\cite{Bluher04,
 HK10, GKZ14}, we also know that $\mathcal B$ is the image of
 $\mathbb{F}_{q^m}\setminus\mathbb{F}_{q^2}$ under the map 
 \[
-  u\mapsto \frac{(u-u^{q^2})^{q+1}}{(u-u^q)^{q^2+1}}\footnote{There is a proof
-  in \cite{GKZ16b} but it is quite mysterious to me.}.
+  u\mapsto \frac{(u-u^{q^2})^{q+1}}{(u-u^q)^{q^2+1}}\footnote{There is also a proof
+  in \cite{GKZ16b}.}.
 \]
 
 In order to eliminate the polynomial $Q$, we define the lattice $L_Q\subset
