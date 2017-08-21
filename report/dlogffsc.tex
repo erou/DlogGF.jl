@@ -34,6 +34,7 @@
 \newtheorem{lm}[thm]{Lemma}
 \newtheorem{prop}[thm]{Proposition}
 \newtheorem{cor}[thm]{Corollary}
+\newtheorem{heur}[thm]{Heuristic}
 
 \theoremstyle{sc}
 \newtheorem{exo}{Exercise}
@@ -566,8 +567,68 @@ say that a polynomial $Q$ is $D$-smooth is it has only irreducible factors of
 degree smaller that $D$. Hence, the probability that $Q$ is $D$-smooth, for a
 fixed $D$, increase when the degree of $Q$ increase. In our case, we are
 interested in $\lceil\frac{1}{2}\deg Q\rceil$-smooth polynomials. We say that
-$m$ yields a relation if the numerator of~\eqref{eqn:Lm} is
-$\lceil\frac{1}{2}\deg Q\rceil$-smooth. 
+$m\in\mathcal P_q$ yields a relation if the numerator of~\eqref{eqn:Lm} is
+$\lceil\frac{1}{2}\deg Q\rceil$-smooth. We will keep only the equations such
+that $m$ yields a relation, and we will remember the translates involved in
+the right hand side of Equation~\eqref{eqn:Em}.
+
+To any $m\in\mathcal P_q$, we associate a row vector $v(m)$ of size $q^2+1$
+indexed by $\xi\in\mathbb{P}_1(\mathbb{F}_{q^2})$. Each coordinate is either $1$
+or $0$, depending on if the term $Q-u$ for $\xi=(u:1)$ appears or not in the
+right hand side of Equation~\eqref{eqn:Em}. If there
+is only $q$ terms in the product, we put $1$ in position $\xi=\infty$. Hence, we
+always have exactly $q+1$ non-zero coordinates in $v(m)$. Equivalently, we can
+write
+\[
+  v(m)_{\xi\in\mathbb{P}_1(\mathbb{F}_q^2)}=\begin{cases} 1\text{ if
+    }\xi=m^{-1}\cdot\alpha\text{ with }\alpha\in\mathbb{P}_1(\mathbb{F}_q) \\ 0\text{
+    otherwise} \end{cases}.
+\]
+We construct a matrix $H(Q)$ whose rows are the $v(m)$ for which $m$ yields a
+relation, taking at most one matrix $m$ in each coset. We see that $H(Q)$ has
+$q^2+1$ columns but the number of rows depends on $Q$. In fact, we are able to
+minor the probability that $m$ yields a relation by a constant $\kappa$
+(see~\cite{BGJT13} for details),
+therefore, since $m\in\mathcal P_q$ and $|\mathcal P_q|=q^3+q$, the number of
+rows in $H(Q)$ is $\Theta(q^3)$. In order to finish the proof of
+Proposition~\ref{prop-bgjt}, we need the following heuristic.
+\begin{heur}
+  For any polynomial $Q\in\mathbb{F}_{q^{2}}[X]$, the set of rows $v(m)$ for
+  cosets $m\in\mathcal P_q$ that yield a relation form a matrix $H(Q)$ that has
+  full rank $q^2+1$.
+\end{heur}
+
+We implicitly ask for $q$ to be large enough for $\Theta(q^3)$ to be larger that
+$q^2+1$, otherwise the heuristic cannot hold. In other words, we ask the matrix
+$H(Q)$ to be sufficiently random to be invertible. The first point of
+Proposition~\ref{prop-bgjt} follows from linear algebra on $H(Q)$. Since the
+matrix has full rank, there is a linear combination of the rows leading to the
+vector $(1, 0, \dots, 0)$. We can also assume that the first element in our
+iteration of $\mathbb{P}_1(\mathbb{F}_{q^2})$ is $\xi=(0:1)$, such that a $1$ in
+the first position corresponds to the term $Q$ in the right hand side of
+Equation~\eqref{eqn:Em}. Thus, saying that $(1, 0, \dots, 0)$ can be written as
+a linear combination of the rows of $H(Q)$ is equivalent to say that the
+polynomial $Q$ can be written as a product of the right hand side of
+Equations~\eqref{eqn:Em} for which $m$ yields a relation. On the left hand side
+of this combination, we obtain a product of $\lceil\frac{1}{2}\deg Q\rceil$-smooth
+polynomials, which is thus $\lceil\frac{1}{2}\deg Q\rceil$-smooth too. In the end, we
+have expressed $\log Q$ as a linear combination of $\log Q_i$ where the $Q_i$
+are the irreducible polynomials occuring in the left hand side. Since there are
+$O(q^2)$ columns in $H(Q)$, the elimination process involves at most
+$O(q^2)$ rows. Each row corresponds to an Equation~\eqref{eqn:Em} whose left
+hand side is congruent to~\eqref{eqn:Lm}, and the degree of the numerator
+of~\eqref{eqn:Lm} is $(1+\delta)\deg Q$. In the end, $Q$ is expressed as a product
+of $O(q^2\deg Q)$ polynomials of degree less that $\lceil\frac{1}{2}\deg
+Q\rceil$. The polynomial $h_1$ also appears as the denominator
+of~\eqref{eqn:Lm}, but this is not an issue since its logarithm is known. In
+this process, we perform some polynomial manipulations and smoothness test to
+know whether $m\in\mathcal P_q$ yields a relation. All these manipulations can
+be done in polynomial time in $q$ and $\deg P\leq m$. The linear algebra part,
+performed on a matrix with $q^2+1$ columns, has a cost of $O(q^{2\omega})$,
+using fast assymptotically fast matrix multiplication, or $O(q^5)$ using sparse
+matrix techniques (remember we have only $q+1$ non-zero coefficients out of
+$q^2+1$). Therefore, we have an algorithm with polynomial time in $q$ and $m$, as
+claimed, and the first point of Proposition~\ref{prop-bgjt} is proven.
 
 \section{The powers-of-2 algorithm}
 \label{powers-of-2}
