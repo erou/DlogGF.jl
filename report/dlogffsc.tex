@@ -72,7 +72,7 @@ small characteristic}}
 \begin{document}
 
 \maketitle
-
+\clearpage
 \begin{abstract}
 This internship took place from March to September 2017 in the Symbolic
 Computation Group of the University of Waterloo. We studied the recent
@@ -82,7 +82,6 @@ available as an open-source library written in Julia/Nemo~\cite{Julia, Nemo}.
 \end{abstract}
 
 \tableofcontents
-
 \clearpage
 
 \section{Introduction}
@@ -685,7 +684,7 @@ anymore, making one step towards an heuristic-free algorithm.
 
 The algorithm gets its name from its design, particularly suited to target
 elements with a degree of the form $2^j$. It was written in 2014 by Granger,
-Kleinjung and Zumbrägel. Like the BGJT algorithm, this is base on an heuristic
+Kleinjung and Zumbrägel. Like the BGJT algorithm, this is based on an heuristic
 Frobenius representation and on the other ideas of Section~\ref{ideas}.
 The setup in which we present the algorithm is slightly different from
 the original, thanks to the work of Joux and Pierrot in \cite{JP14}. Indeed,
@@ -693,7 +692,7 @@ they remarked that working with polynomials of degree up to $d$ over $\mathbb{F}
 essentially equivalent to working with linear polynomials over $\mathbb{F}_{q^d}$. Thus,
 instead of working with a factor base composed of linear polynomials over
 $\mathbb{F}_{q^d}$ (with $d$ usually between $2$ and $4$), we work with a
-factor base composed of irreducible polynomials up to degree $4$. Joux and Pierrot
+factor base composed of irreducible polynomials up to degree $d$. Joux and Pierrot
 precisely give a way to compute such a factor base in~\cite{JP14}, that is based
 on the technique used in the BGJT algorithm~\cite{Joux13, BGJT13} and has a
 complexity of $O(q^6)$. Since we work in the case where $q$ is polynomial in the
@@ -710,15 +709,16 @@ where $P\in \mathbb{F}_{q}[X]$ is an irreducible polynomial of degree $n$ over
 $\mathbb{F}_{q}$ dividing $h_1X^q-h_0$, and $h_0, h_1\in \mathbb{F}_q[X]$ are
 polynomials of degree at most $2$ over $\mathbb{F}_q$. Different options are
 available to choose $h_0$ and $h_1$, and the respective results are 
-discussed in~\cite{JP14}. The existence of such parameters $h_0$ and $h_1$ is
-still heuristic and critical for the algorithm.
+discussed in~\cite{JP14}. The existence of such parameters $h_0$ and $h_1$ is,
+again, heuristic and critical for the algorithm.
 
 We set the factor base $\mathcal F$ to be composed of all the
 elements of $\mathcal G$ represented by an irreducible polynomial of degree at
 most $4$. We assume that we know the logarithm of each element in
 $\mathcal F$. In other words, we assume that the steps $1$ and $2$ of the index
 calculus method have already been performed. It can be done by using the BGJT-like
-techniques in the paper of Joux and Pierrot\cite{JP14}. In the original article,
+techniques in the paper of Joux and Pierrot\cite{JP14}. As we already pointed
+out in a discussion above, in the original article
 the authors proposed to use the second point of
 Proposition~\ref{prop:bgjt} to the field $\mathbb{F}_{q^4}$. The only remaining
 step is then $3$, where we express the logarithm of an element in $\mathcal G$
@@ -752,7 +752,9 @@ is approximately $q^{m-3}$\footnote{$|\mathcal B| =
 $a,b,c\in\mathbb{F}_{q^m}$ such that $c\neq ab$, $a^q\neq b$ and
 $B=\frac{(b-a^q)^{q+1}}{(c-ab)^q}$, we see by the change of variable
 $X\to\frac{ab-c}{b-a^q}X-a$ in $X^{q+1}+aX^q+bX+c$ that this polynomial
-splits completely whenever $\mathcal P_B$ does. To see that, let us consider the
+splits completely whenever $\mathcal P_B$ does.
+
+To see that, let us consider the
 change of variable $X\mapsto uX+v$ in $X^{q+1}+aX^q+bX+c$, where $u$ and $v$ are
 yet to be determined. We obtain the new polynomial
 \[
@@ -765,9 +767,16 @@ If we want this polynomial to be of the form $\mathcal P_B$, we must impose that
   uv^q+bu+v^{q+1}+av^q+bv+c = 0
 \end{cases}.
 \]
-We know that $u\neq0$, otherwise the change of variable is trivial, so we deduce
-that $v=-a$. Then, we note that $v^{q+1}+av^q=((-1)^{q+1}+(-1)^q)a^{q+1}=0$. So
-the second equation becomes $u(-1)^qa^q+bu-ba+c = 0$, and we deduce that
+We know that $u\neq0$, otherwise the change of variable would be trivial, so we deduce
+that $v=-a$. Then, we note that
+\[
+  v^{q+1}+av^q=((-1)^{q+1}+(-1)^q)a^{q+1}=0.
+\]So
+the second equation becomes 
+\[
+  u(-1)^qa^q+bu-ba+c = 0,
+\]
+and we deduce that
 $u=\frac{ab-c}{b+(-1)^qa^q}$. Assuming that we work with odd characteristic
 (otherwise the formula can be adapted), we obtain the annonced change of
 variable. Dividing by the leading coefficient $u^{q+1}$, we also have the
@@ -777,29 +786,55 @@ HK10, GKZ14}, we also know that $\mathcal B$ is the image of
 $\mathbb{F}_{q^m}\setminus\mathbb{F}_{q^2}$ under the map 
 \[
   u\mapsto \frac{(u-u^{q^2})^{q+1}}{(u-u^q)^{q^2+1}}\footnote{There is also a proof
-  in \cite{GKZ16b}.}.
+  in \cite{GKZ16b}.},
 \]
+so we are able to compute elements in $\mathcal B$.
 
-In order to eliminate the polynomial $Q$, we define the lattice $L_Q\subset
+Let $Q$ be the polynomial to be eliminated, we have to introduce one last tool,
+linked to $Q$. We define the lattice $L_Q\subset
 \mathbb{F}_{q^m}[X]^2$ by 
 \[
   L_Q = \left\{ (w_0,
     w_1)\in\mathbb{F}_{q^m}[X]^2\;|\;w_0h_0+w_1h_1\equiv0\;\mod Q \right\}.
 \]
 If $Q$ divides $w_0h_0+w_1h_1\neq0$ for $w_0, w_1\in \mathbb{F}_{q^m}$, then we have
-$Q = w(w_0h_0+w_1h_1)$ for some $w\in\mathbb{F}_{q^m}^\times$ because the degree
-of the right hand side is at most $2$. Hence, the logarithm of $Q$ is linked
-with the logarithm of $w_0X^q+w_1=(w_0^{q^{m-1}}X+w_1^{q^{m-1}})^q$, and so the
+\[
+  Q = w(w_0h_0+w_1h_1)
+\]
+for some $w\in\mathbb{F}_{q^m}^\times$ because the degree
+of the right hand side is at most $2$. Hence, using the equality
+$X^q\equiv\frac{h_0(X)}{h_1(X)}$, we see that the logarithm of $Q$ is linked
+with the logarithm of 
+\[
+w_0X^q+w_1=(w_0^{q^{m-1}}X+w_1^{q^{m-1}})^q,
+\]
+and so the
 logarithm of $Q$ is linked to the logarithm of a linear
-polynomial over $\mathbb{F}_{q^m}$. Otherwise we can find a basis of $L_Q$
+polynomial over $\mathbb{F}_{q^m}$. Otherwise, and this is the generic
+case, we can find a basis of $L_Q$
 of the form $(u_0, X+u_1), (X+v_0, v_1)$ with $u_i, v_i\in\mathbb{F}_{q^m}$
-using linear algebra. To do that, we denote $Q = X^2 + dX+ e$ (it does not
-change the results to suppose that $Q$ is monic), $\bar h_0 = h_0 \mod Q =
-d_0X+e_0$, $\bar h_1 = h_1 \mod Q = d_1X+e_1$, and $(w_0, w_1)$ a solution, with
-$w_0=\alpha_0X+\beta_0$ and $w_1=\alpha_1X+\beta_1$. We seek a basis of the form
+using linear algebra.
+
+To find such a basis, we note:
+\begin{itemize}
+  \item $Q = X^2 + dX+ e$ (it does not
+change the divisibily results to suppose that $Q$ is monic),
+\item $\bar h_0 = h_0 \mod Q = d_0X+e_0$,
+\item  $\bar h_1 = h_1 \mod Q = d_1X+e_1$, 
+\item $(w_0, w_1)$ a solution, with
+  \begin{itemize}
+    \item $w_0=\alpha_0X+\beta_0$,
+    \item $w_1=\alpha_1X+\beta_1$.
+  \end{itemize}
+\end{itemize}
+We seek a basis of the form
 $(u_0, X + u_1), (X+v_0, v_1)$, that is to say that the solutions $(w_0, w_1)$
-can be written $\lambda(u_0, X+u_1)+\mu(X+v_0, v_1)$ for some $\lambda, \mu\in
-\mathbb{F}_{q^m}$. Looking at the leading coefficients, we deduce that $\mu =
+can be written 
+\[
+  (w_0, w_1)=\lambda(u_0, X+u_1)+\mu(X+v_0, v_1)
+\]
+for some $\lambda, \mu\in\mathbb{F}_{q^m}$.
+Looking at the leading coefficients, we deduce that $\mu =
 \alpha_0$ and $\lambda=\alpha_1$. Now, writing the conditions such that $w_0\bar
 h_0+w_1\bar h_1\equiv 0 \mod Q$, we obtain a linear system of two equations in
 $4$ unknowns $\alpha_0, \alpha_1, \beta_0, \beta_1$. We solve the system by
@@ -817,19 +852,33 @@ known constants $d, d_0, d_1, e, e_0, e_1$ and appear while solving the system. 
 + \lambda u_0$, and recall that $\mu = \alpha_0$ and $\lambda = \alpha_1$, it
 follows that $\beta_0 = v_0\alpha_0+u_0\alpha_1$. By identification, we obtain
 that $v_0 = f_{0,0}(d, d_0, d_1, e, e_0, e_1)$ and $u_0 = f_{0,1}(d, d_0, d_1,
-e, e_0, e_1)\alpha_1$. The same discussion allows us to find $u_1$ and $v_1$.
-Since we have
+e, e_0, e_1)$. The same discussion allows us to find $u_1$ and $v_1$.
+
+Now that the tools are in place, let us use them to eliminate our target
+$Q$. Since we have
 \[
   h_1(X^{q+1}+aX^q+bX+c)\equiv(X+a)h_0+(bX+c)h_1\mod P,
 \]
 if $Q$ divides $(X+a)h_0+(bX+c)h_1$, a polynomial of degree at most $3$, then we
-have that $(X+a)h_0+(bX+c)h_1=Q\times R$, where $R$ is a linear polynomial. If
-on top of that, the polynomial $X^{q+1}+aX^q+bX+c$ splits completely over
+have that
+\[
+  (X+a)h_0+(bX+c)h_1=Q\times R,
+\]
+where $R$ is a linear polynomial. If
+on top of that, the polynomial 
+\[
+  X^{q+1}+aX^q+bX+c
+\]
+splits completely over
 $\mathbb{F}_{q^m}$, then we have a relation between $Q$, polynomials of degree
 $1$, and $h_1$ (which logarithm is supposed to be known). The goal is thus to
 find a triple $(a, b, c)$ satisfying the two conditions. To do that, we choose
 $B\in \mathcal B$ and we remark that $(X+a,
-bX+c)\in L_Q$ implies that $(X+a, bX+c)=b(u_0, X+u_1)+(X+v_0, v_1)$. Hence, we
+bX+c)\in L_Q$ implies that 
+\[
+  (X+a, bX+c)=b(u_0, X+u_1)+(X+v_0, v_1).
+\]
+Hence, we
 have $a=bu_0+v_0$ and $c=bu_1+v_1$. Rewriting $a$ and $c$ in the conditions
 on $(a,b,c)$: $c\neq ab,b\neq a^q$ and $\frac{(b-a^q)^{q+1}}{(c-ab)^q}=B$, we
 get the condition
@@ -840,13 +889,13 @@ and we can find a suitable $b$ in polynomial time in $q$ and $m$ by finding a
 root to the degree
 $q^2+q$ polynomial
 \[
-  D = (-u_0^qX^q+X-v_0^q)^{q+1} - B(-u_0X^2+(u_1-v_0)X+v_1)^q.
+  \Delta(X) = (-u_0^qX^q+X-v_0^q)^{q+1} - B(-u_0X^2+(u_1-v_0)X+v_1)^q.
 \]
 Expanding the polynomial, we can see that it is quite sparse, indeed the only
 non-zero coefficients are those of degree $q^2+q, q^2+1, q^2, 2q, q+1, q, 1$ and
 the constant:
 \begin{eqnarray*}
-  D &=&
+  \Delta(X) &=&
   u_0^{q^2+q}X^{q^2+q}-u_0^{q^2}X^{q^2+1}+u_0^{q^2}v_0^qX^{q^2}+(Bu_0^q-u_0^q)X^{2q}+X^{q+1} \\
   & & +(v_0^{q^2}u_0^q-v_0^q+B(v_0^q-u_1^q))X^q-v_0^{q^2}X+v_0^{q^2+q}-Bv_1^q.
 \end{eqnarray*}
@@ -894,7 +943,7 @@ $\mathbb{F}_q$ of degree
 $e$, raised to the power $f$, such that $ef=m$. Hence, we have
 $N_j=T_j^{f_j}$, with $T_j\in\mathbb{F}_{q}[X]$, $\deg T_j = e_j$, and
 $e_jf_j=m$. In the end, we have expressed the polynomial $Q$ as a product of
-polynomials with degree dividing $m$.
+polynomials with degrees dividing $m$.
 
 To be able to really perform this descent, we must have a polynomial $Q$ with a 
 power of $2$ degree, this is possible thanks to Theorem $5.1$ proved 
@@ -907,7 +956,8 @@ tree is $q+2$, and the height of the tree is $O(\log n)$, the number of nodes
 is then $(q+2)^{\log n}$. Since we are in the small characteristic case, we
 can write this complexity $l^{O(\log l)}$, where $l=\log(q^n)$ is the bitsize of
 $\mathcal G$, and we see that the algorithm is quasi-polynomial.
-\section{A few comments}
+
+\subsection{Some concluding remarks}
 
 \begin{itemize}
   \item In practical works, summarised in Gora Adj PhD thesis~\cite{Adj16}, we
@@ -923,6 +973,8 @@ $\mathcal G$, and we see that the algorithm is quasi-polynomial.
     computations were living in $\mathbb{F}_{q^m}$, but they are in fact living
     in $\mathbb{F}_{q}[X]/(h_1X^q-h_0)$.
 \end{itemize}
+
+\section{Experimental results}
 
 \section*{Acknowledgements}
 
