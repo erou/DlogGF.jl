@@ -474,14 +474,14 @@ end
 function testOnTheFly()
     print("onTheFlyAbc, onTheFlyElimination... ")
 
-    K = DlogGF.gkzContext(3, 5, 20)
-    F3_5, z5 = FiniteField(3, 5, "z5")
-    R3_5, T5 = PolynomialRing(F3_5, "T5")
-    P = (z5^3+z5+2)*T5^8+(2*z5^4+2*z5^3+2*z5)*T5^7+(z5+2)*T5^6+(2*z5^3+z5^2+1)*T5^5+(z5^4+z5^3+z5^2+2)*T5^4+(z5^4+z5^3+2*z5^2+2)*T5^3+(2*z5^3+z5^2+2)*T5^2+(2*z5^4+z5^2+z5)*T5+(2*z5^3+z5)
+    K = DlogGF.gkzContext(3, 3, 20)
+    F3_3, z3 = FiniteField(3, 3, "z3")
+    R3_3, T3 = PolynomialRing(F3_3, "T3")
+    P = (2*z3^2)*T3^8+(2*z3^2+2*z3+1)*T3^7+(2*z3^2+2*z3+1)*T3^6+(2*z3^2+2*z3+2)*T3^5+(z3^2+z3)*T3^4+(2*z3)*T3^3+(z3+2)*T3^2+(2*z3^2+2*z3+2)*T3+(z3^2+2*z3+1)
     Q = DlogGF.ascent(P)
     R = parent(Q)
     T = gen(R)
-    q = 3^5
+    q = 3^3
     h0 = R(K.h0)
     h1 = R(K.h1)
 
@@ -500,7 +500,7 @@ function testOnTheFly()
     @test β
     @test ((T+a)*h0+(b*T+c)*h1)%Q == 0
 
-    P = (2*z5^3+1)*T5^8+(2*z5^2)*T5^7+(2*z5^4+2*z5^3+z5^2+2*z5+2)*T5^6+(2*z5^4+2*z5^3+z5^2+z5+1)*T5^5+(2*z5^4+z5^2+z5)*T5^4+(2*z5^3+2*z5^2+z5)*T5^3+(z5^3+2*z5^2+z5+2)*T5^2+(z5^4+2*z5+1)*T5+(z5^4+2*z5^3+2*z5^2+z5)
+    P = (2*z3^2+z3+1)*T3^8+(z3^2+2*z3)*T3^7+(2*z3^2+z3+2)*T3^6+(z3^2+2*z3+1)*T3^5+(2*z3)*T3^4+(z3+2)*T3^3+(z3^2+z3)*T3^2+(2*z3^2+z3+2)*T3+(2*z3^2+1)
     Q = DlogGF.ascent(P)
 
     a, b, c = DlogGF.onTheFlyAbc(Q, h0, h1, q)
@@ -518,7 +518,7 @@ function testOnTheFly()
     @test β
     @test ((T+a)*h0+(b*T+c)*h1)%Q == 0
 
-    P = (2*z5^4+2*z5^2+z5+2)*T5^8+(2*z5^3+z5)*T5^7+(z5^4+z5^3+2*z5^2+2*z5+2)*T5^6+(2*z5^3+2*z5^2+z5+2)*T5^5+(2*z5^4+z5^3+2*z5^2)*T5^4+(z5^4+z5^3+2*z5)*T5^3+(2*z5^3+2*z5^2+1)*T5^2+(z5^4+2*z5^2+z5+1)*T5+(2*z5^4+z5^3+2*z5)
+    P = (z3^2+2)*T3^8+(2*z3^2+1)*T3^7+(z3+2)*T3^5+(z3+1)*T3^4+(z3^2+2*z3+1)*T3^3+(2*z3^2)*T3^2+(z3^2+2*z3)*T3+(2)
     Q = DlogGF.ascent(P)
 
     a, b, c = DlogGF.onTheFlyAbc(Q, h0, h1, q)
@@ -536,7 +536,7 @@ function testOnTheFly()
     @test β
     @test ((T+a)*h0+(b*T+c)*h1)%Q == 0
 
-    P = (z5^4+2*z5^2+2*z5)*T5^8+(z5^4+z5^3+1)*T5^7+(z5^4+2*z5^3+z5^2+z5+2)*T5^6+(z5^4+2*z5^2+z5)*T5^5+(z5^4+z5^2+2*z5+2)*T5^4+(z5^4+2*z5^2+2)*T5^3+(2*z5^4+z5^3+1)*T5^2+(2*z5^4+z5^3+2*z5^2+2*z5+2)*T5+(z5^4+z5^3+z5^2)
+    P = (z3^2+2*z3+1)*T3^8+(2*z3^2+z3)*T3^7+(z3+2)*T3^6+(z3^2+2*z3+2)*T3^5+(z3^2)*T3^4+(z3+1)*T3^3+(z3)*T3+(z3+1)
     Q = DlogGF.ascent(P)
 
     A = DlogGF.onTheFlyElimination(Q, h0, h1, q)
@@ -547,7 +547,7 @@ function testOnTheFly()
     
     @test (product - A[end]*Q) % (h1*T^q-h0) == 0
 
-    P = (z5^3+z5^2+2)*T5^8+(z5^4+z5^3+z5^2+2*z5+1)*T5^7+(z5^3+2*z5^2+2*z5)*T5^6+(z5^4+z5^2+2*z5)*T5^5+(2*z5^4+z5^3+2*z5^2+2*z5+2)*T5^4+(2*z5^4+2*z5^3+2*z5)*T5^3+(2*z5^4+2*z5^3+z5^2)*T5^2+(2*z5^4+z5^3+1)*T5+(z5^4+z5^2+2*z5+2)
+    P = (2*z3^2+2*z3)*T3^8+(2*z3+1)*T3^7+(2*z3+1)*T3^6+(z3^2+z3+2)*T3^5+(z3+1)*T3^4+(2*z3+1)*T3^3+(2*z3)*T3^2+(2*z3+2)*T3+(2*z3^2+2)
     Q = DlogGF.ascent(P)
 
     A = DlogGF.onTheFlyElimination(Q, h0, h1, q)
@@ -564,16 +564,16 @@ end
 function testDescent()
     print("descentGKZ ...")
 
-    K = DlogGF.gkzContext(3, 5, 20)
-    q = 3^5
-    F3_5, z5 = FiniteField(3, 5, "z5")
-    R3_5, T5 = PolynomialRing(F3_5, "T5")
-    H = K.h1*T5^q-K.h0
+    K = DlogGF.gkzContext(3, 3, 20)
+    q = 3^3
+    F3_3, z3 = FiniteField(3, 3, "z3")
+    R3_3, T3 = PolynomialRing(F3_3, "T3")
+    H = K.h1*T3^q-K.h0
 
-    P = T5^8+(z5^4+2*z5^2+2*z5)*T5^7+(2*z5^4+2*z5^3+z5^2+1)*T5^6+(z5^4+z5^3+1)*T5^5+(z5^4+2*z5^3+z5^2+2)*T5^4+(z5^4+z5+1)*T5^3+(z5^4+2*z5^2+2)*T5^2+(z5^4+z5^3+2*z5^2)*T5+(2*z5^4+z5^3+2*z5^2+2)
+    P = T3^8+(z3+1)*T3^6+T3^5+(2*z3^2+z3+2)*T3^4+(z3^2+2*z3+1)*T3^3+(z3^2+z3)*T3^2+(2*z3^2)*T3+(2*z3)
     Q = DlogGF.ascent(P)
     L = DlogGF.descentGKZ(Q, K.h0, K.h1)
-    product = one(R3_5)
+    product = one(R3_3)
     
     for j in 1:length(L)
         poly = L[j][1]
