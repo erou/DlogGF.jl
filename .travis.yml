@@ -13,7 +13,8 @@ matrix:
 notifications:
   email: false
 after_sucess:
-  - julia -e 'cd(Pkg.dir("DlogGF")); Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder()); Coveralls.submit(process_folder())'
+  - julia -e 'cd(Pkg.dir("MyPkg")); Pkg.add("Coverage"); using Coverage; Codecov.submit(process_folder())'
+  - julia -e 'cd(Pkg.dir("MyPkg")); Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder())'
 
 # uncomment the following lines to override the default test script
 #script:
