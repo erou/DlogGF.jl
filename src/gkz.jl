@@ -218,9 +218,7 @@ function latticeBasis(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
     a1, b1 = coeff(h1b, 1), coeff(h1b, 0)
 
     # We set some variables
-    print(1)
     t = (a0*b1-b0*a1)^(-1)
-    print(1)
     u = a0^(-1)
 
     # We compute the result
