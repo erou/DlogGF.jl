@@ -155,13 +155,13 @@ function substitute(P::PolyElem, S::PolyElem)
     return R
 end
 
-function checkgkz(L, K)
+function checkgkz(L, K, Q)
     l = length(L)
     R = parent(L[1][1])
     X = gen(R)
     res = one(R)
     q = length(K.baseField)
-    Q = K.h1*X^q-K.h0
+#    Q = R(K.h1)*X^q-R(K.h0)
     for j in 1:l
         poly = L[j][1]
         coef = L[j][2]

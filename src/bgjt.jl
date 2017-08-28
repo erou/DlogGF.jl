@@ -285,26 +285,6 @@ function fillMatrixBGJT!(M::MatElem, j::Integer, m::MatElem, F::Nemo.Field)
 end
 
 """
-    isSmooth(P::PolyElem, D::Int)
-
-Test if the polynomial `P` is `D`-smooth.
-
-A polynomial is said to be *n-smooth* if all its irreducible factors have
-degree ≤ D.
-"""
-function isSmooth(P::PolyElem, D::Int)
-
-    # We iterate through the factors of `P` and return `false` if one of them
-    # is not `D`-smooth
-    for f in factor(P)
-        if degree(f[1]) > D
-            return false
-        end
-    end
-    return true
-end
-
-"""
     descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, h0::T, h1::T,
                                     card::Nemo.fmpz)
 

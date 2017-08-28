@@ -448,6 +448,7 @@ function descentGKZ(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
     # where after the degree two elimination, we compute the norm of a degree 4
     # extension instead of a degree 2 extension like we did for the first steps.
 
+
     l = length(L)
     R = parent(L[1][1])
     img = findImg(base_ring(R), ff)

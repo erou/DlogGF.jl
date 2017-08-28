@@ -609,3 +609,104 @@ function projectLinAlgPoly(R::PolyRing, P::PolyElem, M::MatElem, piv::Array{Int,
 
     return res
 end
+
+"""
+    isSmooth(P::PolyElem, D::Int)
+
+Test if the polynomial `P` is `D`-smooth.
+
+A polynomial is said to be *n-smooth* if all its irreducible factors have
+degree ≤ D.
+"""
+function isSmooth(P::PolyElem, D::Int)
+
+    # We iterate through the factors of `P` and return `false` if one of them
+    # is not of degree ≤ D
+    for f in factor(P)
+        if degree(f[1]) > D
+            return false
+        end
+    end
+    return true
+end
+
+"""
+    isSmooth{T <: PolyElem}(fac::Nemo.Fac{T}, D::Int)
+
+Test if a polynomial with factorization `fac` is `D`-smooth.
+
+A polynomial is said to be *n-smooth* if all its irreducible factors have
+degree ≤ D.
+"""
+function isSmooth{T <: PolyElem}(fac::Nemo.Fac{T}, D::Int)
+
+    # We iterate through the factors and return `false` if one of them
+    # is not of degree ≤ D
+    for f in fac
+        if degree(f[1]) > D
+            return false
+        end
+    end
+    return true
+end
+
+"""
+    isIrreducible(P::T <: PolyElem)
+
+Return `true` is the polynomial `P` is irreducible.
+"""
+function isIrreducible(P::PolyElem)
+
+    # We factor the polynomial
+    fact = factor(P)
+
+    # Then we check the number of different factors
+    if length(fact) == 1
+
+        # And we finally check that it is not a power of an irreducible
+        for f in fact
+            if f[2] == 1
+                return true
+            end
+        end
+    end
+
+    # If one of these conditions is not true, then the polynomial is not
+    # irreducible
+    return false
+end
+
+"""
+    irreduciblesDeg2(R::Nemo.PolyRing)
+
+Construct a dictionary associating all the irreducible polynomials in R of 
+degree ≤ 2 a number.
+"""
+function irreduciblesDeg2(R::Nemo.PolyRing)
+
+    # We set an empty dictionay
+    F = base_ring(R)
+    X = gen(R)
+    irr = Dict{Nemo.fq_nmod_poly, Int}()
+
+    # We start with number 1 and the linear polnomials
+    i = 1
+    for a in F
+        irr[X+a] = i
+        i += 1
+    end
+
+    # Then we add the degree 2 polynomials, testing for irreducibility
+    for a in F
+        for b in F
+            P = X^2 + a*X + b
+            if isIrreducible(P)
+                irr[P] = i
+                i += 1
+            end
+        end
+    end
+
+    # And we return the dictionary
+    return irr
+end

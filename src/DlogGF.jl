@@ -69,6 +69,10 @@ include("linfactors.jl")
 
 include("bgjt.jl")
 
+# Factor base 
+
+include("factorbase.jl")
+
 # GKZ algorithm
 
 include("gkz.jl")
