@@ -25,13 +25,11 @@ Important elements in the context of the GKZ algorithm over a field ``F_{q^n}``.
   default, it is taken at random *without* warranty that it is indeed a
   generator.
 """
-immutable GkzContext
-    characteristic::Integer
-    baseField::FinField
-    h0::PolyElem
-    h1::PolyElem
-    definingPolynomial::PolyElem
-    gen::PolyElem
+immutable GkzContext{T <: PolyElem}
+    h0::T
+    h1::T
+    definingPolynomial::T
+    gen::T
 end
 
 """
@@ -49,7 +47,7 @@ function gkzContext(p::Integer, l::Integer, n::Integer, check::Bool = false)
     # And we find the parameters 
     h0, h1, definingPolynomial, gen = findParameters(F, n, check)
 
-    return GkzContext(p, F, h0, h1, definingPolynomial, gen)
+    return GkzContext(h0, h1, definingPolynomial, gen)
 end
 
 """

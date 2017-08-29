@@ -85,22 +85,28 @@ function fillMatrixGKZ!{T <: PolyElem}(M::MatElem, j::Int, A::T, B::T, f1::T,
     end
 end
 
-function factorBaseDeg2{T <: PolyElem}(h0::T, h1::T, g::T)
+function factorBaseDeg2{T <: PolyElem}(K::GkzContext{T})
 
+    h0, h1 = K.h0, K.h1
+    g = K.gen
+    defPol = K.definingPolynomial
     D = max(degree(h0), degree(h1))
     F = base_ring(h0)
+    card = ZZ(length(F))^degree(defPol)
     q::Int = length(F)
     X = gen(parent(h0))
     f1 = divexact(h1, X)
     systFactor = h1*X-h0
 
     fact = factor(systFactor)
-    unknowns = irreduciblesDeg2(parent(h0))
+    unknownsToCoord, coordToUnknowns = irreduciblesDeg2(parent(h0))
+    nbukn = length(unknownsToCoord)
+    dlogs = Dict{T, Nemo.fmpz}()
     j = 0
 
     if length(fact) > 1
 
-        Sp = MatrixSpace(ZZ, length(unknowns), q^2)
+        Sp = MatrixSpace(ZZ, nbukn, q^2)
         M = zero(Sp)
 
         for a in F
@@ -114,15 +120,37 @@ function factorBaseDeg2{T <: PolyElem}(h0::T, h1::T, g::T)
                 if isSmooth(tmpFact, 2)
                     
                     j += 1
-                    fillMatrixGKZ!(M, j, A, B, f1, D, fact, tmpFact, unknowns)
+                    fillMatrixGKZ!(M, j, A, B, f1, D, fact, tmpFact,
+                                   unknownsToCoord)
 
                 end
             end
         end
 
-        M = subMatrix(M, length(unknowns), j)
+        M = subMatrix(M, nbukn, j)
         M = transpose(M)
-        return M
-        # rrefMod, Pohlig-Hellman...
+
+        n = ZZ()
+
+        for k in keys(unknownsToCoord)
+            dlogs[k], n = pohligHellman(card, g, k, defPol)
+        end
+
+        v = div(card-1, n)
+        bigFactors = factor(v)
+
+        for p in bigFactors
+            Mred = rrefMod(M, p[1])[1]
+            ker = Nemo.fmpz[Mred[i, nbukn] for i in 1:(nbukn-1)]
+            s = gcdinv(ker[unknownsToCoord[g]], p[1])[2]
+            for j in 1:(nbukn-1)
+                dlogs[coordToUnknowns[j]] =
+                crt(dlogs[coordToUnknowns[j]], n, ker[j]*s, p[1])
+            end
+            dlogs[coordToUnknowns[nbukn]] =
+            crt(dlogs[coordToUnknowns[nbukn]], n, -s, p[1])
+            n *= p[1]
+        end
+        return dlogs
     end
 end

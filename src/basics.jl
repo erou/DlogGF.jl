@@ -680,20 +680,22 @@ end
     irreduciblesDeg2(R::Nemo.PolyRing)
 
 Construct a dictionary associating all the irreducible polynomials in R of 
-degree ≤ 2 a number.
+degree ≤ 2 a number and a list with the same polynomials.
 """
 function irreduciblesDeg2(R::Nemo.PolyRing)
 
-    # We set an empty dictionay
+    # We set an empty dictionary and list
     F = base_ring(R)
     X = gen(R)
     irr = Dict{Nemo.fq_nmod_poly, Int}()
+    irrL = Array{Nemo.fq_nmod_poly, 1}()
 
     # We start with number 1 and the linear polnomials
-    i = 1
+    i = 0
     for a in F
-        irr[X+a] = i
         i += 1
+        irr[X+a] = i
+        push!(irrL, X+a)
     end
 
     # Then we add the degree 2 polynomials, testing for irreducibility
@@ -701,12 +703,13 @@ function irreduciblesDeg2(R::Nemo.PolyRing)
         for b in F
             P = X^2 + a*X + b
             if isIrreducible(P)
-                irr[P] = i
                 i += 1
+                irr[P] = i
+                push!(irrL, P)
             end
         end
     end
 
-    # And we return the dictionary
-    return irr
+    # And we return the dictionary and the list
+    return irr, irrL
 end

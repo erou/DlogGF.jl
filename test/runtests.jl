@@ -367,8 +367,9 @@ function testGkzContext()
     F, z5 = FiniteField(3, 5, "z5")
 
     @test length(factor(K.definingPolynomial)) == 1
-    @test K.characteristic == 3
-    @test K.baseField == F
+    @test characteristic(base_ring(K.h0)) == 3
+    @test base_ring(K.h0) == F
+    @test degree(K.definingPolynomial) == 10
 
     println("PASS")
 end
