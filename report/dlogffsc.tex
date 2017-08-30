@@ -72,6 +72,36 @@ small characteristic}}
 \begin{document}
 
 \maketitle
+\begin{verbatim}
+               _
+   _       _ _(_)_     |  A fresh approach to technical computing
+  (_)     | (_) (_)    |  Documentation: https://docs.julialang.org
+   _ _   _| |_  __ _   |  Type "?help" for help.
+  | | | | | | |/ _` |  |
+  | | |_| | | | (_| |  |  Version 0.6.0 (2017-06-19 13:05 UTC)
+ _/ |\__'_|_|_|\__'_|  |  Official http://julialang.org/ release
+|__/                   |  x86_64-pc-linux-gnu
+
+julia> using DlogGF
+
+Welcome to
+
+         8I  ,dPYb,                       
+         8I  IP'`Yb                        
+         8I  I8  8I                          .oooooo.    oooooooooooo   
+         8I  I8  8'                         d8P'  `Y8b   `888'     `8  
+   ,gggg,8I  I8 dP    ,ggggg,     ,gggg,gg 888            888         
+  dP'  'Y8I  I8dP    dP'  'Y8ggg dP'  'Y8I 888            888oooo8     
+ i8'    ,8I  I8P    i8'    ,8I  i8'    ,8I 888     ooooo  888    '     
+ d8,   ,d8b,,d8b,_ ,d8,   ,d8'  d8,   ,d8I `88.    .88'   888           
+ 'Y8888P'`Y88P''Y88P'Y8888P'    'Y8888P'888  `Y8bood8P'   o888o           
+                                      ,d8I'                              
+                                    ,dP'8I                               
+                                   ,8'  8I                               
+                                   I8   8I                               
+                                   `8, ,8I                               
+                                    `Y8P'                             
+\end{verbatim}
 \clearpage
 \begin{abstract}
 This internship took place from March to September 2017 in the Symbolic
@@ -171,11 +201,13 @@ is sometimes denoted as $L(o(1))$.
 
 The recent algorithms that achieve quasi-polynomial complexity are index
 calculus algorithms, so we introduce this method in
-Section~\ref{index-calculus}. We study the first quasi-polynomial algorithm, due to
+Section~\ref{index-calculus}. We recall the new ideas that led to a new family
+of algorithms achieving quasi-polynomial complexiy, the so-called Frobenius representation algorithms, in Section~\ref{quasi-pol}. We study the first quasi-polynomial algorithm, due to
 Barbulescu, Gaudry, Joux and Thomé in Section~\ref{bgjt}. In particular we show
 how to compute the logarithms of the factor base in this section. We study the
 second quasi-polynomial algorithm, due to Granger, Kleinjung and Zumbrägel,
-which is more efficient in practice, in Section~\ref{powers-of-2}.
+which is more efficient in practice, in Section~\ref{powers-of-2}. Finally, we
+give our experimental results in Section~\ref{sec:results}.
 
 \section{The index calculus method}
 \label{index-calculus}
@@ -948,7 +980,17 @@ polynomials with degrees dividing $m$.
 To be able to really perform this descent, we must have a polynomial $Q$ with a 
 power of $2$ degree, this is possible thanks to Theorem $5.1$ proved 
 in~\cite{Wan97} by Wan that roughly states that we can represent any element in
-$\mathcal G$ by a polynomial with a power of $2$ degree. Performing the
+$\mathcal G$ by a polynomial with a power of $2$ degree that is not too large,
+in order to keep the quasi-polynomial complexity. Assuming that the input
+polynomial is of degree $2^e = 2\times 2^{e-1}$, note that the descent can be performed
+in a slightly different way that stated above. Indeed,
+instead of taking norms with respect to the base field $\mathbb{F}_q$,
+it is possible to take norms with respect to a subfield of index $2$, hence
+obtaining quadratic polynomial with coefficient in $\mathbb{F}_{q^{e-2}}$ and
+being able to recurse.
+
+The discussion about the complexity is very similar to the one we had for the
+BGJT algorithm. Performing the
 descent, a tree is built in which the logarithm of a node is expressed
 as a linear combination of its children. The total complexity of the algorithm
 is then the number of nodes of this tree. We have seen that the arity of the
@@ -959,22 +1001,69 @@ $\mathcal G$, and we see that the algorithm is quasi-polynomial.
 
 \subsection{Some concluding remarks}
 
+Similarly to the BGJT algorithm case, there are polynomials that cannot be
+descended using the on-the-fly elimination. Once again, it happens when
+dealing with a polynomial dividing the equation that defines our field.
+Nevertheless, these polynomials can be dealt with and details can be found
+in\cite{GKZ14}. It remains two heuristics in this algorithm:
+
 \begin{itemize}
-  \item In practical works, summarised in Gora Adj PhD thesis~\cite{Adj16}, we
-    can see that this algorithm in not really used all the way from elements
-    of high degree (\ie $\geq 200$ in~\cite{Adj16}) to elements in the factor base. Instead, other descents
-    with smaller arity are first used to reduce the degree of the elements
-    until having elements of small degree (\ie $16$ in~\cite{Adj16}).
-  \item There are technicalities hidden in this document, they are discussed
-    in~\cite{GKZ14}. For example there are ``traps'' that we must avoid: it is
-    impossible to eliminate a polynomial $Q\neq P$ that divides
-    $h_1X^q-h_0$, where $P$ is again the defining polynomial of
-    $\mathbb{F}_{q^n}$. The reason behind that is that we act as if our
-    computations were living in $\mathbb{F}_{q^m}$, but they are in fact living
-    in $\mathbb{F}_{q}[X]/(h_1X^q-h_0)$.
+  \item The existence of suitable polynomials $h_0$ and $h_1$, in order to be
+    able to perform the on-the-fly elimination.
+  \item The existence of a polynomial time algorithm to compute the logarithm
+    of the elements of degree up to $4$. Indeed, we recall the the polynomial
+    time algorithm of Propositon~\ref{prop:bgjt}, \ie the building block of
+    BGJT algorithm, is heuristic.
 \end{itemize}
 
+In practical works, summarised in Gora Adj PhD thesis~\cite{Adj16}, we
+    can see that this algorithm is not really used all the way from elements
+    of high degree (\ie $\geq 200$ in~\cite{Adj16}) to elements in the factor base. Instead, other descents  are first used to reduce the degree of the elements
+    until having elements of small degree (\ie $\leq 16$ in~\cite{Adj16}).
+    Furthermore, even when using the powers-of-2 algorithm, it is mixed with
+    Joux's $L(1/4)$ algorithm, in order to deal with the element of odd
+    degree. If this mixed algorithm was not used with elements of higher
+    degree, it is probably because the on-the-fly elimination was using
+    Groëbner bases algorithms, that have an exponential complexity. Hence, even
+    if really efficient with elements of small degree, the cost is definitely
+    too high with elements of large degree. We could try to use root
+    finding instead of Groëbner bases, in order to obtain a polynomial
+    complexity, and start to use the on-the-fly elimination earlier. But as we
+    are going to see in Section~\ref{sec:results}, the root finding is probably
+    too low to use this idea.
 \section{Experimental results}
+\label{sec:results}
+
+All the material discussed in this section is available at
+\url{https://github.com/erou/DlogGF.jl}. It is shared as a
+Julia~\cite{Julia} library using the package Nemo~\cite{Nemo}. We first give
+a very brief introduction about Julia and Nemo.
+\subsection{Julia and Nemo}
+\paragraph{Julia.} Julia is a free and open-source, high-level
+programming language developed
+since 2012, with dynamic type system and high-performance. It is a compiled
+language, with a just-in-time (jit) compilation, meaning that the compilation
+is almost invisible for the user but the performances are comparable with
+other compiled languages performances. It is easy to learn and to read,
+especially for someone who already worked with a high-level language like
+Python. There are many other interesting things to say about this new
+language, the interested reader can find aditionnal informations on Julia's
+website and, of course, in the documentation of the language. Julia is designed for numerical computing, but there are still some
+symbolic computer algebra packages, such as Nemo.
+
+\paragraph{Nemo.} Nemo is a computer algebra package for Julia. It aims to cover
+commutative algebra, number theory and group theory. It contains wrappers of
+MPIR, Flint, Arb and Antic and other features written in Julia. 
+
+\paragraph{Why Julia/Nemo ?}
+
+One of the advantage of Julia is that it is fairly easy to directly call C
+functions contained in other libraries. Therefore, all the Nemo functions
+that we used in \texttt{DlogGF.jl} were in fact Flint functions. This
+provides efficiency, the main reason why we use the duo Julia/Nemo, as well as
+simplicity, because we are not directly using the C programming
+language. On top of that, if a Flint function is not available in Nemo, we
+can directly call it from Julia.
 
 \section*{Acknowledgements}
 
