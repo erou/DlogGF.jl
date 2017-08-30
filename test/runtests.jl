@@ -563,7 +563,7 @@ function testOnTheFly()
 end
 
 function testDescent()
-    print("descentGKZ ...")
+    print("descentGKZ ... ")
 
     K = DlogGF.gkzContext(3, 3, 20)
     q = 3^3
@@ -591,6 +591,34 @@ function testDescent()
     println("PASS")
 end
 
+function testFactorBase()
+    print("factorBaseDeg2... ")
+
+    K = DlogGF.gkzContext(3, 3, 20)
+    dlogs = DlogGF.factorBaseDeg2(K)
+
+    R = parent(K.h0)
+    X = gen(R)
+    z = gen(base_ring(R))
+    defPol = K.definingPolynomial
+
+    P = X^2+(z^2+1)*X+(2*z^2+z+2)
+    Q = X^2+(2)*X+(2*z+1)
+    S = X^2+(2*z+1)
+    T = X^2+(z^2+z+1)*X+(2*z^2+2*z)
+
+    @test powmod(K.gen, dlogs[X], defPol) == X
+    @test powmod(K.gen, dlogs[X+1], defPol) == X+1
+    @test powmod(K.gen, dlogs[X+2], defPol) == X+2
+    @test powmod(K.gen, dlogs[X+z], defPol) == X+z
+    @test powmod(K.gen, dlogs[P], defPol) == P
+    @test powmod(K.gen, dlogs[Q], defPol) == Q 
+    @test powmod(K.gen, dlogs[S], defPol) == S
+    @test powmod(K.gen, dlogs[T], defPol) == T
+
+    println("PASS")
+end
+
 function testAll()
 
     testRandomSuite()
@@ -609,6 +637,7 @@ function testAll()
     testProject()
     testOnTheFly()
     testDescent()
+    testFactorBase()
 
     println("\nAll tests passed successfully.\n")
 end
