@@ -1049,7 +1049,8 @@ being able to recurse. Figure~\ref{fig:recurse} illustrates this strategy.
   \caption{Two different possible strategies to perform the descent, the arrows
   $\nwarrow$, $\leftarrow$, and $\searrow$ stands respectively for
 factorisation and embedding in a larger field, on-the-fly degree $2$
-elimination, and taking a norm and projecting in a subfield.}
+elimination, and taking a norm and projecting in a subfield. The numbers
+represent the degrees of the involved elements.}
 \end{figure}
 
 The discussion about the complexity is very similar to the one we had for the
@@ -1127,6 +1128,17 @@ provides efficiency, the main reason why we use the duo Julia/Nemo, as well as
 simplicity, because we are not directly using the C programming
 language. On top of that, if a Flint function is not available in Nemo, we
 can directly call it from Julia.
+
+\subsection{The BGJT algorithm}
+
+We recall that for Heuristic~\ref{heur:full-rank} to hold, we must have that $q$
+is not too small, because the expected number of equations is $\Theta(q^3)$,
+and the number of unknowns is $q^2+1$ or $q^2$. When we compute the logarithms
+basis, our unknwows are the $\log(X + a)$, for
+$a\in\mathbb{F}_{q^2}$, and $h_1$. In our experiments, the heuristic holds as
+soon as $q\geq 7$. For the descent part, where the constant hidden in the
+$\Theta(q^3)$ is smaller, we have to take $q\geq 37$.
+\subsection{The powers-of-2 algorithm}
 
 \section*{Acknowledgements}
 
