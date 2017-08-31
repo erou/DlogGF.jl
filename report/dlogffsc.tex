@@ -998,7 +998,7 @@ being able to recurse. Figure~\ref{fig:recurse} illustrates this strategy.
   \label{fig:recurse}
 \begin{tikzpicture}
   \node (A) at (0,0) {$\mathbb{F}_{q}$}; 
-  \node (B) at (0,4) {$\mathbb{F}_{q^{2^{e-1}}}$}; 
+  \node (B) at (0,4) {$\mathbb{F}_{q^{d}}$}; 
   \draw[very thick] (A) -- (B);
 
   \node[round] (2d) at (5, 0) {$2d$};
@@ -1136,8 +1136,20 @@ is not too small, because the expected number of equations is $\Theta(q^3)$,
 and the number of unknowns is $q^2+1$ or $q^2$. When we compute the logarithms
 basis, our unknwows are the $\log(X + a)$, for
 $a\in\mathbb{F}_{q^2}$, and $h_1$. In our experiments, the heuristic holds as
-soon as $q\geq 7$. For the descent part, where the constant hidden in the
-$\Theta(q^3)$ is smaller, we have to take $q\geq 37$.
+soon as $q\geq 7$. In the descent part, the constant hidden in the
+$\Theta(q^3)$ depends on the degree on the target element, but it is definitely
+smaller than when working with the linear elements. Therefore the constant $q$
+will be larger.
+
+When computing the factor base, \ie the linear elements, in the field
+$\mathbb{F}_{17^{34}}$, $54$\% of the time is used to perform linear algebra and
+$24$\% is used for the Pohlig-Hellman algorithm, the other operations being
+polynomial manipulation without any operation taking more than $8$\% of the
+time. The total running time is approximately $23$ seconds. In
+$\mathbb{F}_{23^{50}}$, it takes $340$ seconds, with $50$\% of the time in
+Pohlig-Hellman algorithm and $36$\% of the time for the linear algebra. In
+$\mathbb{F}_{23^{46}}$, $52$\% for linear algebra and $32$\% for
+Pohlig-Hellman for $258$ seconds in total\footnote{I will put than in a table.}.
 \subsection{The powers-of-2 algorithm}
 
 \section*{Acknowledgements}
