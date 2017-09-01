@@ -107,8 +107,14 @@ end
 pohligHellman{T}(card::Nemo.fmpz, gen::T, elem::T, defPol::T) =
 pohligHellman(BigInt(card), gen, elem, defPol)
 
-# New idea, precomputed roots of unity and parameters
+# Functions precomputing parameters and roots of unity for the Pohlig Hellman
+# algorithm
 
+"""
+    pohligHellmanParam{T}(card::Integer, gen::T, defPol::T)
+
+Compute some necessary parameters for the Pohlig Hellman algorithm.
+"""
 function pohligHellmanParam{T}(card::Integer, gen::T, defPol::T)
 
     # We find the small (meaning, less that log(card)) prime factors of card-1
@@ -147,14 +153,24 @@ end
 pohligHellmanParam{T}(card::Nemo.fmpz, gen::T, defPol::T) =
 pohligHellmanParam(BigInt(card), gen, defPol)
 
+"""
+    pohligHellmanRoots{T <: PolyElem}(B::Array{Int, 2}, k::Int,
+                                      mid::T, defPol::T)
+
+Compute the roots of unity and inverses needed in the Pohlig-Hellman algorithm.
+"""
 function pohligHellmanRoots{T <: PolyElem}(B::Array{Int, 2}, k::Int,
                                            mid::T, defPol::T)
 
+    # We setup a one dimensional array and a two dimensional array
     nbprimes = size(B)[2]
     inverses = Array(T, nbprimes)
     biggestPrime = B[1, nbprimes]
     arr = Array(T, (biggestPrime, nbprimes)) # We create an array that is too big !
 
+    # We fill the one dimensional array with inverses of the generator and the
+    # two dimensional array with roots of unity. Both are need for the
+    # Pohlig-Hellman algorithm.
     for j in 1:nbprimes
         prime, n = B[1, j], B[2, j]
         f = div(k, prime^n)
@@ -171,6 +187,19 @@ function pohligHellmanRoots{T <: PolyElem}(B::Array{Int, 2}, k::Int,
     return arr, inverses
 end
 
+"""
+pohligHellmanPrimePrec{T <: PolyElem}(prime::Int, n::Int, k::Int,
+                                      mid::T, elem::T, defPol::T,
+                                      arr::Array{T, 1}, inverse::T)
+
+Compute the discrete logarithm of `elem` mod `prime^n` in basis `gen` with
+precomputed informations.
+
+Where `prime` si a prime number dividing `card` and `n` is the largest integer
+such that `prime^n` divides `card`. See reference **[2]** for more information about
+this algorithm, the references can be found in the documentation of the module.
+
+"""
 function pohligHellmanPrimePrec{T <: PolyElem}(prime::Int, n::Int, k::Int,
                                            mid::T, elem::T, defPol::T,
                                            arr::Array{T, 1}, inverse::T)
@@ -193,6 +222,14 @@ function pohligHellmanPrimePrec{T <: PolyElem}(prime::Int, n::Int, k::Int,
     return (fmpz(res), fmpz(prime)^n)
 end
 
+"""
+    pohligHellmanPrec{T}(card::Integer, mid::T, elem::T, defPol::T, k::Int,
+                         d::Integer, B::Array{Int, 2}, arr::Array{T, 2},
+                         inverses::Array{T, 1})
+
+Compute the discrete logarithm of `elem` in the basis `gen`, modulo the small
+prime factors of card - 1, with some precomputed informations.
+"""
 function pohligHellmanPrec{T}(card::Integer, mid::T, elem::T, defPol::T, k::Int,
                               d::Integer, B::Array{Int, 2}, arr::Array{T, 2},
                               inverses::Array{T, 1})
