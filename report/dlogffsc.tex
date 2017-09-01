@@ -995,7 +995,6 @@ obtaining quadratic polynomial with coefficient in $\mathbb{F}_{q^{e-2}}$ and
 being able to recurse. Figure~\ref{fig:recurse} illustrates this strategy.
 
 \begin{figure}
-  \label{fig:recurse}
 \begin{tikzpicture}
   \node (A) at (0,0) {$\mathbb{F}_{q}$}; 
   \node (B) at (0,4) {$\mathbb{F}_{q^{d}}$}; 
@@ -1051,6 +1050,7 @@ being able to recurse. Figure~\ref{fig:recurse} illustrates this strategy.
 factorisation and embedding in a larger field, on-the-fly degree $2$
 elimination, and taking a norm and projecting in a subfield. The numbers
 represent the degrees of the involved elements.}
+  \label{fig:recurse}
 \end{figure}
 
 The discussion about the complexity is very similar to the one we had for the
@@ -1136,20 +1136,41 @@ is not too small, because the expected number of equations is $\Theta(q^3)$,
 and the number of unknowns is $q^2+1$ or $q^2$. When we compute the logarithms
 basis, our unknwows are the $\log(X + a)$, for
 $a\in\mathbb{F}_{q^2}$, and $h_1$. In our experiments, the heuristic holds as
-soon as $q\geq 7$. In the descent part, the constant hidden in the
+soon as $q\geq 7$, but not for every choice of parameters $h_0$ and $h_1$. When
+$q\geq 11$, it holds in every experiment. In the descent part, the constant hidden in the
 $\Theta(q^3)$ depends on the degree on the target element, but it is definitely
-smaller than when working with the linear elements. Therefore the constant $q$
-will be larger.
+smaller than when working with the linear elements. Therefore the integers $q$
+for which the heuristic holds are larger.
 
-When computing the factor base, \ie the linear elements, in the field
-$\mathbb{F}_{17^{34}}$, $54$\% of the time is used to perform linear algebra and
-$24$\% is used for the Pohlig-Hellman algorithm, the other operations being
-polynomial manipulation without any operation taking more than $8$\% of the
-time. The total running time is approximately $23$ seconds. In
-$\mathbb{F}_{23^{50}}$, it takes $340$ seconds, with $50$\% of the time in
-Pohlig-Hellman algorithm and $36$\% of the time for the linear algebra. In
-$\mathbb{F}_{23^{46}}$, $52$\% for linear algebra and $32$\% for
-Pohlig-Hellman for $258$ seconds in total\footnote{I will put than in a table.}.
+We give timing results for the computation of the factor base, \ie the linear
+elements and $h_1$, in fields of the form $\mathbb{F}_{q^{2q}}$. Since elements are
+represented as polynomials with coefficients in $\mathbb{F}_{q^2}$, there are
+$q^2+1$ elements in the factor base.
+\begin{center}
+\begin{tabular}[here]{cccc}
+  Field & Bitsize & Timing (seconds) & Linear algebra \\
+  $\mathbb{F}_{7^{14}}$ & $39$ & $0.20$ & $5$\% \\
+  $\mathbb{F}_{11^{22}}$ & $76$ & $1.5$ & $23$\% \\
+  $\mathbb{F}_{17^{34}}$ & $139$ & $16$ & $59$\% \\
+  $\mathbb{F}_{23^{46}}$ & $208$ & $140$ & $79$\% \\
+  $\mathbb{F}_{29^{58}}$ & $282$ & $990$ & $79$\% \\
+\end{tabular}
+\end{center}
+We see that the linear algebra is the main operation. For example, in the last
+computation (in $\mathbb{F}_{29^{58}})$, the other main things were finding the
+factors of the cardinal of the group, \ie factoring $29^{58}-1$, ($10$\% of the
+time), computing the logarithms modulo the small factors with the Pohlig-Hellman
+algorithm ($5$\% of the time), the other $6$\% being diverse polynomial
+manipulations, such as determinating if a polynomial is smooth. The linear
+algebra step uses standard Gaussian elimination modulo each large factor of the
+cardinal of the group, performed on a matrix of size
+$\Theta(q^3)\times(q^2+1)$, for an expected complexity of $O(q^6)$. In examples
+of cryptographic size, for example with a bitsize of $4000$, the linear algebra
+is known to be the bottleneck of the computations. Note that, since the matrix
+is sparse, we can obtain a complexity of $O(q^5)$ using sparse linear algebra.
+With some optimisations, and assuming that the factorisation of the cardinal of
+the group is given, the other manipulations should be negligible.
+
 \subsection{The powers-of-2 algorithm}
 
 \section*{Acknowledgements}
