@@ -197,6 +197,50 @@ function ascent(Q::fq_nmod_poly)
 end
 
 """
+    ascent{Y <: PolyElem}(Q::Y, h0::Y, h1::Y)
+
+Compute an embedding of `h0` and `h1` by going through all the fields in the
+tower appearing in the power-of-2 algorithm.
+"""
+function ascent{Y <: PolyElem}(Q::Y, h0::Y, h1::Y)
+
+    # We compute d such that deg(Q) = 2^d
+    d::Int = log2(degree(Q))
+
+    # Then we create all the fields of the extension appearing in the
+    # powers-of-2 algorithm and we embed h0 and h1 at each step.
+
+    F = base_ring(Q)
+    deg = degree(F)
+    c::Int = characteristic(F)
+    P = Q
+    t0, t1 = h0, h1
+
+    for j in 1:d-1
+
+        # We create the name of the variable of the extension
+        z = string("z", deg*2^j)
+
+        # We create the extension
+        Fext = FiniteField(c, deg*2^j, z)[1]
+
+        # We create the associated polynomial rings
+        img = findImg(Fext, F)
+        F = Fext
+        T = string("T", deg*2^j)
+        R = PolynomialRing(Fext, T)[1]
+
+        # And we embed the polynomials, and in the case of `P` we keep only one
+        # factor
+        P = anyFactor(R(P, img))
+        t0, t1 = R(t0, img), R(t1, img)
+    end
+
+    return P, t0, t1
+end
+
+
+"""
     latticeBasis(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
 
 Find a basis of the latice L_Q of the form (u0, X + u1), (X + v0, v1).
@@ -345,7 +389,7 @@ function norm4(Q::fq_nmod_poly, q::Integer)
 end
 
 """
-    descentGKZ(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
+    descentGKZ{Y <: PolyElem}(Q::Y, h0::Y, h1::Y, Rinit::PolyRing)
 
 Perform the descent of the GKZ algorithm.
 
@@ -353,17 +397,18 @@ I.e. return a list of polynomials P_i and associated coefficients e_i such that
 Π_i P_i^e_i = P, where `P` is the polynomial such that `Q` is the result of the
 ascent in GKZ algorithm.
 """
-function descentGKZ(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
+function descentGKZ{Y <: PolyElem}(Q::Y, h0::Y, h1::Y, Rinit::PolyRing)
 
     # We first compute f such that the base field of `Q` is an extension of
     # degree 2^f of the base field of h0
     F = base_ring(Q)
     p::Int = characteristic(F)
-    ff = base_ring(h0)
+    ff = base_ring(Rinit)
     q::Int = length(ff)
     c::Int = floor(log(p, q))
     d::Int = log(p, length(F))/c
     f::Int = log2(d)
+    t0, t1 = h0, h1
 
     # Through the descent, we count the number of times we have h1 in an
     # equation
@@ -390,14 +435,11 @@ function descentGKZ(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
 
     for j in f:-1:3
 
-        # We compute the embedding of h0 and h1 in the current floor of the
-        # tower, and precompute data to be able to perform the projection
+        # We precompute data to be able to perform the projection
         # towards the floor below efficiently
 
         l = length(L)
         R = parent(L[1][1])
-        img = findImg(base_ring(R), ff)
-        t0, t1 = R(h0, img), R(h1, img)
         exp = c*2^(j-1)
         n = BigInt(p)^exp
         s = string("z", exp)
@@ -430,6 +472,10 @@ function descentGKZ(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
 
         end
 
+        # We project t0 and t1 (aka h0, h1) in the floor below in the tower
+        t0 = projectLinAlgPoly(Rg, t0, M, piv)
+        t1 = projectLinAlgPoly(Rg, t1, M, piv)
+
         # We replace L by L2 to perform the same thing in the next floor
         L = L2
 
@@ -449,9 +495,7 @@ function descentGKZ(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
 
     l = length(L)
     R = parent(L[1][1])
-    img = findImg(base_ring(R), ff)
-    t0, t1 = R(h0, img), R(h1, img)
-    Rg = parent(h0)
+    Rg = Rinit
     G = base_ring(Rg)
     M, piv = projectFindInv(base_ring(R), G)
 
@@ -473,8 +517,10 @@ function descentGKZ(Q::fq_nmod_poly, h0::fq_nmod_poly, h1::fq_nmod_poly)
 
     end
 
-    # We add h1 in the resulting list
-    push!(L2, h1, cpt_h1)
+    t1 = projectLinAlgPoly(Rg, t1, M, piv)
+
+    # We add t1 = h1 in the resulting list
+    push!(L2, t1, cpt_h1)
 
     return L2
 end
