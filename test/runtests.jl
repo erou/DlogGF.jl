@@ -571,9 +571,10 @@ function testDescent()
     R3_3, T3 = PolynomialRing(F3_3, "T3")
     H = K.h1*T3^q-K.h0
 
+
     P = T3^8+(z3+1)*T3^6+T3^5+(2*z3^2+z3+2)*T3^4+(z3^2+2*z3+1)*T3^3+(z3^2+z3)*T3^2+(2*z3^2)*T3+(2*z3)
-    Q = DlogGF.ascent(P)
-    L = DlogGF.descentGKZ(Q, K.h0, K.h1)
+    Q, t0, t1 = DlogGF.ascent(P, K.h0, K.h1)
+    L = DlogGF.descentGKZ(Q, t0, t1, R3_3)
     product = one(R3_3)
     
     for j in 1:length(L)
