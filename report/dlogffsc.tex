@@ -218,7 +218,7 @@ give our experimental results in Section~\ref{sec:results}.
 \label{index-calculus}
 
 Here again, we consider a group $\mathcal G=\left\langle g \right\rangle$, an element
-$g^k = y\in \mathcal G$, and we want to compute $k$. The index calculus algorithms always
+$g^k = h\in \mathcal G$, and we want to compute $k$. The index calculus algorithms always
 follow the same pattern:
 \begin{enumerate}
   \item[0.] we choose a subset $\mathcal F\subset \mathcal G$ such that $\left\langle
@@ -230,8 +230,8 @@ follow the same pattern:
     e_i\log_g(f_i) = 0$;
   \item we solve the linear system with unknowns $\log_g(f_i)$ arising from step
     1 to obtain $\log(f)$ for all $f\in \mathcal F$;
-  \item we find a multiplicative relation between $y$ and elements of $\mathcal F$, or
-    equivalently, we express $\log_g y = k$ as a linear combination of the
+  \item we find a multiplicative relation between $h$ and elements of $\mathcal F$, or
+    equivalently, we express $\log_g h = k$ as a linear combination of the
   $\log_g(f_i)$.
 \end{enumerate}
 As a first example, we introduce Adleman's algorithm. We let $\mathcal
@@ -265,9 +265,7 @@ Once we have enough relations, meaning more than $|\mathcal F|$, we are able to
 recover the unknowns $\log f$ using classic linear algebra algorithms. Note that
 the system is usually sparse, since the relations hardly contain all the
 elements $f\in\mathcal F$. If the target element is some $h\in\mathcal G$, we
-proceed in the same way to recover $\log h$.
-% Tu as noté y la cible quelques lignes plus haut.
-We take some
+proceed in the same way to recover $\log h$. We take some
 $e\in\mathbb{Z}/(p-1)\mathbb{Z}$ at random and compute $hg^e$. Once again, if
 the lift of $hg^e$ is $B$-smooth, we have an equation of type
 \[
@@ -374,15 +372,12 @@ is called \emph{Frobenius representation}. It is not known if it is always
 possible to find suitable polynomials $h_0, h_1$, the fact that every finite
 field can be represented that way is an \emph{heuristic}. This construction
 might be impossible simply because $n > q+\delta$, but in fact, we can always
-assume that we have $n\leq q+\delta$ by embedding our first field
-% Qui est le "first field"?
-into a bigger
-one. Let us start again from scratch: let $\mathbb{F}_{p^d}$ be the finite field
-in which we want to solve the DLP, let $q$ be the smallest power of $p$ such
-that $q\geq d$ and let $n=d$,
-% Je pense que tu voulais écrire n=dl. Où est la définition de l?
-then we embed $\mathbb{F}_{p^l}$ into
-$\mathbb{F}_{q^n}$ and we actually solve the DLP in $\mathbb{F}_{q^n}$. From now
+assume that we have $n\leq q+\delta$ by embedding our field
+$\mathbb{F}_{q^n}$ into a bigger
+one. Let us start again from scratch: let $\mathbb{F}_{p^n}$ be the finite field
+in which we want to solve the DLP and let $q=p^l$ be the smallest power of $p$ such
+that $q\geq n$. Then we embed $\mathbb{F}_{p^n}$ into
+$\mathbb{F}_{p^{ln}}=\mathbb{F}_{q^n}$ and we actually solve the DLP in $\mathbb{F}_{q^n}$. From now
 on, we will always assume that $\mathbb{F}_{q^n}$ has been constructed that way,
 so that there is no obstruction to the Frobenius representation.
 
@@ -427,35 +422,37 @@ belongs to a subgroup of $\mathcal G$ whose order has no small irreducible
 factor. This assumption is possible thanks to the use of the Pohlig-Hellman
 algorithm~\cite{PH78}.
 
-\subsection{Main result and complexity}
+\subsection{Main results and complexity}
 
-Now that we have the setup for the algorithm, we can state the main result and
-explain how to use it to recover the discrete logarithm of an element in
-$\mathbb{F}_{q^{2m}}$.
+Now that we have the setup for the algorithm, we can state the main results and
+explain how to use them to recover the discrete logarithm of an element in
+$\mathbb{F}_{q^{2m}}$. The following results is used to express an element as
+``simpler elements''.
 
 \begin{prop}
   \label{prop:bgjt}
   Let $K = \mathbb{F}_{q^{2m}}$ be a finite field with the structure discussed below.
   There exists a heuristic algorithm whose complexity is polynomial in $q$ and
-  $m$ and which can be used for the following tasks.
-
-  \begin{enumerate}
-    \item Given an element of $K$ represented by a polynomial
-      $Q\in\mathbb{F}_{q^2}[X]$ with $2\leq \deg Q \leq m-1$, the algorithm
-      returns an expression of $\log Q$ as a linear combination of at most
-      $O(q^2m)$ logarithms $\log Q_j$ with $\deg Q_j\leq
-      \lceil\frac{1}{2}\deg Q\rceil$ and of $\log h_1$.
-    \item The algorithm returns the logarithm of $h_1$ and of the logarithms of
-      all the elements of $K$ of the form $X+a$ for $a\in\mathbb{F}_{q^2}$.
-  \end{enumerate}
+  $m$ and which can be used for the following task. Given an element of $K$ represented by a polynomial
+  $Q\in\mathbb{F}_{q^2}[X]$ with $2\leq \deg Q \leq m-1$, the algorithm
+  returns an expression of $\log Q$ as a linear combination of at most
+  $O(q^2m)$ logarithms $\log Q_j$ with $\deg Q_j\leq
+  \lceil\frac{1}{2}\deg Q\rceil$ and of $\log h_1$.
 \end{prop}
-% C'est très bizarre de coller les deux dans une seule
-% proposition/algorithme. Même si c'est essentiellement le même algo,
-% les entrées et les sorties sont très différentes.
 
+In order to compute the logarithms of the linear elements and $h1$, \ie the
+factor base, we use this second proposition.
 
-Before explaining how to perform the algorithm in Proposition~\ref{prop:bgjt},
-we show how to use it to recover the discrete logarithm of an element, and we
+\begin{prop}
+  \label{prop:bgjt2}
+  Let $K = \mathbb{F}_{q^{2m}}$ be a finite field with the structure discussed below.
+  There exists a heuristic algorithm whose complexity is polynomial in $q$ and
+  $m$ and that returns the logarithm of $h_1$ and of the logarithms of
+  all the elements of $K$ of the form $X+a$ for $a\in\mathbb{F}_{q^2}$.
+\end{prop}
+
+Before explaining how to perform the algorithms,
+we show how to use them to recover the discrete logarithm of an element, and we
 discuss the complexity of such a process. Let $h\in\mathbb{F}_{q^{2m}}$ be a
 target element, we denote by $Q\in\mathbb{F}_{q^2}[X]$ the polynomial
 representing $h$, and we assume that $2\leq \deg Q\leq m-1$, otherwise $h$ is
@@ -465,16 +462,17 @@ Proposition~\ref{prop:bgjt} to $Q$, so we obtain a relation of the form
   \log Q = q_0\log h_1 + \sum_j q_j\log Q_j
 \]
 where the sum has at most $O(q^2m)$ terms and where $\deg
-Q_j\leq\lceil\frac{1}{2}\deg Q\rceil$ for all $j$. We then apply the proposition
+Q_j\leq\lceil\frac{1}{2}\deg Q\rceil$ for all $j$. We then apply
+Proposition~\ref{prop:bgjt}
 recursively to the $Q_j$'s, creating a descent process in which the logarithm of
 each element is expressed as a linear combination of the logarithms of other
-elements with degrees twice as small (rounded up). By the proposition, the
+elements with degrees twice as small (rounded up). By Proposition~\ref{prop:bgjt}, the
 arity of the descent tree is in $O(q^2m)$. At the end of the process, the
 logarithm of $Q$ is expressed as a linear combination of linear polynomials and
 of $h_1$. These are the elements of the factor base, and we can find their
-logarithm thanks to Proposition~\ref{prop:bgjt} too.
+logarithm thanks to Proposition~\ref{prop:bgjt2}.
 
-The cost of each use of the proposition is bounded by a polynomial in $q$ and
+The cost of each use of Proposition~\ref{prop:bgjt} is bounded by a polynomial in $q$ and
 $k$, and each node of the descent tree corresponds to one application of the
 proposition. The complexity of the descent is therefore bouned by the number of
 nodes times a polynomial in $q$ and $k$. Since the degree of the polynomials
@@ -499,19 +497,15 @@ algorithm would be in
 $L_{q^{2m}}(\alpha+o(1))$, so it would no longer be quasi-polynomial. Nevertheless, even if
 less impressive than quasi-polynomial complexity, $L_{q^{2m}}(\alpha+o(1))$ is
 still better than previously known algorithms for large families
-% je corrige: "sample" c'est nécessairement fini, et la complexité asymptotique
-% ne parle pas d'ensembles finis
 of finite
 fields. Now that we have a global view of how to compute a discrete logarithm,
-we explain the algorithm the Proposition~\ref{prop:bgjt} refers to.
+we explain the algorithms the propositions refer to.
 
-\subsection{Proof of Proposition~\ref{prop:bgjt}}
+\subsection{Proof of Proposition~\ref{prop:bgjt} and Proposition~\ref{prop:bgjt2}}
 
-We start with the first point in the proposition, but as we will see, the method
-used in the second point is essentially the same. Let $Q$ be the element to
-be eliminated,
-% C'est la première fois que tu utilises "eliminated", ce n'est pas clair
-% ce que tu entends.
+We start with Proposition~\ref{prop:bgjt}, but as we will see, the method
+used in the second proposition is essentially the same. Let $Q$ be the element to
+be eliminated, \ie to be expressed as ``simpler'' elements, 
 the strategy is to find relations involving $Q$ and its
 translates by a constant $Q-\xi$, where $\xi\in\mathbb{F}_{q^2}$. We use a
 projective version of the
@@ -545,8 +539,7 @@ $(E_m)$ by substituting $X$ by $aQ+b$ and $Y$ by $cQ+d$.
 \end{align}
 
 Again, in the products of the two first lines, some care has to be taken about
-the meaning of the terms, but it
-% À qui se réfère ce it? À "some care"?
+the meaning of the terms, but the explicit meaning
 follows directly from the explanations given
 above. In the last line, that gives our Equation~\eqref{eqn:Em}. The notation
 $Q-m^{-1}\cdot\alpha$ means $Q-u$ if $m^{-1}\cdot\alpha=(u:1)$; it
@@ -579,9 +572,8 @@ $m$ in the set of cosets:
   \mathcal P_q = \pgl_2(\mathbb{F}_{q^2})/\pgl_2(\mathbb{F}_q).
 \]
 Note that in general $\pgl_2(\mathbb{F}_q)$ is not a normal subgroup of
-$\pgl_2(\mathbb{F}_{q^2})$, therefore $\mathcal P_q$ is not a quotient group.
-% So what is it? 
-We do not have a nice way of iterating
+$\pgl_2(\mathbb{F}_{q^2})$, therefore $\mathcal P_q$ is not a quotient group,
+but only a set of cosets. We do not have a nice way of iterating
 through its elements perfectly, \ie visiting each element only once and in
 $|\mathcal P_q|$ steps, but an efficient algorithm has been written
 in~\cite{ZC15}. It is a general result that
@@ -613,15 +605,15 @@ to be known, and its numerator has a much smaller degree than the original one
 in~\eqref{eqn:Em}. Indeed, the numerator of~\eqref{eqn:Lm} has degree at most
 $(1+\delta)\deg Q$, where $\delta=\max(\deg h_0, \deg h_1)$ (we can assume
 $\delta=2$ in practice), whereas the original degree in~\eqref{eqn:Em} is at
-most $(1+q)\deg Q$ (and we can have $q\geq 250$ in practice).
-% Pourquoi 250? Quelle est sa signification?
+most $(1+q)\deg Q$ (and we can have $q = 3^5 = 243$ in practice,
+see~\cite{Adj16} for an example).
 
 But we did not explain why we want small degree polynomials so much in our
 equations. The answer is probabilistic: it is more likely that a polynomial
 has only irreducible factors of small degree if it has small degree itself. We
 say that a polynomial $Q$ is $D$-smooth is it has only irreducible factors of
 degree smaller that $D$. Hence, the probability that $Q$ is $D$-smooth, for a
-fixed $D$, increases when the degree of $Q$ increases. In our case, we are
+fixed $D$, increases when the degree of $Q$ decreases. In our case, we are
 interested in $\lceil\frac{1}{2}\deg Q\rceil$-smooth polynomials. We say that
 $m\in\mathcal P_q$ yields a relation if the numerator of~\eqref{eqn:Lm} is
 $\lceil\frac{1}{2}\deg Q\rceil$-smooth. We will keep only the equations such
@@ -657,7 +649,7 @@ Proposition~\ref{prop:bgjt}, we need the following heuristic.
 
 We implicitly ask for $q$ to be large enough for $\Theta(q^3)$ to be larger than
 $q^2+1$, otherwise the heuristic cannot hold. In other words, we ask the matrix
-$H(Q)$ to be sufficiently random to be invertible. The first point of
+$H(Q)$ to be sufficiently random to be invertible.
 Proposition~\ref{prop:bgjt} follows from linear algebra on $H(Q)$. Since the
 matrix has full rank, there is a linear combination of the rows leading to the
 vector $(1, 0, \dots, 0)$. We can also assume that the first element in our
@@ -685,9 +677,9 @@ performed on a matrix with $q^2+1$ columns, has a cost of $O(q^{2\omega})$,
 using asymptotically fast matrix multiplication, or $O(q^5)$ using sparse
 matrix techniques (remember we have only $q+1$ non-zero coefficients out of
 $q^2+1$). Therefore, we have an algorithm with polynomial time in $q$ and $m$, as
-claimed, and the first point of Proposition~\ref{prop:bgjt} is proven.
+claimed, and Proposition~\ref{prop:bgjt} is proven.
 
-In order to prove the second part, we use the same process with $Q$ replaced by the
+In order to prove Proposition~\ref{prop:bgjt2}, we use the same process with $Q$ replaced by the
 polynomial $X$. In this particular case, the right hand side of
 Equation~\eqref{eqn:Em} involves only linear polynomials, and the condition
 ``$m\in\mathcal P_q$ yields a relation'' means that the numerator
@@ -702,7 +694,7 @@ $\log (X+\xi)=0=\log h_1$ for all $\xi\in\mathbb{F}_{q^2}$ and a dimension large
 than $2$ would mean too many solutions. If we choose the basis of the logarithm
 to be a linear element $X+\xi_0$, we are able to recover all the logarithms by
 chosing the only solution such that $\log (X+\xi_0)=1$. This concludes the proof
-of Proposition~\ref{prop:bgjt}.
+of Proposition~\ref{prop:bgjt} and Proposition~\ref{prop:bgjt2}.
 
 \subsection{Some concluding remarks}
 
@@ -727,8 +719,8 @@ quasi-polynomial nature of the algorithm. It happens when the polynomial to be
 eliminated $Q\neq P$, where $P$ is the defining polynomial of
 $\mathbb{F}_{q^{2m}}$, divides the polynomial $h_1(X)X^q-h_0(X)$. In that case,
 $Q$ also divides the numerator of~\eqref{eqn:Lm}, making it impossible to link
-the logarithm of $Q$ with smaller degree polynomials, or preventing the second
-part of Proposition~\ref{prop:bgjt} to succeed if $Q$ is a linear polynomial.
+the logarithm of $Q$ with smaller degree polynomials, or preventing 
+Proposition~\ref{prop:bgjt2} to succeed if $Q$ is a linear polynomial.
 
 The main obstacle preventing this algorithm to be very efficient in practice, in
 spite of its quasi-polynomial complexity, is the $O(q^2\deg Q)$ arity  of the
@@ -776,8 +768,8 @@ $\mathcal F$. In other words, we assume that the steps $1$ and $2$ of the index
 calculus method have already been performed. This can be done by using the BGJT-like
 techniques in the paper of Joux and Pierrot~\cite{JP14}. As we already pointed
 out in a discussion above, in the original article
-the authors proposed to apply the second point of
-Proposition~\ref{prop:bgjt} to the field $\mathbb{F}_{q^4}$. The only remaining
+the authors proposed to apply 
+Proposition~\ref{prop:bgjt2} to the field $\mathbb{F}_{q^4}$. The only remaining
 step is then $3$, where we express the logarithm of an element in $\mathcal G$
 as the linear combination of the logarithms of elements in $\mathcal F$. In
 order to perform that step, we use a descent strategy, like in the BGJT
@@ -790,6 +782,7 @@ F$. Before explaining the descent, we have to introduce its building block, the
 \emph{on-the-fly} elimination. Unlike the building block of the BGJT algorithm,
 namely Proposition~\ref{prop:bgjt}, there is no linear algebra in that step.
 \subsection{On-the-fly degree $2$ elimination}
+\label{subsec:on-the-fly}
 
 The crucial part of the descent is called the \emph{on-the-fly}
 elimination. It allows one to express a degree $2$ polynomial
@@ -808,10 +801,8 @@ is approximately $q^{m-3}$.\footnote{$|\mathcal B| =
   (q^{m-1}-q)/(q^2-1)\text{ if }m\text{ is even}\end{cases}$} Thus, if $B\in \mathcal B$,
 $a,b,c\in\mathbb{F}_{q^m}$ such that $c\neq ab$, $a^q\neq b$ and
 $B=\frac{(b-a^q)^{q+1}}{(c-ab)^q}$, we see by the change of variable
-$X\to\frac{ab-c}{b-a^q}X-a$ in $X^{q+1}+aX^q+bX+c$ that this
-% ce "this" est ambigu
-polynomial
-splits completely whenever $\mathcal P_B$ does.
+$X\to\frac{ab-c}{b-a^q}X-a$ in $X^{q+1}+aX^q+bX+c$ that the polynomial
+$X^{q+1}+aX^q+bX+c$ splits completely whenever $\mathcal P_B$ does.
 
 To see that, let us consider the
 change of variable $X\mapsto uX+v$ in $X^{q+1}+aX^q+bX+c$, where $u$ and $v$ are
@@ -971,20 +962,46 @@ elimination works is overwhelming.
 
 \subsection{The descent}
 
-Let now $Q\in\mathbb{F}_{q}[X]$ be an irreducible polynomial over $\mathbb{F}_{q}$ of degree
-$2m$, with $m\geq4$. We have
+Let now $Q\in\mathbb{F}_{q}[X]$ be a monic irreducible polynomial over $\mathbb{F}_{q}$ of degree
+$2m$, with $m\geq4$. We have seen in Section~\ref{subsec:on-the-fly} how to
+express a quadratic polynomial in an extension $\mathbb{F}_{q^m}$ of
+$\mathbb{F}_q$ as a product of linear polynomials with coefficients in the same
+extension. Therefore, we express $Q$ as a product of quadratic polynomials. We
+first introduce a notation: if $P\in\mathbb{F}_{q^m}$ is a polynomial, we denote
+by $P^{[i]}$ the polynomial $P$ with all coefficients raised to the power $q^i$.
+Hence, if
 \[
-  Q = \prod_{i=0}^{m-1}Q_{i}
+  P=\sum_{j=0}^{d}p_jX^j,
+\]
+we have
+\[
+  P^{[i]}=\sum_{j=0}^dp_j^{q^i}X^j
+\]
+and we call $P^{[i]}$ the $i$-th conjugate of $P$.
+
+Since $Q$ is an irreducible polynomial of degree $2m$ over $\mathbb{F}_q$, we
+know that $\mathbb{F}_{q^{2m}}\cong \mathbb{F}_{q}[X]/(Q)$ and that
+$\mathbb{F}_{q^{2m}}$ is a splitting field of $Q$. Furthermore, we know that if
+$\alpha\in\mathbb{F}_{q^{2m}}$ is a root of $Q$ and $\sigma$ is a
+$\mathbb{F}_q$-automorphism of $\mathbb{F}_{q^{2m}}$, then $\sigma(\alpha)$ is
+again a root of $Q$. By Galois theory, we know that the
+$\mathbb{F}_q$-automorphisms are the Frobenius iterates $\sigma_0^i$ where
+$\sigma_0:x\mapsto x^q$, hence we can write 
+\[
+  Q = \prod_{i=0}^{2m-1}X-\alpha^{q^i}.
+\]
+By gathering the terms $X-\alpha^{q^i}$ and $X-\alpha^{q^{m+i}}$ for $0\leq
+i\leq m-1$, we produce
+quadratic polynomials with coefficients in the field $\mathbb{F}_{q^m}$. They do
+not have any roots in the field $\mathbb{F}_{q^m}$ and are quadratic so they are
+all irreducible polynomials.
+Finally, we have
+\[
+  Q = \prod_{i=0}^{m-1}Q_{i}=Q_0^{[i]}
 \]
 where the polynomials $Q_i\in\mathbb{F}_{q^m}[X]$ are irreducible
 polynomials over $\mathbb{F}_{q^m}$ of degree $2$, and are all
-conjugates. By conjugates, we mean that for all $0\leq i\leq m-1$,
-$Q_i=Q_0^{[i]}$, where $Q_0^{[i]}$ denotes the polynomial $Q_0$ with all
-coefficients raised to the power $q^i$.
-% Ce serait pas mal de parler de Galois ici.
-% Introduis la notation [i] plus proprement, pas au milieu du discours
-By applying the on-the-fly
-elimination to $Q_0$, we obtain 
+conjugates. By applying the on-the-fly elimination to $Q_0$, we obtain 
 \[
   R_0Q_0=\prod_{j=1}^{q+1}R_j
 \]
@@ -1008,12 +1025,10 @@ $e_jf_j=m$. In the end, we have expressed the polynomial $Q$ as a product of
 polynomials with degrees dividing $m$.
 % Vraiment besoin de parler de Galois!
 
-To be able to really perform this descent, we must have a polynomial $Q$ with a 
-power of $2$ degree, 
-% Et irréductible, non?
-this is possible thanks to Theorem $5.1$ proved 
+To be able to really perform this descent, we must have an irreducible polynomial $Q$ with a 
+power of $2$ degree, this is possible thanks to Theorem $5.1$ proved 
 in~\cite{Wan97} by Wan that roughly states that we can represent any element in
-$\mathcal G$ by a polynomial with a power of $2$ degree that is not too large,
+$\mathcal G$ by a monic irreducible polynomial with a power of $2$ degree that is not too large,
 in order to keep the quasi-polynomial complexity. Assuming that the input
 polynomial is of degree $2^e = 2\times 2^{e-1}$, note that the descent can be performed
 in a slightly different way than stated above. Indeed,
@@ -1075,7 +1090,7 @@ being able to recurse. Figure~\ref{fig:recurse} illustrates this strategy.
 \end{tikzpicture}
   \caption{Two different possible strategies to perform the descent, the arrows
   $\nwarrow$, $\leftarrow$, and $\searrow$ stands respectively for
-factorisation and embedding in a larger field, on-the-fly degree $2$
+factorization and embedding in a larger field, on-the-fly degree $2$
 elimination, and taking a norm and projecting in a subfield. The numbers
 represent the degrees of the involved elements.}
   \label{fig:recurse}
@@ -1199,11 +1214,7 @@ $\Theta(q^3)\times(q^2+1)$, for an expected complexity of $O(q^6)$. In examples
 of cryptographic size, for example with a bitsize of $4000$, the linear algebra
 is known to be the bottleneck of the computations. Note that, since the matrix
 is sparse, we can obtain a complexity of $O(q^5)$ using sparse linear algebra.
-With some optimisations, and assuming that the factorisation
-% Tu as déjà utilisé factoriZation.
-% Choisis entre la convention américaine et l'anglaise.
-% Les correcteurs orthographiques sont tes amis.
-of the cardinal of
+With some optimisations, and assuming that the factorization of the cardinal of
 the group is given, the other manipulations should be negligible.
 
 \subsection{The powers-of-2 algorithm}
