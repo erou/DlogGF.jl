@@ -468,7 +468,8 @@ Proposition~\ref{prop:bgjt} to $Q$, so we obtain a relation of the form
 where the sum has at most $O(q^2m)$ terms and where $\deg
 Q_j\leq\lceil\frac{1}{2}\deg Q\rceil$ for all $j$. We then apply
 Proposition~\ref{prop:bgjt}
-recursively to the $Q_j$'s, creating a descent process in which the logarithm of
+recursively to the $Q_j$'s, creating a descent process (see
+Figure~\ref{fig:tree}) in which the logarithm of
 each element is expressed as a linear combination of the logarithms of other
 elements with degrees twice as small (rounded up). By Proposition~\ref{prop:bgjt}, the
 arity of the descent tree is in $O(q^2m)$. At the end of the process, the
@@ -477,11 +478,60 @@ of $h_1$. These are the elements of the factor base, and we can find their
 logarithm thanks to Proposition~\ref{prop:bgjt2}.
 
 The cost of each use of Proposition~\ref{prop:bgjt} is bounded by a polynomial in $q$ and
-$k$, and each node of the descent tree corresponds to one application of the
+$m$, and each node of the descent tree corresponds to one application of the
 proposition. The complexity of the descent is therefore bouned by the number of
-nodes times a polynomial in $q$ and $k$. Since the degree of the polynomials
+nodes times a polynomial in $q$ and $m$. Since the degree of the polynomials
 involved is divided by two during each step, the depth of the tree is
-$O(\log m)$. The number of nodes in a tree is bounded by its arity raised to the power
+$O(\log m)$.
+
+\begin{figure}
+  \centering
+  \begin{tikzpicture}
+    \node (Q) at (0,0) {$Q$};  
+
+    \node (Q1) at (-4, -2) {$Q_1$}; 
+    \node (Q2) at (-2, -2) {$Q_2$}; 
+    \node (Q3) at (2, -2) {$Q_{j-1}$}; 
+    \node (Q4) at (4, -2) {$Q_j$}; 
+
+    \draw (Q) -- (Q1);
+    \draw (Q) -- (Q2);
+    \draw (Q) -- (Q3);
+    \draw (Q) -- (Q4);
+
+    \draw[dashed] (Q) -- (-1, -2);
+    \draw[dashed] (Q) -- (1, -2);
+    \draw[dashed] (Q) -- (-0.5, -2);
+    \draw[dashed] (Q) -- (0.5, -2);
+    \draw[dashed] (Q) -- (-0.25, -2);
+    \draw[dashed] (Q) -- (0.25, -2);
+
+    \draw[dashed] (Q1) -- (-6, -4);
+    \draw[dashed] (Q1) -- (-5, -4);
+    \draw[dashed] (Q1) -- (-4.25, -4);
+    \draw[dashed] (Q1) -- (-3.5, -4);
+
+    \draw[dashed] (Q2) -- (-0.5, -4);
+    \draw[dashed] (Q2) -- (-1, -4);
+    \draw[dashed] (Q2) -- (-2.5, -4);
+    \draw[dashed] (Q2) -- (-1.75, -4);
+
+    \draw[dashed] (Q3) -- (0.5, -4);
+    \draw[dashed] (Q3) -- (1, -4);
+    \draw[dashed] (Q3) -- (2.5, -4);
+    \draw[dashed] (Q3) -- (1.75, -4);
+
+
+    \draw[dashed] (Q4) -- (3.5, -4);
+    \draw[dashed] (Q4) -- (4.25, -4);
+    \draw[dashed] (Q4) -- (5, -4);
+    \draw[dashed] (Q4) -- (6, -4);
+  \end{tikzpicture}
+  \caption{The descent tree}
+  \label{fig:tree}
+\end{figure}
+
+The number of nodes in a tree is bounded by its arity raised to the power
 of its depth, so the number of nodes is bounded by $(q^2m)^{O(\log m)}$. Since
 any polynomial is absorbed in the $O()$ notation in the exponent, we can
 conclude that the descent has a complexity bounded by
@@ -1064,7 +1114,7 @@ this is what we use in pratice.
   \draw[arrow] (2) -- (1);
   \draw[arrow] (1) -- (d);
 
-  \node (t) at (2.5, -1) {Fig. 1(a)};
+  \node (t) at (2.5, -1) {Fig. 2(a)};
   
 \end{tikzpicture}
 \begin{tikzpicture}
@@ -1098,7 +1148,7 @@ this is what we use in pratice.
   \draw[dashed-arrow] (1c) -- (2, 2);
   \draw[dashed-arrow] (1, 2) -- (2b);
 
-  \node (t) at (2.5, -1) {Fig. 1(b)};
+  \node (t) at (2.5, -1) {Fig. 2(b)};
 \end{tikzpicture}
   \caption{Two different possible strategies to perform the descent, the arrows
   $\nwarrow$, $\leftarrow$, and $\searrow$ stands respectively for
