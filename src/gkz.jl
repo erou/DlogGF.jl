@@ -68,6 +68,7 @@ function findParameters(F::FinField, n::Integer, check::Bool = false)
     # And we search suitable polynomials h0, h1
     boo = true
     while boo
+        print(1)
         h0 = randomElem(F)*T + randomElem(F)
         h1 = T^2 + randomElem(F)*T
         fact = factor(h1*T^q - h0)

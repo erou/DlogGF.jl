@@ -184,7 +184,7 @@ $0<\alpha<1$, is said to have \emph{sub-exponential} complexity.
 
 When Diffie and Hellman wrote their article in 1976, the known algorithms
 had exponential complexities. The first sub-exponential algorithm for the
-discrete logarithm in finite fields was analysed
+discrete logarithm in finite fields was analyzed
 in 1979 by Adleman~\cite{Adleman79}, it has complexity $L(1/2)$. In 1984, 
 Coppersmith designed
 an algorithm to handle the case of binary fields~\cite{Coppersmith84} with 
@@ -1135,23 +1135,8 @@ in~\cite{GKZ14}. Two heuristics remain in this algorithm:
     BGJT algorithm, is heuristic.
 \end{itemize}
 
-In practical works, summarised in Gora Adj's PhD thesis~\cite{Adj16}, we
-    can see that this algorithm is not really used all the way from elements
-    of high degree (\ie $\geq 200$ in~\cite{Adj16}) to elements in the factor base. Instead, other descents  are first used to reduce the degree of the elements
-    until having elements of small degree (\ie $\leq 16$ in~\cite{Adj16}).
-    Furthermore, even when using the powers-of-2 algorithm, it is mixed with
-    Joux's $L(1/4)$ algorithm, in order to deal with the element of odd
-    degree. If this mixed algorithm was not used with elements of higher
-    degree, it is probably because the on-the-fly elimination was using
-    Gröbner bases algorithms, that have an exponential complexity. Hence, even
-    if really efficient with elements of small degree, the cost is definitely
-    too high with elements of large degree. We could try to use root
-    finding instead of Gröbner bases, in order to obtain a polynomial
-    complexity, and start to use the on-the-fly elimination earlier. But as we
-    are going to see in Section~\ref{sec:results}, the root finding is probably
-    too slow to use this idea.
-% Je ne suis pas sûr que ce blabla sur la pratique soit à la bonne place.
-
+We now study the practical results obtained in our implementation of the
+quasi-polynomial algorithms.
     
 \section{Experimental results}
 \label{sec:results}
@@ -1175,7 +1160,9 @@ symbolic computer algebra packages, such as Nemo.
 
 \paragraph{Nemo.} Nemo is a computer algebra package for Julia. It aims to cover
 commutative algebra, number theory and group theory. It contains wrappers for
-MPIR, Flint, Arb and Antic, and other features written in Julia. 
+MPIR, Flint, Arb and Antic, and other features written in Julia. Among these
+libraries, the C library Flint~\cite{Hart2010flint} (Fast library for number
+theory) is the only one that we use.
 
 \paragraph{Why Julia/Nemo?}
 
@@ -1231,8 +1218,8 @@ the group is given, the other manipulations should be negligible.
 
 In order to measure running times of the descent, we take a random monic
 irreducible polynomial of degree $3$ in $\mathbb{F}_{q^{2q}}$ and we apply the
-algorithm of Proposition~\ref{prop:bgjt}. We obtain polynomnials of degree $1$
-and $2$, and we count them to estimate the $O(q^2m)$ arity. The number between
+algorithm of Proposition~\ref{prop:bgjt}. We obtain polynomials of degree $1$
+and $2$, and we count them to illustrate the $O(q^2m)$ arity. The number between
 parentheses is the number of polynomial of degree $2$. In other words, this is
 the number of additional calls to Proposition~\ref{prop:bgjt} that are necessary to be able to
 compute the logarithm of our target element of degree $3$.
@@ -1253,7 +1240,102 @@ fields. Among these other operations, the smoothness tests are the most
 expensive. This is probably because our test is just a factorization. A better
 test, that does not rely on factorization, is described in~\cite{Adj16}.
 
+As already discussed earlier, the main drawback of this algorithm is its large
+arity. 
+
 \subsection{The powers-of-2 algorithm}
+
+We do not analyze the precomputation of the factor base. Using the algorithm of
+Joux and Pierrot~\cite{JP14}, the complexity of the precomputation is $O(q^6)$.
+Since the manipulations are inspired from the one found in the BGJT
+algorithm, the linear algebra is also the main part of the precomputation.
+Contrary to the BGJT algorithm, the descent of the powers-of-2 algorithm does not recquire anything about the
+size of $q$. It allows us to test the descent in smaller fields. In this
+descent, we know exactly the arity. We always express an element $Q$ as $q+2$
+other elements. We apply the descent algorithm on elements of degree $8$,
+meaning that only one on-the-fly elimination is needed. Hence, we can estimate
+the running time of the building block of the descent algorithm. In the table
+below, we write for example $\mathbb{F}_{3^{5\times25}}$ to specify that we
+apply the algorithm to $\mathbb{F}_{q^n}$ with $q=3^5$ and $n = 25$.
+
+\begin{center}
+\begin{tabular}[here]{cccc}
+  Field & Bitsize & Timing (seconds) & Root finding \\
+  $\mathbb{F}_{3^{3\times10}}$ & $47$ & $1.5$ & $77$\% \\
+  $\mathbb{F}_{17^{2\times17}}$ & $139$ & $34$ & $93$\% \\
+  $\mathbb{F}_{3^{5\times23}}$ & $182$ & $47$ & $91$\% \\
+  $\mathbb{F}_{23^{2\times23}}$ & $208$ & $140$ & $95$\% \\
+  $\mathbb{F}_{29^{2\times29}}$ & $282$ & $400$ & $97$\% \\
+  $\mathbb{F}_{3^{5\times200}}$ & $1585$ & $49$ & $91$\% \\
+\end{tabular}
+\end{center}
+
+Note that the root finding is the bottleneck of the on-the-fly
+elimination. Our root finding is basic, so there is still hopes for improvement.
+In order to find a root in $\mathbb{F}_{q^m}$ of the polynomial $\Delta(X)$
+appearing in the elimination, since $\Delta(X)$ has degree $q^2+q\leq q^m$, we
+first compute 
+\[
+  S = X^{q^m}\mod \Delta(X).
+\]
+Then we compute 
+\[
+  \gamma(X) = \gcd(\Delta(X), X^{q^m}-X)= \gcd(\Delta(X), S-X)
+\]
+and we factor the polynomial $\gamma(X)$. The computation of $S$ typically takes
+the majority of the time, the rest being the computation of the gcd $\gamma(X)$. The
+factorization of $\gamma(X)$ is very fast because $\gamma(X)$ typically has a
+low degree.
+
+Also, when proceeding to this elimination, we have to keep in mind that the
+polynomial $\Delta(X)$ may not have any roots. If no root is found, we create another
+polynomial $\Delta(X)$ and proceed to the root finding once again. The timings that we give in
+the table are obtained when the root finding succeed with the first trial. Since
+almost all the time is spent in the root finding, $k$ trials would result in $k$
+times the timing reported in the table.
+
+We notice that the computations in $\mathbb{F}_{3^{5\times23}}$ and
+$\mathbb{F}_{3^{5\times200}}$ take approximately the same time. This is to be
+expected because even if the
+parameters change, such as $h_0$, $h_1$, and the defining polynomial $P$, the
+computations are essentially the same. In both cases, we take a polynomial $Q$
+with coefficients in $\mathbb{F}_{3^5}$, and we perform the on-the-fly
+elimination in $\mathbb{F}_{3^{5\times4}}$. We now fix the field
+$\mathbb{F}_{3^{4\times65}}$ and we use the on-the-fly elimination on elements
+of different degrees.
+
+\begin{center}
+\begin{tabular}[here]{ccc}
+  Degree of the element & Timing (seconds) & Root finding \\
+  $8$ & $6$ & $84$\% \\
+  $16$ & $19$ & $92$\% \\
+  $32$ & $51$ & $92$\% \\
+  $64$ & $185$ & $90$\% \\
+\end{tabular}
+\end{center}
+
+As expected, the elimination is longer with elements of high degree because the
+root finding is harder in bigger extensions of $\mathbb{F}_{3^5}$.
+
+Because the polynomial $\Delta(X)$ has a high degree, the root finding is long
+and is the main obstacle preventing this algorithm to be used in practical
+works. In these works, summarised in Gora Adj's PhD thesis~\cite{Adj16}, we
+can see that the powers-of-2 algorithm is not really used all the way from elements
+of high degree (\ie $\geq 200$ in~\cite{Adj16}) to elements in the factor base.
+Instead, other descents  are first used to reduce the degree of the elements
+until having elements of small degree (\ie $\leq 16$ in~\cite{Adj16}).
+Furthermore, even when using the powers-of-2 algorithm, it is mixed with
+Joux's $L(1/4)$ algorithm, in order to deal with the element of odd
+degree. If this mixed algorithm was not used with elements of higher
+degree, it is probably because the on-the-fly elimination was using
+Gröbner bases algorithms. These algorithms have an exponential complexity, but
+are efficient to eliminate small degree elements.
+
+If we were able to use the
+sparse structure of the polynomials $\Delta(X)$, or the fact the the extensions
+$\mathbb{F}_{q^m}/\mathbb{F}_q$ are of degree a power of two, to implement a more
+efficient root finding, we could try to use the powers-of-2 algorithm in
+practice.
 
 \section*{Acknowledgements}
 
