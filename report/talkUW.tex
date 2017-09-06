@@ -85,6 +85,7 @@
 \usefonttheme{serif}
 \usepackage{palatino}
 \setbeamertemplate{navigation symbols}{}%remove navigation symbols
+\setbeamertemplate{footline}[frame number]
 
 
 \setbeamerfont{title like}{shape=\scshape}
@@ -114,6 +115,7 @@
   \vfill
   \end{frame}
 }
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
@@ -135,7 +137,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Contents}
-\tableofcontents
+  \tableofcontents[hideallsubsections]
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -148,17 +150,18 @@
     \item $N=\Card G$.
     \end{itemize}
   
-  We have a \emph{bijection}
+  We have an \emph{isomorphism}
   \[
     \begin{array}{cccc}
-      \exp_g: & \mathbb{Z}/N\mathbb{Z} & \to & G \\
+      \exp_g: & (\mathbb{Z}/N\mathbb{Z},+) & \to & (G,\times) \\
       & n & \mapsto & g^n
     \end{array}
   \]
 
   \begin{itemize}
     \item $\log_g:=\exp_g^{-1}$
-   \item Compute $g^n$ from $n$: \textcolor{green}{\bf easy}
+   \item Compute $g^n$ from $n$: \textcolor{green}{\bf easy} (polynomial in
+     $\log n$)
     \item Compute $n$ from $g^n$: \textcolor{red}{\textbf{hard} (discrete
     logarithm problem)}
   \end{itemize}
@@ -181,20 +184,24 @@
     \item \emph{quasi-polynomial} complexity:
       $\textcolor{purple}{\ell^{O(\log\ell)}}$ where $\ell=\log(q^n)$
       \item \emph{Notation:}
+  \end{itemize}
   \[
     \textcolor{purple}{L_N(\alpha) = \exp((c+o(1))(\log N)^\alpha(\log\log
       N)^{1-\alpha})}
   \]
 
+  \begin{center}
+    $L_N(0) = (\log N)^{c+o(1)}$ \phantom{blablabla} $
+    L_N(1) = N^{c+o(1)}$
+  \end{center}
 
-  \end{itemize}
 \end{frame}
 
 \subsection{Historical background}
 \begin{frame}{Historical background}
   \begin{itemize}
     \item First appearance in \textcolor{blue}{[Diffie, Hellman '76]}
-    \item First sub-exponential algorithm \textcolor{blue}{[Adleman '79]}:
+    \item First sub-exponential algorithm in $\mathbb{Z}/p\mathbb{Z}$ \textcolor{blue}{[Adleman '79]}:
       $\textcolor{purple}{L_N(1/2)}$
     \item Between 1984 and 2006: algorithms in $\textcolor{purple}{L_N(1/3)}$
 \end{itemize}
@@ -221,15 +228,18 @@
     Menezes, Oliveira, \\ Rodr\'iguez-Henr\'iquez}\\
     2014/01 & $2^{9234}$ & $9234$ & $L(1/4)$, GKZ & \makecell[lc]{Granger,
     Kleinjung,\\Zumbrägel}\\
-    
-
+    2014 & $3^{6\cdot509}$ & $4034$ & $L(1/4)$, GKZ & \makecell[lc]{Adj,
+    Menezes, Oliveira, \\ Rodr\'iguez-Henr\'iquez}\\
   \end{tabular}
+  \begin{itemize}
+    \item Runtime of the last computation: $220$ CPU years 
+  \end{itemize}
 \end{frame}
 
 \section{\scshape Index calculus}
 \subsection{Overview}
 \begin{frame}{Overview}
-  \emph{Goal:} find $log_g(h)$ 
+  \emph{Goal:} find $\log_g(h)$ 
   \begin{enumerate}
     \item[0.] first choose $F\subset
   G$ with $\left\langle F \right\rangle = G$
@@ -237,15 +247,15 @@
     \item solve the associated linear system for $\{ \log_g(f)\;|\;f\in F\}$
     \item express $h$ as a product of elements in $F$
   \end{enumerate}
-  Steps $1$ and $3$ depend on the structure of the finite field, and
-  give different complexities.
+  Steps $1$ and $3$ depend on the structure of the finite field, different
+  fields give different complexities for the index calculus.
 \end{frame}
 
 \subsection{An example}
 \begin{frame}{An example: Adleman}
   \emph{Context:}
   \begin{itemize}
-    \item $G = \mathbb{F}_p^\times$ for a prime $p$ and $N = |G|$
+    \item $G = \mathbb{F}_p^\times = \langle g\rangle$ for a prime $p$ and $N = |G| = p-1$
     \item $F = \left\{\, f \;|\; f \leq B,\; f \text{ prime}
     \right\}$ for a chosen integer $B$
   \end{itemize}
@@ -295,7 +305,7 @@
   Algorithm  & Adleman & Quasi-polynomial \\
   \hline
   & & \\
-  Field & $\mathbb{Z}/p\mathbb{Z}$ & $\mathbb{F}_{q^n}\cong \mathbb{F}_q[X]/(P)$ \\
+  Field & $\mathbb{F}_p=\mathbb{Z}/p\mathbb{Z}$ & $\mathbb{F}_{q^n}\cong \mathbb{F}_q[X]/(P)$ \\
   Elements repr. by & integers & polynomials \\
   Subset $F\subset G$ & primes $\leq B$ & irreducibles of degree $\leq B$ \\
   \end{tabular}
@@ -328,20 +338,22 @@
 \end{frame}
 
 \begin{frame}{Quasi-polynomial complexity}
-  \emph{Goal:} $\mathbb{K}$ field, find $\log Q$ for $Q\in \mathbb{K}$ 
+  \emph{Goal:} $\mathbb{F}_{q^n}$ field, find $\log Q$ for $Q\in
+  \mathbb{F}_{q^n}$ 
   \begin{itemize}
     \item not able to express $\log Q$ as elements in $F$ in one step 
   \end{itemize}
 \begin{prop}
-  Let $Q$ be an element of a field $\mathbb{K}$. There exists a
+  Let $Q$ be an element of a field $\mathbb{F}_{q^n}$. There exists a
   \textcolor{violet}{\textbf{heuristic}} algorithm whose complexity is polynomial in
-  $\ell=\log|\mathbb{K}|$ which returns an expression of $\log Q$ as a linear combination of
+  $\ell=\log(q^n)$ which returns an expression of $\log Q$ as a linear combination of
   at most $O(\mathcal N)$ logarithms $\log Q_j$ with $\deg Q_j\leq \lceil
   \frac{1}{2}\deg Q\rceil$.
 \end{prop}
 \begin{itemize}
-  \item Barbulescu, Gaudry, Joux, Thomé: $\mathbb{K}=\mathbb{F}_{q^{2m}}$ and $\mathcal N=q^2 m$
-  \item Granger, Kleinjung, Zumbrägel: $\mathbb{K}=\mathbb{F}_{q^n}$ and $\mathcal N =
+  \item Barbulescu, Gaudry, Joux, Thomé: $n$ even and $\mathcal
+    N=q^2 \frac{n}{2}$
+  \item Granger, Kleinjung, Zumbrägel: $\mathcal N =
     q+2$
 \end{itemize}
 \end{frame}
@@ -395,7 +407,7 @@
 \begin{itemize}
   \item Each node: one application of the Proposition (polynomial time
     algorithm), \textcolor{violet}{number of node $=\text{ arity}^{\text{depth}}$}
-  \item $\text{arity}=\mathcal N = O(P_1(\ell))$, $\text{depth}=O(\log(\ell))$
+  \item $\text{arity}=\mathcal N = O(\ell^{O(1)})$, $\text{depth}=O(\log(\ell))$
   \item Complexity: \textcolor{purple}{$\ell^{O(\log \ell)}$}
 \end{itemize}
 \end{frame}
@@ -469,12 +481,23 @@
   \end{itemize}
 \end{frame}
 
-\begin{frame}{Future work}
-  \emph{Done:}
-  \begin{itemize}
-    \item implementation of Barbulescu, Gaudry, Joux, Thomé and Granger,
-      Kleinjung, Zumbrägel in Julia (using Nemo/Flint)
-  \end{itemize}
+\begin{frame}{Experimental results}
+  \emph{Implementation in Julia (based on Nemo/Flint):}
+\begin{center}
+  \begin{tabular}[here]{lcc}
+  Algorithm  & BGJT & GKZ \\
+    \hline
+    & & \\
+    Bottleneck & linear algebra & root finding \\
+    arity ($\mathbb{F}_{17^{2\cdot17}}$) & $794$ & $291$ \\
+    descent runtime ($\mathbb{F}_{17^{2\cdot17}}$) (seconds) & $9.6$ & $34$ \\
+    arity ($\mathbb{F}_{23^{2\cdot23}}$) & $1477$ & $531$ \\
+    descent runtime ($\mathbb{F}_{23^{2\cdot23}}$) (seconds) & $80$ & $140$ \\
+    arity ($\mathbb{F}_{29^{2\cdot29}}$) & $2360$ & $843$ \\
+    descent runtime ($\mathbb{F}_{29^{2\cdot29}}$) (seconds) & $570$ & $400$ \\
+  \end{tabular}
+\end{center}
+
   \emph{Open problems:}
   \begin{itemize}
     \item practical improvements
