@@ -293,6 +293,8 @@
   \begin{center}
   \begin{tabular}[here]{lcc}
   Algorithm  & Adleman & Quasi-polynomial \\
+  \hline
+  & & \\
   Field & $\mathbb{Z}/p\mathbb{Z}$ & $\mathbb{F}_{q^n}\cong \mathbb{F}_q[X]/(P)$ \\
   Elements repr. by & integers & polynomials \\
   Subset $F\subset G$ & primes $\leq B$ & irreducibles of degree $\leq B$ \\
@@ -306,7 +308,7 @@
   \begin{enumerate}
     \item Use homographies:
       \begin{itemize}
-        \item $Q$ polynomials that factors nicely
+        \item $Q$ polynomial that factors nicely
         \item $m(X) = \frac{aX+b}{cX+d}$ an homography
       \end{itemize}
       $m\cdot Q = (cX+d)^{\deg Q}Q(\frac{aX+b}{cX+d})$ factors nicely too
@@ -449,7 +451,7 @@
   \end{itemize}
   \emph{Output:}
   \begin{itemize}
-    \item $Q\leadsto O(q)\; Q_i$ with $\deg Q_i = 1$ and $Q_i\in
+    \item $Q\leadsto q+2$ polynomials $Q_i$ with $\deg Q_i = 1$ and $Q_i\in
       \mathbb{F}_{q^m}[X]$
   \end{itemize}
 
