@@ -347,12 +347,12 @@
   Let $Q$ be an element of a field $\mathbb{F}_{q^n}$. There exists a
   \textcolor{violet}{\textbf{heuristic}} algorithm whose complexity is polynomial in
   $\ell=\log(q^n)$ which returns an expression of $\log Q$ as a linear combination of
-  at most $O(\mathcal N)$ logarithms $\log Q_j$ with $\deg Q_j\leq \lceil
+  at most $\mathcal N$ logarithms $\log Q_j$ with $\deg Q_j\leq \lceil
   \frac{1}{2}\deg Q\rceil$.
 \end{prop}
 \begin{itemize}
   \item Barbulescu, Gaudry, Joux, Thomé: $n$ even and $\mathcal
-    N=q^2 \frac{n}{2}$
+    N=O(q^2 n)$
   \item Granger, Kleinjung, Zumbrägel: $\mathcal N =
     q+2$
 \end{itemize}
@@ -406,7 +406,7 @@
 \end{figure}
 \begin{itemize}
   \item Each node: one application of the Proposition (polynomial time
-    algorithm), \textcolor{violet}{number of node $=\text{ arity}^{\text{depth}}$}
+    algorithm), \textcolor{violet}{number of nodes $=\text{ arity}^{\text{depth}}$}
   \item $\text{arity}=\mathcal N = O(\ell^{O(1)})$, $\text{depth}=O(\log(\ell))$
   \item Complexity: \textcolor{purple}{$\ell^{O(\log \ell)}$}
 \end{itemize}
