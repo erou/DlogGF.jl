@@ -6,160 +6,7 @@
 
 export dlogBGJT, smsrField
 
-# Composite types
-
-## SmsrField : used to create and gather all the informations needed to
-##             perform the algorithm of Barbulescu et al.
-
-"""
-    SmsrField
-
-Sparse medium subfield representation of a field of the form ``K = \\mathbb
-F_{q^{2k}}``.
-
-# Cautions
-
-* this should never be called as a constructor, due to the number of
-  the fields. To create such a representation, see `smsrField`
-
-# Fields
-
-* `characteristic::Integer` : characteristic of the field ``q``
-* `extensionDegree::Integer` : degree of the extension ``K/\\mathbb F_{q^2}``
-* `cardinality::Integer` : cardinality of the field
-* `h0::PolyElem` and `h1::PolyElem` are polynomials such that ``h1*X^q-h0`` has
-  a degree ``k`` irreducible factor, named `definingPolynomial::PolyElem`
-* `gen::RingElem` is a generator of the group of the inversible elements of the
-  field, it is actually taken at random *without* checking that it is indeed a
-  generator by default
-"""
-immutable SmsrField
-    characteristic::Integer
-    extensionDegree::Integer
-    cardinality::Integer
-    h0::PolyElem
-    h1::PolyElem
-    definingPolynomial::PolyElem
-    gen::PolyElem
-end
-
-"""
-    smsrField(q::Integer, k::Integer, deg::Integer = 1, check::Bool = false)
-
-Construct a field ``K = \\mathbb F_{q^{2k}}`` of type `SmsrField`.
-
-The polynomials `h0` and `h1` will be of degree `deg`. See `SmsrField` for more
-informations. If `check` is `true`, the generator will be checked. *Note* that
-this will call `factor(K.cardinality-1)`, so it should not be performed with
-finite fields of large cardinality.
-"""
-function smsrField(q::Integer, k::Integer, deg::Integer = 1, check::Bool = false)
-
-    # We compute the cardinal of the field, the medium subfield and its
-    # polynomial ring
-    card = BigInt(q)^(2*k)
-    mediumSubField, x = FiniteField(q, 2, "x")
-    polyRing, T = PolynomialRing(mediumSubField, "T")
-
-    # We seek (at random) polynomials h0 and h1 such that h1×X^q - h0 has an
-    # irreducible factor of degree `k`, hence defining the big field over the
-    # medium, we also impose that h1 is monic since it does not change the
-    # factors
-    boo = true
-    h0, h1, definingPolynomial = polyRing(), polyRing(), polyRing()
-
-    while boo
-        h0 = randomPolynomial(polyRing, deg)
-        h1 = randomPolynomial(polyRing, deg - 1) + T^deg
-        fact = factor(h1*T^q - h0)
-        for f in fact
-            if degree(f[1]) == k
-                definingPolynomial = f[1]
-                boo = false
-                break
-            end
-        end
-    end
-
-    # We then create the big field as a residue ring and compute a generator
-    # of the group of the inversible elements of the big field (at random)
-    gen = randomPolynomial(polyRing, 0) + T
-
-    # We optionally check that `gen` is indeed a generator
-    if check
-        while !isGenerator(gen, card, definingPolynomial)
-            gen = randomPolynomial(polyRing, 0) + T
-        end
-    else
-        while !miniCheck(gen, card, definingPolynomial)
-            gen = randomPolynomial(polyRing, 0) + T
-        end
-    end
-
-    # And we call the constructor of the type `SmsrField`
-    return SmsrField(q, k, card, h0, h1, definingPolynomial, gen)
-end
-
-## FactorsList : this type is used to represent a factorisation of the type 
-##               P = (unit) × P_1^(e_1) × ... × P_n^(e_n), we use it because
-##               the algorithm of Barbulescu et al. consist of finding such
-##               a relation with P_i's of degree 1.
-
-"""
-    FactorsList
-
-Represent a factorisation.
-
-# Fields
-
-* `factors::Array{Nemo.fq_nmod_poly, 1}` : the polynomials of the factorisation
-* `coefs::Array{Int, 1}` : the exponents of these polynomials
-* `unit::Nemo.fq_nmod` : the unit part of the factorisation
-"""
-type FactorsList
-    factors::Array{Nemo.fq_nmod_poly, 1}
-    coefs::Array{Nemo.fmpz, 1}
-    unit::Nemo.fq_nmod
-end
-
-"""
-    factorsList(P::Nemo.fq_nmod_poly)
-
-Construct an element of type `FactorsList`.
-"""
-function factorsList(P::Nemo.fq_nmod_poly)
-    return FactorsList([P], [1], base_ring(parent(P))(1))
-end
-
-function Base.push!(L::FactorsList, P::Nemo.fq_nmod_poly, coef::Nemo.fmpz)
-
-    # We try to find if `P` is already in `L`
-    i = findfirst(L.factors, P)
-
-    # If it is, we just change the associated coefficient
-    if i != 0
-        L.coefs[i] += coef
-    # Otherwise, we add `P` and its coefficient `coef` to `L`
-    else
-        push!(L.factors, P)
-        push!(L.coefs, coef)
-    end
-end
-
-function Base.deleteat!(L::FactorsList, i::Integer)
-    deleteat!(L.factors, i)
-    deleteat!(L.coefs, i)
-end
-
-function Base.getindex(L::FactorsList, i::Integer)
-    return (L.factors[i],L.coefs[i])
-end
-
-function Base.length(L::FactorsList)
-    return length(L.coefs)
-end
-
-# The functions
+# Polynomial manipulation
 
 """
     homogene{T <: PolyElem}(P::T, h0::T, h1::T)
@@ -172,7 +19,7 @@ function homogene{T <: PolyElem}(P::T, h0::T, h1::T)
 
     # We compute the characteristic of the context and the degree of `P`
     R = parent(P)
-    q = characteristic(base_ring(R))
+    q::Int = sqrt(length(base_ring(R)))
     H = R()
     d = degree(P)
 
@@ -197,7 +44,7 @@ function makeEquation{T <: RingElem, Y <: PolyElem}(m::Nemo.GenMat{T},
     # We compute some constants depending on the context
     a, b, c, d = m[1, 1], m[1, 2], m[2, 1], m[2, 2]
     D = degree(P)
-    q = characteristic(base_ring(parent(P)))
+    q::Int = sqrt(length(base_ring(P)))
 
     # We compute the homogenized version of `P`
     H = homogene(P, h0, h1)
@@ -372,7 +219,7 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, F::Nemo.Field,
 end
 
 """
-    dlogBGJT(P::Nemo.RingElem, K::SmsrField, dlogs::Dict{Any, Any})
+    dlogBGJT(P::Nemo.RingElem, K::bgjtContext, dlogs::Dict{Any, Any})
 
 Compute the discrete logarithm of `P` in the field `K`.
 
@@ -381,19 +228,20 @@ informations needed in the algorithm, like the basis, are in the object `K`.
 This algorithm need the discrete logarithms of the linear factors, they can be
 computed using **linearDlog**.
 """
-function dlogBGJT(P::Nemo.fq_nmod_poly, K::SmsrField, dlogs::Dict{Any, Any})
+function dlogBGJT(P::Nemo.fq_nmod_poly, K::BgjtContext, dlogs::Dict{Any, Any})
 
     defPol = K.definingPolynomial
     R = parent(K.gen)
     # We first compute the discrete logarithm of `P` modulo 
     # the small factors with Pohlig Hellman algorithm
-    s, n = pohligHellman(K.cardinality, K.gen, P, defPol)
+    cardinality = length(base_ring(R))^degree(defPol)
+    s, n = pohligHellman(cardinality, K.gen, P, defPol)
 
     # Then we work with the large factors, using the descent algorithm to
     # express log P in function of logarithms of polynomials with smaller degree
     # and we stop once we have only linear polynomials, which logarithms are
     # known
-    N = div(Nemo.fmpz(K.cardinality-1), n)
+    N = div(Nemo.fmpz(cardinality-1), n)
     i = 1
     L = factorsList(P)
 

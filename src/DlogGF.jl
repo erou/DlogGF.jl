@@ -47,7 +47,12 @@ end
 include("basics.jl")
 
 # Random suite
+
 include("random.jl")
+
+# Composite types
+
+include("compositeTypes.jl")
 
 # Linear algebra
 

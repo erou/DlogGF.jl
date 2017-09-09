@@ -121,6 +121,28 @@ function Base.length(F::Nemo.FqNmodFiniteField)
     return BigInt((F.p))^(F.mod_length - 1)
 end
 
+# Iterator over the nonzero elements of a finite field
+
+immutable NonZeroElements
+    field::Nemo.FqNmodFiniteField
+end
+
+function nonZeroElements(F::FqNmodFiniteField)
+    return NonZeroElements(F)
+end
+
+function Base.start(F::NonZeroElements)
+    n = F.field.mod_length - 1
+    z = zeros(Int, n)
+    z[1] = 1
+    return z
+end
+
+Base.next(F::NonZeroElements, state::Array{Int, 1}) = Base.next(F.field, state)
+Base.done(F::NonZeroElements, state::Array{Int, 1}) = Base.done(F.field, state)
+Base.eltype(F::NonZeroElements) = Base.eltype(F.field)
+Base.length(F::NonZeroElements) = Base.length(F.field)-1
+
 # Discrete log in a small subfield
 
 """
@@ -221,13 +243,13 @@ function findImg(F::FqNmodFiniteField, f::FqNmodFiniteField)
 end
 
 """
-    (F::FqNmodFiniteField)(a::fq_nmod)
+    embed(F::FqNmodFiniteField, a::fq_nmod)
 
 Coercion function between finite fields.
 
 This function will compute the image of the generator every time.
 """
-function (F::FqNmodFiniteField)(a::fq_nmod)
+function embed(F::FqNmodFiniteField, a::fq_nmod)
 
     # We compute the image of the generator of the field in which `a` lives
     f = parent(a)
@@ -245,14 +267,14 @@ function (F::FqNmodFiniteField)(a::fq_nmod)
 end
 
 """
-    (F::FqNmodFiniteField)(a::fq_nmod, img::fq_nmod)
+    embed(F::FqNmodFiniteField, a::fq_nmod, img::fq_nmod)
     
 Coercion function between finite fields.
 
 The element `img` is the image of the generator of the field where `a` is living
 in the field `F`.
 """
-function (F::FqNmodFiniteField)(a::fq_nmod, img::fq_nmod)
+function embed(F::FqNmodFiniteField, a::fq_nmod, img::fq_nmod)
     res = F()
     df = degree(parent(a))
 
@@ -264,36 +286,36 @@ function (F::FqNmodFiniteField)(a::fq_nmod, img::fq_nmod)
 end
 
 """
-    (R::FqNmodPolyRing)(p::fq_nmod_poly)
+    embedPoly(R::FqNmodPolyRing, p::fq_nmod_poly)
 
 Coercion function between polynomial rings over finite fields.
 
 This is a coefficient-wise coercion.
 """
-function (R::FqNmodPolyRing)(p::fq_nmod_poly)
+function embedPoly(R::FqNmodPolyRing, p::fq_nmod_poly)
 
     # We first coerce each coefficient
     F = base_ring(R)
     img = findImg(F, base_ring(p))
 
-    coeffs = [F(coeff(p, i), img) for i in 0:degree(p)]
+    coeffs = [embed(F, coeff(p, i), img) for i in 0:degree(p)]
 
     # And we return the polynomial corresponding to these coefficients
     return R(coeffs)
 end
 
 """
-    (R::FqNmodPolyRing)(p::fq_nmod_poly, img::fq_nmod)
+    embedPoly(R::FqNmodPolyRing, p::fq_nmod_poly, img::fq_nmod)
 
 Coercion function between polynomial rings over finite fields.
 
 This is a coefficient-wise coercion.
 """
-function (R::FqNmodPolyRing)(p::fq_nmod_poly, img::fq_nmod)
+function embedPoly(R::FqNmodPolyRing, p::fq_nmod_poly, img::fq_nmod)
 
-    # We first coerce each coefficient
+    # We coerce each coefficient
     F = base_ring(R)
-    coeffs = [F(coeff(p, i), img) for i in 0:degree(p)]
+    coeffs = [embed(F, coeff(p, i), img) for i in 0:degree(p)]
 
     # And we return the polynomial corresponding to these coefficients
     return R(coeffs)
@@ -712,4 +734,18 @@ function irreduciblesDeg2(R::Nemo.PolyRing)
 
     # And we return the dictionary and the list
     return irr, irrL
+end
+
+# Index of an element in a field, (the iteration is arbitrary, but it computes
+# the index in the same iteration we choose for "for x in F")
+
+function Base.indexin(F::Nemo.FinField, x::FinFieldElem)
+    d = degree(F)
+    s = BigInt(1)
+    c::Int = characteristic(F)
+    for j in 0:(d-1)
+        s += coeff(x, j)*c^j
+    end
+
+    return s
 end

@@ -1,4 +1,6 @@
-using Nemo, DlogGF, Base.Test
+#using Nemo, DlogGF, Base.Test
+
+using Nemo, Base.Test
 
 function testRandomSuite()
     print("randomElem, randomList, randomPolynomial, randomIrrPolynomial, randomSplitElem... ")
@@ -42,42 +44,44 @@ function testRandomSuite()
     println("PASS")
 end
 
-function testSmsrField()
-    print("smsrField... ")
+function testBgjtContext()
+    print("bgjtContext... ")
 
-    K = DlogGF.smsrField(5, 4)
+    K = DlogGF.bgjtContext(3, 2, 4)
+    F = FiniteField(3, 4, "z4")[1]
 
-    @test K.cardinality == 5^8
     @test length(factor(K.definingPolynomial)) == 1
-    @test K.characteristic == 5
-    @test K.extensionDegree == 4
+    @test characteristic(base_ring(K.h0)) == 3
+    @test base_ring(K.h0) == F
+    @test degree(K.definingPolynomial) == 2
 
     println("PASS")
 end
 
 function testHomogeneEq()
     print("homogene, makeEquation, fillMatrixBGJT!... ")
-    K = DlogGF.smsrField(5, 5, 1, true)
-    F = base_ring(K.h0)
-    x = gen(F)
-    R, T = PolynomialRing(F, "T")
-    P = (3)*T^3+(x+3)*T^2+(3*x+1)*T+(4*x+1)
-    m = DlogGF.pglCosets(x)[8]
+
+    F, z4 = FiniteField(3, 4, "z4")
+    R, T4 = PolynomialRing(F, "T4")
+    K = DlogGF.BgjtContext{Nemo.fq_nmod_poly}((z4^3+2)*T4+(2*z4^3+2*z4),T4^2+(z4+1)*T4,T4^2+(z4^3+2)*T4+(z4^3+2),T4+(z4^3+2*z4^2+z4))
+
+    P = (z4^3+2*z4^2+2*z4+1)*T4^3+(2*z4^3+2*z4+2)*T4^2+(z4^2+2*z4+2)*T4+(2*z4^3+z4^2+2*z4)
+    m = DlogGF.pglCosets(z4)[8]
     polDef = K.definingPolynomial
 
-    @test DlogGF.homogene(T, T^2, T^3) == T^2
-    @test DlogGF.homogene(T - 2, T^2, T^3) == T^2 - 2*T^3
-    @test DlogGF.homogene(R(x), T^2, T^3) == x^5
+    @test DlogGF.homogene(T4, T4^2, T4^3) == T4^2
+    @test DlogGF.homogene(T4 - 2, T4^2, T4^3) == T4^2 - 2*T4^3
+    @test DlogGF.homogene(R(z4), T4^2, T4^3) == z4^9
 
     tmp = R()
     for j in 0:degree(P)
-        tmp += coeff(P, j)^5*T^(5*j)
+        tmp += coeff(P, j)^9*T4^(9*j)
     end
 
     tmp %= polDef
 
     a, b, c, d = m[1,1], m[1,2], m[2,1], m[2,2]
-    tmp = ((a^5*tmp+b^5)*(c*P+d)-(a*P+b)*(c^5*tmp+d^5))%polDef
+    tmp = ((a^9*tmp+b^9)*(c*P+d)-(a*P+b)*(c^9*tmp+d^9))%polDef
     tmp2 = DlogGF.makeEquation(m, P, K.h0, K.h1)*gcdinv(K.h1,polDef)[2]^3
     tmp2 %= polDef
     @test tmp == tmp2
@@ -99,19 +103,19 @@ function testHomogeneEq()
 
     P = T^3 + (x+1)*T^2 +4*x*T+3
 
-    K = DlogGF.smsrField(17, 17, 1, true)
-    F = base_ring(K.h0)
-    x = gen(F)
-    R, T = PolynomialRing(F, "T")
+    F, z2 = FiniteField(17, 2, "z2")
+    R, T2 = PolynomialRing(F, "T2")
+    K = DlogGF.BgjtContext{Nemo.fq_nmod_poly}((11*z2+7)*T2+(2*z2+15),T2^2+(z2+6)*T2,T2^17+(6)*T2^16+(11*z2+14)*T2^15+(7*z2+14)*T2^14+(14*z2+12)*T2^13+(7*z2+6)*T2^12+(15*z2+4)*T2^11+(6*z2+8)*T2^10+(5*z2+12)*T2^9+(6*z2+3)*T2^8+(14*z2+3)*T2^7+(15*z2+6)*T2^6+(12*z2+10)*T2^5+(3*z2+10)*T2^4+(5*z2+3)*T2^3+(2*z2+4)*T2^2+(5*z2+8)*T2+(6*z2+6),T2+(12))
     polDef = K.definingPolynomial
-    P = (14*x+1)*T^5+(16*x+6)*T^4+(4*x+10)*T^3+(11*x+6)*T^2+(2*x+2)*T+(8*x+16)
+
+    P = (6*z2+8)*T2^5+(5*z2+14)*T2^4+(7*z2+16)*T2^3+(9*z2+3)*T2^2+(10*z2)*T2+(14*z2+9)
     tmp = R()
     for j in 0:degree(P)
         tmp += coeff(P, j)^17*T^(17*j)
     end
 
     tmp %= polDef
-    m = DlogGF.pglCosets(x)[19]
+    m = DlogGF.pglCosets(z2)[19]
     a, b, c, d = m[1,1], m[1,2], m[2,1], m[2,2]
     tmp = ((a^17*tmp+b^17)*(c*P+d)-(a*P+b)*(c^17*tmp+d^17))%polDef
     tmp2 = DlogGF.makeEquation(m, P, K.h0, K.h1)*gcdinv(K.h1,polDef)[2]^5
@@ -132,14 +136,15 @@ function testHomogeneEq()
     tmp3 %= polDef
     @test tmp2 == u*tmp3
 
-    P = (5*x+16)*T^15+(10*x+1)*T^14+(6*x+4)*T^13+(15*x+15)*T^12+(7*x+6)*T^11+(12*x+12)*T^10+(5*x+10)*T^9+(12*x+3)*T^8+(15*x+2)*T^7+(9*x+11)*T^6+(15*x+4)*T^5+(13*x+11)*T^4+(9*x+2)*T^3+(10*x+2)*T^2+(14*x+13)*T+(x)
+    P = (13*z2+12)*T2^15+(3*z2+3)*T2^14+(14*z2+16)*T2^13+(16*z2+5)*T2^12+(10*z2)*T2^11+(7*z2+9)*T2^10+(4*z2+4)*T2^9+(2*z2+12)*T2^8+(15*z2+10)*T2^7+(6*z2+11)*T2^6+(14*z2)*T2^5+(13*z2+8)*T2^4+(12*z2+9)*T2^3+(10*z2)*T2^2+(9)*T2+(14*z2+1)
+
     tmp = R()
     for j in 0:degree(P)
         tmp += coeff(P, j)^17*T^(17*j)
     end
 
     tmp %= polDef
-    m = DlogGF.pglCosets(x)[19]
+    m = DlogGF.pglCosets(z2)[19]
     a, b, c, d = m[1,1], m[1,2], m[2,1], m[2,2]
     tmp = ((a^17*tmp+b^17)*(c*P+d)-(a*P+b)*(c^17*tmp+d^17))%polDef
     tmp2 = DlogGF.makeEquation(m, P, K.h0, K.h1)*gcdinv(K.h1,polDef)[2]^15
@@ -209,27 +214,34 @@ end
 function testPohligHellman()
     print("pohligHellmanPrime, pohligHellman... ")
 
-    K = DlogGF.smsrField(13, 13, 1, true)
+    F, z2 = FiniteField(13, 2, "z2")
+    R, T2 = PolynomialRing(F, "T2")
+
+    K = DlogGF.BgjtContext{Nemo.fq_nmod_poly}((2*z2+8)*T2+(7*z2+10),T2^2+(3*z2+3)*T2,T2^13+(9*z2+12)*T2^12+(6*z2+6)*T2^11+(4*z2+8)*T2^10+(5*z2+7)*T2^9+(10*z2+7)*T2^8+(8*z2+11)*T2^7+(z2+1)*T2^6+(10*z2+3)*T2^5+(4*z2+10)*T2^4+(11*z2+8)*T2^3+(4*z2+2)*T2^2+(2*z2+5)*T2+(4*z2+8),T2+(9*z2+12))
     g = K.gen
-    c = K.cardinality
+    c = Nemo.fmpz(13)^26
     defPol = K.definingPolynomial
 
     @test DlogGF.pohligHellman(c, g, powmod(g, 147, defPol), defPol) == (147, 8904)
     @test DlogGF.pohligHellman(c, g, powmod(g, 5913, defPol), defPol) == (5913, 8904)
     @test DlogGF.pohligHellman(c, g, powmod(g, 81426, defPol), defPol) == (1290, 8904)
 
-    K = DlogGF.smsrField(17, 17, 1, true)
+    F, z2 = FiniteField(17, 2, "z2")
+    R, T2 = PolynomialRing(F, "T2")
+    K = DlogGF.BgjtContext{Nemo.fq_nmod_poly}((z2)*T2+(2*z2),T2^2+(15*z2+14)*T2,T2^17+(16*z2+3)*T2^16+(3*z2+2)*T2^15+(2)*T2^14+(z2+6)*T2^13+(2*z2+13)*T2^12+(6*z2+11)*T2^11+(3*z2+5)*T2^10+(9*z2)*T2^9+(3*z2+14)*T2^8+(11*z2+7)*T2^7+(5*z2+6)*T2^6+(12*z2+9)*T2^5+(12*z2)*T2^4+(3*z2+7)*T2^3+(14*z2+1)*T2^2+(16)*T2+(8),T2+(12*z2+13))
     g = K.gen
-    c = K.cardinality
+    c = Nemo.fmpz(17)^34
     defPol = K.definingPolynomial
 
     @test DlogGF.pohligHellman(c, g, powmod(g, 814, defPol), defPol) == (238, 288)
     @test DlogGF.pohligHellman(c, g, powmod(g, 135, defPol), defPol) == (135, 288)
     @test DlogGF.pohligHellman(c, g, powmod(g, 79, defPol), defPol) == (79, 288)
 
-    K = DlogGF.smsrField(7, 7, 1, true)
+    F, z2 = FiniteField(7, 2, "z2")
+    R, T2 = PolynomialRing(F, "T2")
+    K = DlogGF.BgjtContext{Nemo.fq_nmod_poly}((6*z2+2)*T2+(6*z2+3),T2^2+(z2+1)*T2,T2^7+(z2+3)*T2^6+(6)*T2^5+(3*z2+6)*T2^4+(2*z2)*T2^3+(4*z2+6)*T2^2+(6*z2+5)*T2+(4*z2+4),T2+(z2+3))
     g = K.gen
-    c = K.cardinality
+    c = Nemo.fmpz(7)^14
     defPol = K.definingPolynomial
 
     @test DlogGF.pohligHellman(c, g, powmod(g, 514, defPol), defPol) == (514, 1392)
@@ -242,10 +254,11 @@ end
 function testIsGenerator()
     print("isGenerator, miniCheck... ")
 
-    K = DlogGF.smsrField(3, 3, 1, true)
+    F, z2 = FiniteField(3, 2, "z2")
+    R, T2 = PolynomialRing(F, "T2")
+    K = DlogGF.BgjtContext{Nemo.fq_nmod_poly}((z2)*T2+(2*z2+2),T2^2+T2,T2^3+(z2+2)*T2^2+(2*z2)*T2+(2*z2),T2+(2*z2+2))
     g = K.gen
-    c = K.cardinality
-    R = parent(g)
+    c = 3^6
     defPol = K.definingPolynomial
 
     @test DlogGF.isGenerator(R(1), c, defPol) == false
@@ -261,25 +274,25 @@ end
 function testDlogSmallField()
     print("dlogSmallField... ")
 
-    K = DlogGF.smsrField(7, 7, 1, true)
-    g = K.gen
-    F = base_ring(g)
-    R = parent(g)
-    x = gen(F)
-    q = K.characteristic
-    k = K.extensionDegree
-    defPol = K.definingPolynomial
+    F, z2 = FiniteField(7, 2, "z2")
+    R, T2 = PolynomialRing(F, "T2")
 
-    elem = R(1+x)
+    K = DlogGF.BgjtContext{Nemo.fq_nmod_poly}((5*z2)*T2+(2*z2+2),T2^2+(5*z2+5)*T2,T2^7+(6*z2+6)*T2^6+(3*z2+3)*T2^5+(3)*T2^4+(2)*T2^3+(2*z2+4)*T2^2+(2*z2)*T2+(z2+6),T2+(2*z2+5))
+    g = K.gen
+    q::Int = sqrt(length(F))
+    defPol = K.definingPolynomial
+    k = degree(defPol)
+
+    elem = R(1+z2)
     d = DlogGF.dlogSmallField(q, k, g, elem, defPol)
     @test powmod(g, d, defPol) == elem
-    elem = R(x)
+    elem = R(z2)
     d = DlogGF.dlogSmallField(q, k, g, elem, defPol)
     @test powmod(g, d, defPol) == elem
     elem = R(2)
     d = DlogGF.dlogSmallField(q, k, g, elem, defPol)
     @test DlogGF.powmod(g, d, defPol) == elem
-    elem = R(x+2)
+    elem = R(z2+2)
     d = DlogGF.dlogSmallField(q, k, g, elem, defPol)
     @test powmod(g, d, defPol) == elem
 
@@ -301,7 +314,7 @@ function testPglCosets()
 
     for a in cosets
         if rank(a) != 2
-            boo = true
+            boo = false 
         end
     end
 
@@ -375,7 +388,7 @@ function testGkzContext()
 end
 
 function testAscent()
-    print("ascent...")
+    print("ascent... ")
 
     F3_5, z5 = FiniteField(3, 5, "z5")
     R3_5, T = PolynomialRing(F3_5, "T5")
@@ -392,13 +405,13 @@ function testAscent()
 
 
     @test length(factor(Q)) == 1
-    @test R3_40(R3_20(R3_10(P))) % Q == 0 
+    @test DlogGF.embedPoly(R3_40, DlogGF.embedPoly(R3_20, DlogGF.embedPoly(R3_10, P))) % Q == 0 
     
     P = (2*z5^4+2*z5)*T^16+(z5^3+z5+2)*T^15+(2*z5^4+2*z5^3+2*z5^2+2*z5+2)*T^14+(2*z5^4+z5^3+2*z5^2+z5)*T^13+(2*z5^4+z5^2+1)*T^12+(2*z5^4+2*z5^3+2*z5^2+z5)*T^11+(2*z5^3+z5^2+2)*T^10+(z5^4+2*z5^3+2*z5^2+z5+1)*T^9+(2*z5^4+z5^2)*T^8+(2*z5)*T^7+(2*z5^4+z5^2+2*z5+1)*T^6+(2*z5^4+2*z5)*T^5+(2*z5^4+2*z5^3)*T^4+(2*z5^4+z5^3+2*z5^2+2*z5)*T^3+(z5^3+2)*T^2+(2*z5^4+2*z5^3+1)*T+(z5^4+z5^3+z5^2+2*z5+1)
     Q = DlogGF.ascent(P)
 
     @test length(factor(Q)) == 1
-    @test R3_40(R3_20(R3_10(P))) % Q == 0 
+    @test DlogGF.embedPoly(R3_40, DlogGF.embedPoly(R3_20, DlogGF.embedPoly(R3_10, P))) % Q == 0 
 
     println("PASS")
 end
@@ -446,11 +459,11 @@ function testProject()
 
     M, piv = DlogGF.projectFindInv(F3_20, F3_5)
     
-    @test DlogGF.projectLinAlg(F3_5, F3_20(a, img), M, piv) == a
-    @test DlogGF.projectLinAlg(F3_5, F3_20(b, img), M, piv) == b
-    @test DlogGF.projectLinAlg(F3_5, F3_20(c, img), M, piv) == c
-    @test DlogGF.projectLinAlg(F3_5, F3_20(d, img), M, piv) == d
-    @test DlogGF.projectLinAlg(F3_5, F3_20(f, img), M, piv) == f
+    @test DlogGF.projectLinAlg(F3_5, DlogGF.embed(F3_20, a, img), M, piv) == a
+    @test DlogGF.projectLinAlg(F3_5, DlogGF.embed(F3_20, b, img), M, piv) == b
+    @test DlogGF.projectLinAlg(F3_5, DlogGF.embed(F3_20, c, img), M, piv) == c
+    @test DlogGF.projectLinAlg(F3_5, DlogGF.embed(F3_20, d, img), M, piv) == d
+    @test DlogGF.projectLinAlg(F3_5, DlogGF.embed(F3_20, f, img), M, piv) == f
 
     R3_20, T20 = PolynomialRing(F3_20, "T20")
     F3_40, z40 = FiniteField(3, 40, "z40")
@@ -465,9 +478,9 @@ function testProject()
   M, piv = DlogGF.projectFindInv(F3_40, F3_20)
   img = DlogGF.findImg(F3_40, F3_20)
 
-  @test DlogGF.projectLinAlgPoly(R3_20, R3_40(P, img), M, piv) == P
-  @test DlogGF.projectLinAlgPoly(R3_20, R3_40(Q, img), M, piv) == Q
-  @test DlogGF.projectLinAlgPoly(R3_20, R3_40(R, img), M, piv) == R
+  @test DlogGF.projectLinAlgPoly(R3_20, DlogGF.embedPoly(R3_40, P, img), M, piv) == P
+  @test DlogGF.projectLinAlgPoly(R3_20, DlogGF.embedPoly(R3_40, Q, img), M, piv) == Q
+  @test DlogGF.projectLinAlgPoly(R3_20, DlogGF.embedPoly(R3_40, R, img), M, piv) == R
  
     println("PASS")
 end
@@ -483,8 +496,8 @@ function testOnTheFly()
     R = parent(Q)
     T = gen(R)
     q = 3^3
-    h0 = R(K.h0)
-    h1 = R(K.h1)
+    h0 = DlogGF.embedPoly(R, K.h0)
+    h1 = DlogGF.embedPoly(R, K.h1)
 
     a, b, c = DlogGF.onTheFlyAbc(Q, h0, h1, q)
 
@@ -563,7 +576,7 @@ function testOnTheFly()
 end
 
 function testDescent()
-    print("descentGKZ ... ")
+    print("descentGKZ... ")
 
     K = DlogGF.gkzContext(3, 3, 20)
     q = 3^3
@@ -623,7 +636,7 @@ end
 function testAll()
 
     testRandomSuite()
-    testSmsrField()
+    testBgjtContext()
     testIsGenerator()
     testHomogeneEq()
     testIsSmooth()
@@ -643,4 +656,4 @@ function testAll()
     println("\nAll tests passed successfully.\n")
 end
 
-testAll()
+#testAll()
