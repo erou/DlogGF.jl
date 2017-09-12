@@ -176,7 +176,6 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, h0::T, h1::T,
     # We set the last column to the vector (1, 0, ..., 0), which
     # represent the polynomial P
     M[1,j] = 1
-    println(j)
     M = subMatrix(M, charac^2 + 1, j)
 
     # We compute the row echelon form of M, such that M/det is reduced
