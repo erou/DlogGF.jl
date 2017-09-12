@@ -107,14 +107,15 @@ end
 
 function isConjugate(A, B)
     C = A*inv(B)
+    q::Int = sqrt(length(parent(A[1, 1])))
     if C[1, 1] != 0
         C = inv(C[1, 1])*C
-        if coeff(C[1, 2], 1) == 0 && coeff(C[2, 1], 1) == 0 && coeff(C[2, 2], 1) == 0
+        if C[1, 2]^q == C[1, 2] && C[2, 1]^q == C[2, 1] && C[2, 2]^q == C[2, 2]
             return true
         end
     else
         C = inv(C[1, 2])*C
-        if coeff(C[2, 1], 1) == 0 && coeff(C[2, 2], 1) == 0
+        if C[2, 1]^q == C[2, 1] && C[2, 2]^q == C[2, 2]
             return true
         end
     end

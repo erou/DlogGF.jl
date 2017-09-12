@@ -65,6 +65,9 @@ documentation of the module.
 """
 function fillMatrixBGJT!(M::MatElem, j::Integer, m::MatElem, F::Nemo.Field)
 
+    # We compute `q`
+    q::Int = sqrt(length(F))
+
     # We set some constants to the coefficients of `m`
     a, b, c, d = m[1, 1], m[1, 2], m[2, 1], m[2, 2]
 
@@ -89,7 +92,7 @@ function fillMatrixBGJT!(M::MatElem, j::Integer, m::MatElem, F::Nemo.Field)
         # the infinite element, we set M[i, j] to 1
         if β != 0
             δ = divexact(α, β)
-            if δ.length < 2
+            if δ^q == δ
                 M[i, j] = u
                 
                 # We compute the constant (λ in [2]) needed for the two 
@@ -119,7 +122,7 @@ function fillMatrixBGJT!(M::MatElem, j::Integer, m::MatElem, F::Nemo.Field)
     i += 1
     if c != 0
         δ = divexact(a, c)
-        if δ.length < 2
+        if δ^q == δ
             M[i, j] = u
         # In this case tmp = -c*δ + a = -c*a/c + a = 0, so no need to test
         unit *= -d*δ + b
@@ -173,6 +176,7 @@ function descentBGJT{T <: PolyElem}(L::FactorsList, i0::Integer, h0::T, h1::T,
     # We set the last column to the vector (1, 0, ..., 0), which
     # represent the polynomial P
     M[1,j] = 1
+    println(j)
     M = subMatrix(M, charac^2 + 1, j)
 
     # We compute the row echelon form of M, such that M/det is reduced

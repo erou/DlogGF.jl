@@ -1,6 +1,4 @@
-#using Nemo, DlogGF, Base.Test
-
-using Nemo, Base.Test
+using Nemo, DlogGF, Base.Test
 
 function testRandomSuite()
     print("randomElem, randomList, randomPolynomial, randomIrrPolynomial, randomSplitElem... ")
@@ -48,12 +46,14 @@ function testBgjtContext()
     print("bgjtContext... ")
 
     K = DlogGF.bgjtContext(3, 2, 4)
-    F = FiniteField(3, 4, "z4")[1]
+    F = FiniteField(3, 4, "z")[1]
 
     @test length(factor(K.definingPolynomial)) == 1
     @test characteristic(base_ring(K.h0)) == 3
     @test base_ring(K.h0) == F
     @test degree(K.definingPolynomial) == 2
+    @test length(base_ring(K.h0)) == 81
+    @test (K.h1*gen(parent(K.h0))^9-K.h0)%K.definingPolynomial == 0
 
     println("PASS")
 end
@@ -61,21 +61,21 @@ end
 function testHomogeneEq()
     print("homogene, makeEquation, fillMatrixBGJT!... ")
 
-    F, z4 = FiniteField(3, 4, "z4")
-    R, T4 = PolynomialRing(F, "T4")
-    K = DlogGF.BgjtContext{Nemo.fq_nmod_poly}((z4^3+2)*T4+(2*z4^3+2*z4),T4^2+(z4+1)*T4,T4^2+(z4^3+2)*T4+(z4^3+2),T4+(z4^3+2*z4^2+z4))
+    F, z = FiniteField(3, 4, "z")
+    R, T = PolynomialRing(F, "T")
+    K = DlogGF.BgjtContext{Nemo.fq_nmod_poly}((z^2+z+2)*T+(2*z^3),T^2+(z+1)*T,T^2+(z^3+2*z^2+2*z+2)*T+(z^3+2*z^2+z+1),T+(2*z^2+2*z+2))
 
-    P = (z4^3+2*z4^2+2*z4+1)*T4^3+(2*z4^3+2*z4+2)*T4^2+(z4^2+2*z4+2)*T4+(2*z4^3+z4^2+2*z4)
-    m = DlogGF.pglCosets(z4)[8]
+    P = (2*z^3+2*z^2+z)*T^3+(2*z+2)*T^2+(2*z^3)*T+(z^3+z^2+2*z+1) 
+    m = DlogGF.pglCosets(z)[8]
     polDef = K.definingPolynomial
 
-    @test DlogGF.homogene(T4, T4^2, T4^3) == T4^2
-    @test DlogGF.homogene(T4 - 2, T4^2, T4^3) == T4^2 - 2*T4^3
-    @test DlogGF.homogene(R(z4), T4^2, T4^3) == z4^9
+    @test DlogGF.homogene(T, T^2, T^3) == T^2
+    @test DlogGF.homogene(T - 2, T^2, T^3) == T^2 - 2*T^3
+    @test DlogGF.homogene(R(z), T^2, T^3) == z^9
 
     tmp = R()
     for j in 0:degree(P)
-        tmp += coeff(P, j)^9*T4^(9*j)
+        tmp += coeff(P, j)^9*T^(9*j)
     end
 
     tmp %= polDef
@@ -86,7 +86,7 @@ function testHomogeneEq()
     tmp2 %= polDef
     @test tmp == tmp2
 
-    S = MatrixSpace(ZZ, 5^2+1, 1)
+    S = MatrixSpace(ZZ, 9^2+1, 1)
     M = S()
     u = DlogGF.fillMatrixBGJT!(M, 1, m, F)
     i = 1
@@ -100,22 +100,20 @@ function testHomogeneEq()
     tmp3 %= polDef
     @test tmp2 == u*tmp3
 
+    F, z = FiniteField(17, 2, "z")
+    R, T = PolynomialRing(F, "T")
+    K = DlogGF.BgjtContext{Nemo.fq_nmod_poly}((15*z+13)*T+(5*z+3),T^2+(9*z+6)*T,T^17+(2*z+10)*T^16+(7*z+5)*T^15+(4*z+4)*T^14+(9*z+12)*T^13+(7*z+4)*T^12+(15*z+7)*T^11+(8*z+9)*T^10+(6*z+10)*T^9+(10*z+14)*T^8+(7*z+8)*T^7+(6*z+11)*T^6+(16*z+4)*T^5+(6*z)*T^4+(2*z+16)*T^3+(3*z+6)*T^2+(14*z+6)*T+(7*z+10),T+(7*z+16))
 
-    P = T^3 + (x+1)*T^2 +4*x*T+3
-
-    F, z2 = FiniteField(17, 2, "z2")
-    R, T2 = PolynomialRing(F, "T2")
-    K = DlogGF.BgjtContext{Nemo.fq_nmod_poly}((11*z2+7)*T2+(2*z2+15),T2^2+(z2+6)*T2,T2^17+(6)*T2^16+(11*z2+14)*T2^15+(7*z2+14)*T2^14+(14*z2+12)*T2^13+(7*z2+6)*T2^12+(15*z2+4)*T2^11+(6*z2+8)*T2^10+(5*z2+12)*T2^9+(6*z2+3)*T2^8+(14*z2+3)*T2^7+(15*z2+6)*T2^6+(12*z2+10)*T2^5+(3*z2+10)*T2^4+(5*z2+3)*T2^3+(2*z2+4)*T2^2+(5*z2+8)*T2+(6*z2+6),T2+(12))
     polDef = K.definingPolynomial
 
-    P = (6*z2+8)*T2^5+(5*z2+14)*T2^4+(7*z2+16)*T2^3+(9*z2+3)*T2^2+(10*z2)*T2+(14*z2+9)
+    P = (8*z+11)*T^5+(z+1)*T^4+(5*z+5)*T^3+(14*z+16)*T^2+(15*z+5)*T+(4*z+12)
     tmp = R()
     for j in 0:degree(P)
         tmp += coeff(P, j)^17*T^(17*j)
     end
 
     tmp %= polDef
-    m = DlogGF.pglCosets(z2)[19]
+    m = DlogGF.pglCosets(z)[19]
     a, b, c, d = m[1,1], m[1,2], m[2,1], m[2,2]
     tmp = ((a^17*tmp+b^17)*(c*P+d)-(a*P+b)*(c^17*tmp+d^17))%polDef
     tmp2 = DlogGF.makeEquation(m, P, K.h0, K.h1)*gcdinv(K.h1,polDef)[2]^5
@@ -136,7 +134,7 @@ function testHomogeneEq()
     tmp3 %= polDef
     @test tmp2 == u*tmp3
 
-    P = (13*z2+12)*T2^15+(3*z2+3)*T2^14+(14*z2+16)*T2^13+(16*z2+5)*T2^12+(10*z2)*T2^11+(7*z2+9)*T2^10+(4*z2+4)*T2^9+(2*z2+12)*T2^8+(15*z2+10)*T2^7+(6*z2+11)*T2^6+(14*z2)*T2^5+(13*z2+8)*T2^4+(12*z2+9)*T2^3+(10*z2)*T2^2+(9)*T2+(14*z2+1)
+    P = (15*z+6)*T^15+(12*z)*T^14+T^13+(6*z+4)*T^12+(16*z+10)*T^11+(4*z+11)*T^10+(4*z+16)*T^9+(10)*T^8+(5*z)*T^7+(14*z+8)*T^6+(10*z+16)*T^5+(4*z+2)*T^4+(12*z+15)*T^3+(11*z+14)*T^2+(14*z+15)*T+(9*z+3)
 
     tmp = R()
     for j in 0:degree(P)
@@ -144,7 +142,7 @@ function testHomogeneEq()
     end
 
     tmp %= polDef
-    m = DlogGF.pglCosets(z2)[19]
+    m = DlogGF.pglCosets(z)[19]
     a, b, c, d = m[1,1], m[1,2], m[2,1], m[2,2]
     tmp = ((a^17*tmp+b^17)*(c*P+d)-(a*P+b)*(c^17*tmp+d^17))%polDef
     tmp2 = DlogGF.makeEquation(m, P, K.h0, K.h1)*gcdinv(K.h1,polDef)[2]^15
@@ -327,46 +325,47 @@ end
 function testLinearDlog()
     print("linearDlog, dlogBGJT... ")
 
-    F, x = FiniteField(17, 2, "x")
+    F, z = FiniteField(17, 2, "z")
     R, T = PolynomialRing(F, "T")
-    K = DlogGF.SmsrField(17,17,684326450885775034048946719925754910487329,(9*x+11)*T+(11*x+5),T+(15*x+7),T^17+(15*x+6)*T^16+(2*x+11)*T^15+(15*x+6)*T^14+(2*x+11)*T^13+(15*x+6)*T^12+(2*x+11)*T^11+(15*x+6)*T^10+(2*x+11)*T^9+(15*x+6)*T^8+(2*x+11)*T^7+(15*x+6)*T^6+(2*x+11)*T^5+(15*x+6)*T^4+(2*x+11)*T^3+(15*x+6)*T^2+(2*x+11)*T+(6*x+12),T+(10*x+8))
+    K = DlogGF.BgjtContext{Nemo.fq_nmod_poly}((10*z+6)*T+(5*z),T+(11*z+12),T^17+(3*z+14)*T^16+(6*z+15)*T^15+(14*z+4)*T^14+(3*z+4)*T^13+(z+12)*T^12+(14)*T^11+(7*z+11)*T^10+(6*z+3)*T^9+(8*z+14)*T^8+(10*z+16)*T^7+(16*z)*T^6+(6*z+10)*T^5+(3*z+11)*T^4+(13*z+9)*T^3+(3*z+7)*T^2+(11*z+1)*T+(z+5),T+(11*z+9))
+
     g = K.gen
-    k = K.extensionDegree
     h0 = K.h0
     h1 = K.h1
-    card = K.cardinality
     defPol = K.definingPolynomial
+    k = degree(defPol)
+    card = length(F)^k
 
     dlogs = DlogGF.linearDlog(g, k, h0, h1, card, defPol)
 
-    i = dlogs[T + 12*x+5]
-    @test powmod(g, i, defPol) == T + 12*x+5
+    i = dlogs[T + 12*z+5]
+    @test powmod(g, i, defPol) == T + 12*z+5
 
-    i = dlogs[T + 3*x]
-    @test powmod(g, i, defPol) == T + 3*x
+    i = dlogs[T + 3*z]
+    @test powmod(g, i, defPol) == T + 3*z
 
-    i = dlogs[T + 8*x+11]
-    @test powmod(g, i, defPol) == T + 8*x+11
+    i = dlogs[T + 8*z+11]
+    @test powmod(g, i, defPol) == T + 8*z+11
 
-    i = dlogs[T + 10*x+1]
-    @test powmod(g, i, defPol) == T + 10*x+1
+    i = dlogs[T + 10*z+1]
+    @test powmod(g, i, defPol) == T + 10*z+1
 
-    i = dlogs[T + x+4]
-    @test powmod(g, i, defPol) == T + x+4
+    i = dlogs[T + z+4]
+    @test powmod(g, i, defPol) == T + z+4
 
-    P = (14*x+6)*T^2+(14*x+6)*T+(10*x+2)
+    P = T^2+(9)*T+(10*z+6) 
     d = DlogGF.dlogBGJT(P, K, dlogs)
     @test powmod(K.gen, d, defPol) == P
 
-    P = (10*x+6)*T^2+(10*x+4)*T+(13*x+5)
+    P = T^2+(8*z+7)*T+(16*z+11)
     d = DlogGF.dlogBGJT(P, K, dlogs)
     @test powmod(K.gen, d, defPol) == P
 
-    P = (9*x+12)*T^2+(13*x+13)*T+(2*x+14)
+    P = T^2+(z+7)*T+(13*z+12)
     d = DlogGF.dlogBGJT(P, K, dlogs)
     @test powmod(K.gen, d, defPol) == P
 
-    P = (13*x)*T^2+(9*x+4)*T+(11*x+4)
+    P = T^2+(4*z+15)*T+(6)
     d = DlogGF.dlogBGJT(P, K, dlogs)
     @test powmod(K.gen, d, defPol) == P
 
@@ -656,4 +655,4 @@ function testAll()
     println("\nAll tests passed successfully.\n")
 end
 
-#testAll()
+testAll()
