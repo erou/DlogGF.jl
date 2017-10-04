@@ -334,8 +334,6 @@ function descentGKZ{Y <: PolyElem}(Q::Y, h0::Y, h1::Y, Rinit::PolyRing)
         L2 = weightedList()
     end
 
-    return L
-
     # We treat the case 
     #
     # F_q⁴
