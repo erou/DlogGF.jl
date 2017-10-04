@@ -17,11 +17,6 @@ We presently use Gaussian elimination to solve our linear systems, but the
 matrices involved are sparse, typically, the density is around 1/q. Using
 algorithms designed for sparse systems would probably speed up the process.
 
-### Fq vs Fp
-
-Make the implementation available not only for prime fields, but for any kind
-of field like done with the powers-of-2 algorithm
-
 ## powers-of-2
 
 ### Root finding

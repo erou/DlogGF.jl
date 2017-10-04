@@ -11,4 +11,6 @@ tests.jl
 *.blg
 *.log
 *.swp
-
+*.nav
+*.snm
+*.toc
